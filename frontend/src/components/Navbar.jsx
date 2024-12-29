@@ -34,18 +34,18 @@ const Navbar = () => {
           </Link>
 
           <Link
-            to="/profile"
+            to="/jobs"
             className={`${
-              isActive("/profile") ? "font-extrabold" : "font-thin"
+              isActive("/jobs") ? "font-extrabold" : "font-thin"
             } text-gray-800 hover:text-black font-jakarta`}
           >
             Find a Job
           </Link>
 
           <Link
-            to="/jobs"
+            to="/job"
             className={`${
-              isActive("/jobs") ? "font-extrabold" : "font-thin"
+              isActive("/job") ? "font-extrabold" : "font-thin"
             } text-gray-800 hover:text-black font-jakarta`}
           >
             Jobs
@@ -70,7 +70,7 @@ const Navbar = () => {
           </Link>
 
           <Link to="/profile-info">
-            <div className="w-10 h-10 rounded-full overflow-hidden cursor-pointer">
+            <div className="w-10 h-10 rounded-full overflow-hidden cursor-pointer mr-5">
               <img
                 src={user.profilePicture || "avatar.png"}
                 alt="Profile"

@@ -13,6 +13,9 @@ import ResetPassword from "./pages/ResetPassword";
 import Loading from "./components/Loading";
 import ProfileInfoPage from "./pages/ProfileInfoPage";
 import JobsPage from "./pages/JobsPage";
+import AppliedJobs from "./pages/AppliedJobs";
+import EmployerJobPage from "./pages/EmployerJobPage";
+import EmployerApplicantsPage from "./pages/EmployerApplicantsPage";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();
@@ -77,11 +80,38 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/post-job"
+          element={
+            <ProtectedRoute>
+              <EmployerJobPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/applicant-list"
+          element={
+            <ProtectedRoute>
+              <EmployerApplicantsPage />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/jobs"
           element={
             <ProtectedRoute>
               <JobsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/job"
+          element={
+            <ProtectedRoute>
+              <AppliedJobs />
             </ProtectedRoute>
           }
         />

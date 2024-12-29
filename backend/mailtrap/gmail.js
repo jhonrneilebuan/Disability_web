@@ -1,4 +1,6 @@
 import { transporter } from "./gmail.config.js";
+import Job from "../models/job.model.js"
+import User from "../models/user.model.js"
 import {
   VERIFICATION_EMAIL_TEMPLATE,
   PASSWORD_RESET_REQUEST_TEMPLATE,
@@ -76,3 +78,19 @@ export const sendResetSuccessEmail = async (email) => {
     throw new Error(`Error sending reset password email: ${error}`);
   }
 };
+
+export const sendConfirmationEmail = async (applicantId, jobId) => {
+  const applicant = await User.findById(applicantId);
+  const job = await Job.findById(jobId);
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: applicant.email,
+    subject: "Application Confirmation",
+    text: `Dear ${applicant.name},\n\nYou have successfully applied for the position: ${job.title}.\n\nThank you for using our platform.\n\nBest regards,\nYour Team`,
+  };
+
+  return transporter.sendMail(mailOptions);
+};
+
+

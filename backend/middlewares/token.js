@@ -41,3 +41,22 @@ export const employerOnly = async (req, res, next) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+export const admin = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.userId).select("role");
+
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized - User Not Found" });
+    }
+
+    if (user.role === "Admin") {
+      next();
+    } else {
+      res.status(403).json({ message: "Access denied, admin only" });
+    }
+  } catch (error) {
+    console.error(`Error in Admin middleware: ${error.message}`);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};

@@ -1,9 +1,12 @@
-import React from 'react'
+import React from "react";
+import Sidebar from "../components/SideBar";
 
 const EmployerPage = () => {
   return (
-    <div><h2>Hakdog</h2></div>
-  )
-}
+    <div>
+      <Sidebar />
+    </div>
+  );
+};
 
-export default EmployerPage
+export default EmployerPage;

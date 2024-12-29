@@ -46,6 +46,7 @@ export const signup = async (req, res) => {
       email,
       role,
       password: hashedPassword,
+      privacyAgreement,
       verificationToken,
       verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
     });
@@ -122,6 +123,10 @@ export const login = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Invalid Credentials" });
+    }
+
+    if (user.banned) {
+      return res.status(403).json({ message: "Your account is banned" });
     }
 
     const isPasswordvalid = await bcrypt.compare(password, user.password);

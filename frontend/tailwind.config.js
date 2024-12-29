@@ -14,7 +14,8 @@ export default {
         lightGray: "#DEE1E4",
         LightColor: "#FFFFFF",
         buttonBlue: "#546CA1",
-        darkLight: "#566E8D"
+        darkLight: "#566E8D",
+        darkGreen: "#334B35"
       },
       fontFamily: {
         jakarta: ["'Plus Jakarta Sans'", "sans-serif"], 

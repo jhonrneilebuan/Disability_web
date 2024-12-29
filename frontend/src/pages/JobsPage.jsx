@@ -4,6 +4,7 @@ import { jobStore } from "../stores/jobStore";
 import Modal from "../components/Modal";
 import { XCircle } from "lucide-react";
 import FormatTimeDate from "../components/FormatTimeDate";
+
 const JobsPage = () => {
   const [open, setOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
@@ -15,10 +16,6 @@ const JobsPage = () => {
   useEffect(() => {
     getJobPosts();
   }, [getJobPosts]);
-
-  if (isLoading) {
-    return <p>Loading job posts...</p>;
-  }
 
   if (error) {
     return <p className="error">{error}</p>;
@@ -71,7 +68,7 @@ const JobsPage = () => {
           LET'S GET YOU <br />
           FIND A JOB
         </h1>
-        <p className="text-3xl text-left text-md font-medium font-jakarta ml-4 text-white pb-10 pl-20 ">
+        <p className="text-3xl text-left text-md font-medium font-jakarta ml-4 text-white pb-5 pl-20 ">
           WE'VE GOT {jobPosts?.length || 0} JOBS TO APPLY!
         </p>
         <div className="bg-lightGray bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-md shadow-custom overflow-hidden p-8 mx-auto max-w-3xl w-full">
@@ -84,10 +81,11 @@ const JobsPage = () => {
             />
 
             <select
-              className="px-4 py-2 rounded bg-white text-gray-800 appearance-none md:w-2/3"
+              className="px-4 py-2 rounded bg-white text-gray-800 appearance-none border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 md:w-2/3 max-h-40 overflow-y-auto origin-top"
               aria-label="Select category"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
+              size={1}
             >
               {categories.map((category) => (
                 <option key={category} value={category.toUpperCase()}>
@@ -96,7 +94,10 @@ const JobsPage = () => {
               ))}
             </select>
 
-            <button className="bg-buttonBlue hover:bg-indigo-700 px-6 py-2 rounded text-black">
+            <button
+              className="bg-buttonBlue hover:bg-indigo-700 px-6 py-2 rounded text-black"
+              onClick={() => getJobPosts()}
+            >
               Search
             </button>
           </div>
@@ -107,10 +108,10 @@ const JobsPage = () => {
           filteredJobPosts.map((job) => (
             <div
               key={job.id}
-              className="bg-white rounded-lg shadow-md p-6 flex justify-between items-start space-x-4"
+              className="bg-white rounded-lg shadow-md p-6 flex flex-col justify-between relative"
             >
               <div className="flex-1">
-                <h3 className="text-4xl font-semibold font-jakarta mb-2">
+                <h3 className="text-2xl font-semibold font-jakarta mb-2">
                   {job.jobTitle}
                 </h3>
                 <p className="text-base font-medium font-jakarta mb-2">
@@ -125,33 +126,32 @@ const JobsPage = () => {
                   {job.locations && job.locations.join(", ")}
                 </p>
 
-                <p className="text-base font-medium font-jakarta text-justify">
+                <p className="text-base font-medium font-jakarta text-justify mb-4">
                   {job.jobDescription}
                 </p>
               </div>
-              <div className="flex flex-col items-end">
-                <p className="text-lg font-semibold text-gray-800">
-                  {job.expectedSalary &&
-                  job.expectedSalary.minSalary &&
-                  job.expectedSalary.maxSalary
-                    ? `PHP ${job.expectedSalary.minSalary.toLocaleString()} - PHP ${job.expectedSalary.maxSalary.toLocaleString()}`
-                    : "Salary information not available"}
-                </p>
 
-                <div className="flex items-center justify-between mt-56">
-                  <p className="text-base font-medium font-jakarta mr-3">
-                    <FormatTimeDate date={job.createdAt} />
-                  </p>
-                  <button
-                    className="px-4 py-2 bg-buttonBlue text-white rounded hover:bg-blue-600"
-                    onClick={() => {
-                      setSelectedJob(job);
-                      setOpen(true);
-                    }}
-                  >
-                    View details
-                  </button>
-                </div>
+              <div className="absolute top-0 right-0 p-4 text-lg font-semibold text-gray-800">
+                {job.expectedSalary &&
+                job.expectedSalary.minSalary &&
+                job.expectedSalary.maxSalary
+                  ? `PHP ${job.expectedSalary.minSalary.toLocaleString()} - PHP ${job.expectedSalary.maxSalary.toLocaleString()}`
+                  : "Salary information not available"}
+              </div>
+
+              <div className="flex items-center justify-end mt-4">
+                <p className="text-base font-medium font-jakarta mr-3">
+                  <FormatTimeDate date={job.createdAt} />
+                </p>
+                <button
+                  className="px-4 py-2 bg-buttonBlue text-white rounded hover:bg-blue-600"
+                  onClick={() => {
+                    setSelectedJob(job);
+                    setOpen(true);
+                  }}
+                >
+                  View details
+                </button>
               </div>
             </div>
           ))
@@ -159,6 +159,7 @@ const JobsPage = () => {
           <p className="text-gray-500 text-center">No job posts available.</p>
         )}
       </div>
+
       {selectedJob && (
         <Modal open={open} onClose={() => setOpen(false)}>
           <div className="text-base font-medium font-jakarta max-w-6xl">

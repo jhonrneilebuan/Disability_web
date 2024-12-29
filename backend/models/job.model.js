@@ -95,8 +95,14 @@ const jobSchema = new mongoose.Schema(
       required: true,
     },
     expectedSalary: {
-      minSalary: { type: Number, required: true },
-      maxSalary: { type: Number, required: true },
+      minSalary: {
+        type: Number,
+        required: true,
+      },
+      maxSalary: {
+        type: Number,
+        required: true,
+      },
     },
     jobAttachment: {
       type: String,

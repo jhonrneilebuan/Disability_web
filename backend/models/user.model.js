@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    //for login
+    //{ Login } 
     email: {
       type: String,
       required: true,
@@ -16,14 +16,14 @@ const userSchema = new mongoose.Schema(
       minlength: 6,
     },
 
-    //for signup
+   //{ Sign Up }
     fullName: {
       type: String,
       required: true,
     },
     role: {
       type: String,
-      enum: ["Employer", "Applicant"],
+      enum: ["Employer", "Applicant", "Admin"],
       required: true,
     },
     privacyAgreement: {
@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
     },
     isVerified: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     resetPasswordToken: String,
@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema(
     verificationToken: String,
     verificationTokenExpiresAt: Date,
 
-    //for Profile Information
+    //{ Profile Information }
     profilePicture: {
       type: String,
       default: "",
@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema(
     contact: {
       type: String,
       required: false,
-      match: /^[\d\-\+\s]+$/, 
+      match: /^[\d\-\+\s]+$/,
     },
     address: {
       type: String,
@@ -64,7 +64,7 @@ const userSchema = new mongoose.Schema(
       type: Date,
     },
 
-    //for Career Information
+    //{ Career Information }
     careerInformation: {
       fieldOfWork: {
         type: String,
@@ -78,7 +78,7 @@ const userSchema = new mongoose.Schema(
       },
     },
 
-    //Disability Information
+    //{ Disability Information }
     disabilityInformation: {
       verificationId: {
         type: String,
@@ -97,6 +97,12 @@ const userSchema = new mongoose.Schema(
           "Other",
         ],
       },
+    },
+
+    //{ Other Field for the Users }
+    banned: {
+      type: Boolean,
+      default: false,
     },
   },
   {
