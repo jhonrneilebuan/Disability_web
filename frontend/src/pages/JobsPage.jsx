@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import { jobStore } from "../stores/jobStore";
-import Modal from "../components/Modal";
-import { XCircle } from "lucide-react";
+import { MapPinned, Banknote, XCircle, Clock3, X, Loader } from "lucide-react";
+import SearchBar from "../components/Search";
 import FormatTimeDate from "../components/FormatTimeDate";
+import Footer from "../components/Footer";
+import Modal from "../components/Modal";
 
 const JobsPage = () => {
   const [open, setOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [location, setLocation] = useState("");
+  const [search, setSearch] = useState("");
+  const [isJobSaved, setIsJobSaved] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("ALL");
-
-  const { getJobPosts, jobPosts, isLoading, error } = jobStore();
+  const [selectedJobShift, setSelectedJobShift] = useState("listedAnyTime");
+  const [selectedJobType, setselectedJobType] = useState("All work types");
+  const { getJobPosts, jobPosts, isLoading, error, saveJob, applyJobs } =
+    jobStore();
 
   useEffect(() => {
     getJobPosts();
@@ -20,6 +27,7 @@ const JobsPage = () => {
   if (error) {
     return <p className="error">{error}</p>;
   }
+
   const filteredJobPosts = jobPosts.filter((job) => {
     const matchesKeyword =
       searchKeyword === "" ||
@@ -32,7 +40,25 @@ const JobsPage = () => {
     const matchesCategory =
       selectedCategory === "ALL" || job.jobCategory === selectedCategory;
 
-    return matchesKeyword && matchesCategory;
+    const matchesLocation =
+      location === "" ||
+      job.locations?.some((loc) =>
+        loc.toLowerCase().includes(location.toLowerCase())
+      );
+
+    const matchesJobShift =
+      selectedJobShift === "listedAnyTime" || job.jobShift === selectedJobShift;
+
+    const matchesJobType =
+      selectedJobType === "All work types" || job.jobType === selectedJobType;
+
+    return (
+      matchesKeyword &&
+      matchesCategory &&
+      matchesLocation &&
+      matchesJobShift &&
+      matchesJobType
+    );
   });
 
   const categories = [
@@ -60,163 +86,423 @@ const JobsPage = () => {
     "MEDIA",
   ];
 
+  const jobShifts = [
+    "listedAnyTime",
+    "Full-Time",
+    "Part-Time",
+    "Freelance",
+    "Contract",
+    "Internship",
+    "Fixed",
+    "Night-Shift",
+    "Day-Shift",
+  ];
+
+  const jobTypes = [
+    "All work types",
+    "Full-Time",
+    "Part-Time",
+    "Freelance",
+    "Contract",
+    "Internship",
+  ];
+
+  const handleSearch = () => {
+    setSearch(filteredJobPosts);
+  };
+
+  const handleSaveJob = (jobId) => {
+    saveJob(jobId);
+    setIsJobSaved(true);
+  };
+
+  const handleApply = async (event) => {
+    event.preventDefault();
+    console.log("Selected Job:", selectedJob?._id || selectedJob?.id);
+    const jobId = selectedJob?._id || selectedJob?.id;
+
+    if (!jobId) {
+      alert("Job ID is missing. Please select a job and try again.");
+      return;
+    }
+
+    const formData = new FormData(event.target);
+    const coverLetter = formData.get("coverLetter");
+    const accessibilityNeeds = formData.get("accessibilityNeeds");
+    const resume = formData.get("resume");
+    const additionalFiles = formData.getAll("additionalFiles");
+
+    try {
+      console.log("Submitting job application with data:", {
+        jobId,
+        coverLetter,
+        accessibilityNeeds,
+        resume,
+        additionalFiles,
+      });
+
+      await applyJobs({
+        jobId,
+        coverLetter,
+        accessibilityNeeds,
+        resume,
+        additionalFiles,
+      });
+
+      setOpen(false);
+    } catch (error) {
+      console.error("Error submitting application:", error);
+      alert(
+        "There was an error submitting your application. Please try again."
+      );
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-pastelBlueGray flex flex-col">
+    <main className="min-h-screen flex flex-col overflow-auto">
       <Navbar />
-      <div className="flex-grow flex flex-col items-start justify-start space-y-4 pt-8">
-        <h1 className="text-5xl font-extrabold self-start font-jakarta text-white ml-4 pl-20 pt-10">
+      <section className="bg-applicant-bg-3 bg-no-repeat bg-cover bg-center flex-grow flex flex-col items-start justify-start space-y-4 pt-8 h-screen">
+        <h1 className="text-7xl font-semibold self-start font-poppins text-white ml-4 pl-20 pt-10 text-shadow-xl">
           LET'S GET YOU <br />
           FIND A JOB
         </h1>
-        <p className="text-3xl text-left text-md font-medium font-jakarta ml-4 text-white pb-5 pl-20 ">
+        <p className="text-4xl text-left text-md font-medium font-jakarta ml-4 text-white pb-14 pl-20 text-shadow-xl">
           WE'VE GOT {jobPosts?.length || 0} JOBS TO APPLY!
         </p>
-        <div className="bg-lightGray bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-md shadow-custom overflow-hidden p-8 mx-auto max-w-3xl w-full">
-          <div className="flex space-x-4 items-center">
-            <input
-              placeholder="Keyword"
-              className="px-4 py-2 rounded w-full text-black placeholder-black bg-white bg-opacity-50 border border-black focus:outline-none"
-              value={searchKeyword}
-              onChange={(e) => setSearchKeyword(e.target.value)}
-            />
 
-            <select
-              className="px-4 py-2 rounded bg-white text-gray-800 appearance-none border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 md:w-2/3 max-h-40 overflow-y-auto origin-top"
-              aria-label="Select category"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              size={1}
-            >
-              {categories.map((category) => (
-                <option key={category} value={category.toUpperCase()}>
-                  {category.replace("_", " ")}
-                </option>
-              ))}
-            </select>
+        <div className="flex flex-col items-center mx-auto space-y-6">
+          <SearchBar
+            searchKeyword={searchKeyword}
+            setSearchKeyword={setSearchKeyword}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            location={location}
+            setLocation={setLocation}
+            categories={categories}
+            onSearch={search}
+            setSearch={setSearch}
+          />
 
-            <button
-              className="bg-buttonBlue hover:bg-indigo-700 px-6 py-2 rounded text-black"
-              onClick={() => getJobPosts()}
-            >
-              Search
-            </button>
+          <div className="w-full flex justify-start space-x-7">
+            <div className="relative">
+              <select
+                className="px-4 py-3 text-black text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-5/5"
+                onChange={(e) => setselectedJobType(e.target.value)}
+                value={selectedJobType}
+              >
+                {jobTypes.map((type, index) => (
+                  <option key={index} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="relative">
+              <select
+                className="px-4 py-3 text-black text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-5/5"
+                onChange={(e) => setSelectedJobShift(e.target.value)}
+                value={selectedJobShift}
+              >
+                {jobShifts.map((shift, index) => (
+                  <option key={index} value={shift}>
+                    {shift === "listedAnyTime" ? "Listed Any Time" : shift}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="space-y-4 w-full max-w-4xl mx-auto mt-10 mb-5">
-        {filteredJobPosts.length > 0 ? (
-          filteredJobPosts.map((job) => (
-            <div
-              key={job.id}
-              className="bg-white rounded-lg shadow-md p-6 flex flex-col justify-between relative"
-            >
-              <div className="flex-1">
-                <h3 className="text-2xl font-semibold font-jakarta mb-2">
-                  {job.jobTitle}
-                </h3>
-                <p className="text-base font-medium font-jakarta mb-2">
-                  {job.jobCategory}
-                </p>
-                <p className="text-base font-medium font-jakarta mb-2">
-                  {job.employer
-                    ? job.employer.fullName.toUpperCase()
-                    : "Employer not found"}
-                </p>
-                <p className="text-base font-medium font-jakarta mb-2">
-                  {job.locations && job.locations.join(", ")}
-                </p>
+      </section>
 
-                <p className="text-base font-medium font-jakarta text-justify mb-4">
-                  {job.jobDescription}
-                </p>
+      <section className="flex mt-14 h-[150vh]">
+        <div className="w-2/4 p-4 h-full overflow-y-auto ml-24">
+          <div className="space-y-4">
+            {filteredJobPosts.length > 0 ? (
+              filteredJobPosts.map((job) => (
+                <div
+                  key={job.id || job._id}
+                  className="bg-white rounded-lg border-solid border-2 border-browny shadow-md p-4 cursor-pointer font-poppins hover:bg-gray-100"
+                  onClick={() => setSelectedJob(job)}
+                >
+                  <h3 className="text-xl font-bold">{job.jobTitle}</h3>
+                  <p className="text-base text-gray-500">
+                    {job.employer?.fullName}
+                  </p>
+                  <br />
+                  <p className="text-sm text-gray-500">{job.jobDescription}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500">No job posts available.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="w-2/3 p-8 relative font-poppins">
+          {selectedJob ? (
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <button
+                className="absolute top-4 right-4 text-gray-500"
+                onClick={() => setSelectedJob(null)}
+              >
+                <XCircle size={24} />
+              </button>
+
+              <h2 className="text-3xl font-extrabold">
+                {selectedJob.jobTitle}
+              </h2>
+              <p className="text-xl font-normal">
+                {selectedJob.employer?.fullName}/
+                {selectedJob.companyName || selectedJob.employer.companyName}
+              </p>
+
+              {selectedJob.locations && selectedJob.locations.length > 0 && (
+                <div className="flex items-center space-x-2">
+                  <MapPinned className="h-5 w-5 text-gray-500" />
+                  <p className="text-xl font-normal">
+                    {selectedJob.locations.join(", ")}
+                  </p>
+                </div>
+              )}
+
+              <div className="flex items-center space-x-2">
+                <Clock3 className="h-5 w-5 text-gray-500" />
+                <p className="text-xl font-normal">{selectedJob.jobType}</p>
               </div>
 
-              <div className="absolute top-0 right-0 p-4 text-lg font-semibold text-gray-800">
-                {job.expectedSalary &&
-                job.expectedSalary.minSalary &&
-                job.expectedSalary.maxSalary
-                  ? `PHP ${job.expectedSalary.minSalary.toLocaleString()} - PHP ${job.expectedSalary.maxSalary.toLocaleString()}`
-                  : "Salary information not available"}
+              {selectedJob.expectedSalary &&
+              selectedJob.expectedSalary.minSalary &&
+              selectedJob.expectedSalary.maxSalary ? (
+                <div className="flex items-center space-x-2">
+                  <Banknote className="h-5 w-5 text-gray-500" />
+                  <p className="text-xl font-normal">
+                    ₱{selectedJob.expectedSalary.minSalary.toLocaleString()} - ₱
+                    {selectedJob.expectedSalary.maxSalary.toLocaleString()}
+                  </p>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <Banknote className="h-5 w-5 text-gray-500" />
+                  <p className="text-lg font-semibold">
+                    Salary information not available
+                  </p>
+                </div>
+              )}
+
+              <div className="mt-4 text-sm flex items-center space-x-2">
+                <span>Posted</span>
+                <FormatTimeDate
+                  date={selectedJob.createdAt}
+                  formatType="relative"
+                />
               </div>
 
-              <div className="flex items-center justify-end mt-4">
-                <p className="text-base font-medium font-jakarta mr-3">
-                  <FormatTimeDate date={job.createdAt} />
-                </p>
+              <div className="flex space-x-7 mt-6">
                 <button
-                  className="px-4 py-2 bg-buttonBlue text-white rounded hover:bg-blue-600"
+                  className="px-24 py-3 bg-buttonBlue text-white rounded font-poppins font-semibold"
                   onClick={() => {
-                    setSelectedJob(job);
                     setOpen(true);
                   }}
                 >
-                  View details
+                  Apply
+                </button>
+                <button
+                  className={`px-20 py-3 rounded border-2 font-poppins font-semibold transition-all ${
+                    isJobSaved
+                      ? "bg-red-500 scale-105 text-white"
+                      : "bg-transparent border-BLUE text-BLUE"
+                  }`}
+                  onClick={() => handleSaveJob(selectedJob._id)}
+                >
+                  {isJobSaved ? "Saved!" : "Save"}
                 </button>
               </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-500 text-center">No job posts available.</p>
-        )}
-      </div>
 
-      {selectedJob && (
+              <div className="mt-8">
+                <ul className="space-y-4">
+                  <li>
+                    <p className="text-base">Application Deadline:</p>
+                    <ul className="list-disc pl-6 text-base">
+                      <li>
+                        {selectedJob.applicationDeadline
+                          ? new Date(
+                              selectedJob.applicationDeadline
+                            ).toLocaleDateString()
+                          : "Not available"}
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    <p className="text-base">Job Qualifications:</p>
+                    <ul className="list-disc pl-6 text-base">
+                      <li>
+                        {selectedJob.jobQualifications || "Not specified"}
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    <p className="text-base">Job Experience:</p>
+                    <ul className="list-disc pl-6 text-base">
+                      <li>{selectedJob.jobExperience || "Not specified"}</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <p className="text-base">Preferred Language:</p>
+                    <ul className="list-disc pl-6 text-base">
+                      <li>
+                        {selectedJob.preferredLanguage || "Not specified"}
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    <p className="text-base">Job Skills:</p>
+                    <ul className="list-disc pl-6 space-y-2 text-base">
+                      {selectedJob.jobSkills &&
+                      selectedJob.jobSkills.length > 0 ? (
+                        selectedJob.jobSkills.map((skill, index) => (
+                          <li key={index} className="text-base text-black">
+                            {skill}
+                          </li>
+                        ))
+                      ) : (
+                        <li className="text-gray-500">No skills listed.</li>
+                      )}
+                    </ul>
+                  </li>
+                  <li>
+                    <p className="text-base">Job Attachment:</p>
+                    <ul className="list-disc pl-6 text-base">
+                      <li>
+                        {selectedJob.jobAttachment ? (
+                          <a
+                            href={selectedJob.jobAttachment}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500"
+                          >
+                            View Attachment
+                          </a>
+                        ) : (
+                          "No attachment provided"
+                        )}
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-center items-center h-full text-lg font-medium text-gray-500">
+              <p>Click any job to view details</p>
+            </div>
+          )}
+        </div>
+      </section>
+      {open && selectedJob && (
         <Modal open={open} onClose={() => setOpen(false)}>
-          <div className="text-base font-medium font-jakarta max-w-6xl">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold">{selectedJob.jobTitle}</h3>
-              <button
-                onClick={() => setOpen(false)}
-                className="p-1 rounded-lg text-gray-400 bg-white hover:bg-gray-50 hover:text-gray-600"
-              >
-                <XCircle />
-              </button>
-            </div>
+          <div className="p-6 w-[90vh] mx-auto relative font-poppins">
+            <X
+              onClick={() => setOpen(false)}
+              className="absolute top-3 right-3 bg-gray-300 hover:bg-red-500 text-black w-7 h-7 p-2 rounded-full focus:outline-none cursor-pointer"
+            />
 
-            <p className="mb-2">Category: {selectedJob.jobCategory}</p>
-            <p className="mb-2">Location: {selectedJob.locations.join(", ")}</p>
-            <p className="mb-2">
-              Preferred Language: {selectedJob.preferredLanguage}
-            </p>
-            <p className="mb-2">
-              Job Qualifications: {selectedJob.jobQualifications}
-            </p>
-            <p className="mb-2">Experience: {selectedJob.jobExperience}</p>
-            <p className="mb-2">Job Type: {selectedJob.jobType}</p>
-            <p className="mb-2">Shift: {selectedJob.jobShift}</p>
-            <p className="mb-2">Job Level: {selectedJob.jobLevel}</p>
-            <p className="mb-4">Description: {selectedJob.jobDescription}</p>
+            <h2 className="text-xl font-semibold text-black mb-4 font-poppins">
+              Apply for : {selectedJob.jobTitle}
+            </h2>
 
-            <p className="mb-2">
-              Salary: PHP
-              {selectedJob.expectedSalary.minSalary.toLocaleString()} - PHP
-              {selectedJob.expectedSalary.maxSalary.toLocaleString()}
-            </p>
-
-            <a
-              href={selectedJob.applyWithLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline mb-4 inline-block"
+            <form
+              onSubmit={handleApply}
+              className="space-y-4"
+              encType="multipart/form-data"
             >
-              Apply here
-            </a>
+              <div>
+                <label
+                  htmlFor="coverLetter"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Cover Letter <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  id="coverLetter"
+                  name="coverLetter"
+                  rows="5"
+                  required
+                  placeholder="Write your cover letter here..."
+                  className="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+                ></textarea>
+              </div>
 
-            <p className="mb-2">
-              Job Details PDF:
-              <a
-                href={selectedJob.jobAttachment}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                Download
-              </a>
-            </p>
+              <div>
+                <label
+                  htmlFor="accessibilityNeeds"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Accessibility Needs
+                </label>
+                <textarea
+                  id="accessibilityNeeds"
+                  name="accessibilityNeeds"
+                  rows="3"
+                  placeholder="Specify any accessibility accommodations required..."
+                  className="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+                ></textarea>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="resume"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Resume <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="file"
+                  id="resume"
+                  name="resume"
+                  accept=".pdf,.doc,.docx"
+                  required
+                  className="block w-full mt-1 text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="additionalFiles"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Additional Files (Optional)
+                </label>
+                <input
+                  type="file"
+                  id="additionalFiles"
+                  name="additionalFiles"
+                  multiple
+                  accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                  className="block w-full mt-1 text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 focus:outline-none"
+                />
+              </div>
+
+              <div className="mt-6">
+                <button
+                  type="submit"
+                  className="w-full px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold focus:outline-none focus:ring focus:ring-blue-300 flex justify-center items-center"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader className="w-6 h-6 animate-spin" />
+                  ) : (
+                    "Submit Application"
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </Modal>
       )}
-    </div>
+
+      <Footer />
+    </main>
   );
 };
 

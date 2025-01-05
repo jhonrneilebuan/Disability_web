@@ -1,26 +1,43 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
-      boxShadow:{
-        custom: 'rgba(50, 50, 93, 0.25) 0px 12px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px',
+      boxShadow: {
+        custom:
+          "rgba(50, 50, 93, 0.25) 0px 12px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px",
       },
-      colors:{
-        pastelBlueGray: '#CED7E4',
+      colors: {
+        semiTransparent: "rgba(255, 255, 255, 0.2)",
+        pastelBlueGray: "#CED7E4",
         lightGray: "#DEE1E4",
         LightColor: "#FFFFFF",
         buttonBlue: "#546CA1",
+        BLUE: "#3F72AF",
         darkLight: "#566E8D",
-        darkGreen: "#334B35"
+        darkGreen: "#334B35",
+        browny: "#B7AB8D",
+        darkBrowny: "#675832",
+        bg: "#8B5A2B",
+        textcolor: "#3B2A1A"
       },
       fontFamily: {
-        jakarta: ["'Plus Jakarta Sans'", "sans-serif"], 
+        jakarta: ["'Plus Jakarta Sans'", "sans-serif"],
+        poppins: ["Poppins", "sans-serif"],
+        nunito: ["Nunito", "sans-serif"],
+        rowdies: ["Rowdies", "cursive"],
+      },
+      backgroundImage: {
+        "applicant-bg-1": "url('Background-1.png')",
+        "applicant-bg-2": "url('Background-2.png')",
+        "applicant-bg-3": "url('Background-3.png')",
+      },
+      textShadow: {
+        default: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        md: "4px 4px 8px rgba(0, 0, 0, 0.4)",
+        lg: "6px 6px 12px rgba(0, 0, 0, 0.3)",
       },
     },
   },
-  plugins: [],
-}
+  plugins: [require("tailwindcss-textshadow")],
+};

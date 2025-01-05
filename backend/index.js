@@ -11,13 +11,15 @@ import profileSettingsRoutes from "./routes/profileSettings.route.js";
 import jobRoutes from "./routes/job.route.js";
 import applicationRoutes from "./routes/application.route.js"
 import adminRoutes from "./routes/admin.route.js";
+import SavedJobRoutes from "./routes/savedJob.js"
+import userRoutes from "./routes/user.route.js"
 
 dotenv.config();
 const app = express();
 app.use(
   cors({
     origin: "http://localhost:5173",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
 );
@@ -31,6 +33,9 @@ app.use("/api/profilesettings", profileSettingsRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/savedJobs", SavedJobRoutes);
+app.use("/api/users", userRoutes);
+
 
 
 const PORT = process.env.PORT;

@@ -1,17 +1,29 @@
-import React from "react";
+import React, { useState } from "react"; 
 import { authStore } from "../stores/authStore";
 import { Link, useLocation } from "react-router-dom";
+import { ChevronDown, Settings, User, Edit, LogOut } from "lucide-react";
 
 const Navbar = () => {
-  const { user } = authStore();
+  const { user, logout } = authStore();
   const location = useLocation();
+
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   const isActive = (path) => location.pathname === path;
 
+  const toggleDropdown = () => {
+    setDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
+  };
+
+
   return (
-    <nav className="bg-white shadow-md ">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center pr-16">
-        <div className="text-lg font-bold text-black flex items-center ml-5">
+    <nav className="bg-white shadow-md">
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="text-lg font-normal text-black flex items-center ml-5">
           <div className="w-10 h-10 rounded-full overflow-hidden cursor-pointer">
             <Link to="/">
               <img
@@ -23,12 +35,14 @@ const Navbar = () => {
           </div>
         </div>
 
-        <div className="hidden md:flex space-x-10 items-center">
+        <div className="hidden md:flex items-center space-x-6">
           <Link
             to="/applicant"
             className={`${
-              isActive("/applicant") ? "font-extrabold" : "font-thin"
-            } text-gray-800 hover:text-black font-jakarta`}
+              isActive("/applicant")
+                ? "text-browny font-normal"
+                : "text-BLUE font-normal"
+            } text-base hover:text-browny font-poppins`}
           >
             Home
           </Link>
@@ -36,8 +50,10 @@ const Navbar = () => {
           <Link
             to="/jobs"
             className={`${
-              isActive("/jobs") ? "font-extrabold" : "font-thin"
-            } text-gray-800 hover:text-black font-jakarta`}
+              isActive("/jobs")
+                ? "text-browny font-normal"
+                : "text-BLUE font-normal"
+            } text-base hover:text-browny font-poppins`}
           >
             Find a Job
           </Link>
@@ -45,8 +61,10 @@ const Navbar = () => {
           <Link
             to="/job"
             className={`${
-              isActive("/job") ? "font-extrabold" : "font-thin"
-            } text-gray-800 hover:text-black font-jakarta`}
+              isActive("/job")
+                ? "text-browny font-normal"
+                : "text-BLUE font-normal"
+            } text-base hover:text-browny font-poppins`}
           >
             Jobs
           </Link>
@@ -54,8 +72,10 @@ const Navbar = () => {
           <Link
             to="/messaging"
             className={`${
-              isActive("/messaging") ? "font-extrabold" : "font-thin"
-            } text-gray-800 hover:text-black font-jakarta`}
+              isActive("/messaging")
+                ? "text-browny font-normal"
+                : "text-BLUE font-normal"
+            } text-base hover:text-browny font-poppins`}
           >
             Messaging
           </Link>
@@ -63,21 +83,70 @@ const Navbar = () => {
           <Link
             to="/notifications"
             className={`${
-              isActive("/notifications") ? "font-extrabold" : "font-thin"
-            } text-gray-800 hover:text-black font-jakarta`}
+              isActive("/notifications")
+                ? "text-browny font-normal"
+                : "text-BLUE font-normal"
+            } text-base hover:text-browny font-poppins`}
           >
             Notifications
           </Link>
 
-          <Link to="/profile-info">
-            <div className="w-10 h-10 rounded-full overflow-hidden cursor-pointer mr-5">
+          <div className="h-10 border-l-2 border-BLUE mx-4"></div>
+
+          <div className="relative flex items-center">
+            <div className="w-10 h-10 rounded-md overflow-hidden cursor-pointer">
               <img
                 src={user.profilePicture || "avatar.png"}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
             </div>
-          </Link>
+            <div onClick={toggleDropdown} className="ml-2 cursor-pointer">
+              <ChevronDown className="text-gray-500" />
+            </div>
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-60 w-48 bg-white border rounded-lg shadow-lg z-10">
+                <ul className="text-sm font-poppins">
+                  <li>
+                    <Link
+                      to="/profile-info"
+                      className="flex items-center px-4 py-2 hover:bg-gray-200"
+                    >
+                      <User className="mr-2" />
+                      Profile
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/settings"
+                      className="flex items-center px-4 py-2 hover:bg-gray-200"
+                    >
+                      <Edit className="mr-2" />
+                      Edit Profile
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/settings"
+                      className="flex items-center px-4 py-2 hover:bg-gray-200"
+                    >
+                      <Settings className="mr-2" />
+                      Settings
+                    </Link>
+                  </li>
+                  <li>
+                    <p
+                      to="/logout"
+                      className="flex items-center px-4 py-2 hover:bg-gray-200"
+                    >
+                      <LogOut className="mr-2" onClick={handleLogout} />
+                      Logout
+                    </p>
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </nav>

@@ -4,18 +4,28 @@ import Job from "../models/job.model.js";
 
 export const applyJobs = async (req, res) => {
   try {
-    const { jobId, applicantId, coverLetter, accessibilityNeeds } = req.body;
+    const applicantId = req.userId; 
+    const { jobId, coverLetter, accessibilityNeeds } = req.body;
+
+    if (!jobId || !applicantId ) {
+      return res.status(400).json({ error: "Job ID and applicant ID are required." });
+    }
 
     if (!req.files || !req.files.resume) {
       return res.status(400).json({ error: "Resume is required." });
     }
 
+    const resumePath = req.files.resume ? req.files.resume[0].path : null;
+    const additionalFilesPaths = req.files.additionalFiles
+      ? req.files.additionalFiles.map((file) => file.path)
+      : [];
+
     const application = new Application({
       jobId,
-      applicantId,
+      applicantId, 
       coverLetter,
-      resume: req.files.resume[0].path,
-      additionalFiles: req.files.additionalFiles?.map((file) => file.path),
+      resume: resumePath,
+      additionalFiles: additionalFilesPaths,
       accessibilityNeeds,
     });
 
@@ -26,9 +36,9 @@ export const applyJobs = async (req, res) => {
     res.status(200).json({ message: "Application submitted successfully." });
   } catch (error) {
     console.error("Error during application submission:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while submitting the application." });
+    res.status(500).json({
+      error: "An error occurred while submitting the application.",
+    });
   }
 };
 
@@ -129,7 +139,7 @@ export const getTotalApplications = async (req, res) => {
 
 export const withdrawApplication = async (req, res) => {
   try {
-    const { applicationId } = req.body;
+    const { id: applicationId } = req.params;
     const applicantId = req.userId;
 
     const application = await Application.findById(applicationId);
@@ -144,7 +154,7 @@ export const withdrawApplication = async (req, res) => {
         .json({ error: "You can only withdraw your own applications." });
     }
 
-    await application.remove();
+    await application.deleteOne();
 
     res.status(200).json({ message: "Application withdrawn successfully." });
   } catch (error) {
@@ -182,9 +192,10 @@ export const getApplicantsWithJobs = async (req, res) => {
     }
 
     const ApplicantsInfo = applicants.map((applicant) => ({
+      id: applicant._id,
       applicantId: applicant.applicantId
         ? applicant.applicantId.fullName
-        : "No name provided", 
+        : "No name provided",
       jobTitle: applicant.jobId.jobTitle,
       jobCategory: applicant.jobId.jobCategory,
       jobType: applicant.jobId.jobType,
@@ -195,5 +206,57 @@ export const getApplicantsWithJobs = async (req, res) => {
   } catch (error) {
     console.error("Error fetching applicants:", error);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const shortlistApplication = async (req, res) => {
+  try {
+    const { id: applicationId } = req.params; // Ensure `req.params.id` is used
+    if (!applicationId) {
+      return res.status(400).json({ error: "Application ID is required." });
+    }
+
+    const application = await Application.findById(applicationId);
+    if (!application) {
+      return res.status(404).json({ error: "Application not found." });
+    }
+
+    application.status = "Shortlisted";
+    await application.save();
+
+    res.status(200).json({
+      message: "Application successfully shortlisted.",
+      application,
+    });
+  } catch (error) {
+    console.error("Error shortlisting application:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while shortlisting the application." });
+  }
+};
+
+export const rejectApplication = async (req, res) => {
+  try {
+    const { id: applicationId } = req.params;
+
+    const application = await Application.findById(applicationId);
+
+    if (!application) {
+      return res.status(404).json({ error: "Application not found." });
+    }
+
+    application.status = "Rejected";
+    await application.save();
+
+    res.status(200).json({
+      message: "Application successfully rejected.",
+      application,
+    });
+  } catch (error) {
+    console.error("Error rejecting application:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while rejecting the application." });
   }
 };

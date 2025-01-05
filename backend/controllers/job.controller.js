@@ -1,9 +1,11 @@
 import Job from "../models/job.model.js";
 import Application from "../models/application.model.js";
+import User from "../models/user.model.js";
 
 export const createJob = async (req, res) => {
   try {
     const {
+      companyName,
       applicationDeadline,
       jobTitle,
       jobDescription,
@@ -21,13 +23,25 @@ export const createJob = async (req, res) => {
       jobAttachment,
     } = req.body;
 
+    const employer = await User.findById(req.userId);
+    if (!employer) {
+      return res.status(404).json({ message: "Employer not found." });
+    }
+
+    const finalCompanyName =
+      companyName || employer.employerInformation?.companyName;
+    const finalLocations = locations || [
+      employer.employerInformation?.companyAddress,
+    ];
+
     const job = await Job.create({
       employer: req.userId,
+      companyName: finalCompanyName,
       applicationDeadline,
       jobTitle,
       jobDescription,
       jobCategory,
-      locations,
+      locations: finalLocations,
       preferredLanguage,
       jobQualifications,
       jobExperience,
@@ -48,7 +62,10 @@ export const createJob = async (req, res) => {
 
 export const getAllJobs = async (req, res) => {
   try {
-    const jobs = await Job.find().populate("employer", "fullName email");
+    const jobs = await Job.find().populate(
+      "employer",
+      "fullName email employerInformation.companyName employerInformation.companyAddress employerInformation.isIdVerified"
+    );
     res.status(200).json(jobs);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -61,7 +78,7 @@ export const getEmployerJobs = async (req, res) => {
 
     const jobs = await Job.find({ employer: employerId }).populate(
       "employer",
-      "fullName email"
+      "fullName email employerInformation.companyName employerInformation.companyAddress employerInformation.isIdVerified"
     );
 
     if (jobs.length === 0) {
@@ -80,7 +97,7 @@ export const getJobById = async (req, res) => {
   try {
     const job = await Job.findById(req.params.id).populate(
       "employer",
-      "fullName email"
+      "fullName email employerInformation.companyName employerInformation.companyAddress employerInformation.isIdVerified"
     );
     if (!job) {
       return res.status(404).json({ message: "Job not found" });

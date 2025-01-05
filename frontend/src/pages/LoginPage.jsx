@@ -10,13 +10,12 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { login, error, isLoading } = authStore();
+  const { user, login, error, isLoading } = authStore();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       await login(email, password);
-      const { user } = authStore.getState();
       if (user?.role) {
         if (user.role === "Applicant") {
           navigate("/applicant");

@@ -7,6 +7,11 @@ const jobSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    companyName: {
+      type: String,
+      required: true,
+    },
+
     jobTitle: {
       type: String,
       required: true,

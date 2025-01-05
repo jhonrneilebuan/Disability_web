@@ -1,8 +1,8 @@
 import React from "react";
-import { formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { enUS } from "date-fns/locale";
 
-const FormatTimeDate = ({ date }) => {
+const FormatTimeDate = ({ date, formatType }) => {
   const customLocale = {
     ...enUS,
     formatDistance: (token, count, options) => {
@@ -11,13 +11,31 @@ const FormatTimeDate = ({ date }) => {
     },
   };
 
+  if (formatType === "date") {
+    return <p>{format(new Date(date), "MMM dd, yyyy")}</p>;
+  }
+
+  if (formatType === "relative") {
+    return (
+      <p>
+        {formatDistanceToNow(new Date(date), {
+          addSuffix: true,
+          locale: customLocale,
+        })}
+      </p>
+    );
+  }
+
   return (
-    <p>
-      {formatDistanceToNow(new Date(date), {
-        addSuffix: true,
-        locale: customLocale,
-      })}
-    </p>
+    <div>
+      <p>{format(new Date(date), "MMM dd, yyyy")}</p>
+      <p>
+        {formatDistanceToNow(new Date(date), {
+          addSuffix: true,
+          locale: customLocale,
+        })}
+      </p>
+    </div>
   );
 };
 

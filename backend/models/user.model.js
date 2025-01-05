@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    //{ Login } 
     email: {
       type: String,
       required: true,
@@ -16,7 +15,6 @@ const userSchema = new mongoose.Schema(
       minlength: 6,
     },
 
-   //{ Sign Up }
     fullName: {
       type: String,
       required: true,
@@ -41,7 +39,6 @@ const userSchema = new mongoose.Schema(
     verificationToken: String,
     verificationTokenExpiresAt: Date,
 
-    //{ Profile Information }
     profilePicture: {
       type: String,
       default: "",
@@ -63,8 +60,10 @@ const userSchema = new mongoose.Schema(
     birthday: {
       type: Date,
     },
+    bio: {
+      type: String,
+    },
 
-    //{ Career Information }
     careerInformation: {
       fieldOfWork: {
         type: String,
@@ -78,7 +77,6 @@ const userSchema = new mongoose.Schema(
       },
     },
 
-    //{ Disability Information }
     disabilityInformation: {
       verificationId: {
         type: String,
@@ -99,7 +97,22 @@ const userSchema = new mongoose.Schema(
       },
     },
 
-    //{ Other Field for the Users }
+    employerInformation: {
+      companyName: {
+        type: String,
+      },
+      companyAddress: {
+        type: String,
+      },
+      verificationId: {
+        type: String,
+      },
+      isIdVerified: {
+        type: Boolean,
+        default: false,
+      },
+    },
+
     banned: {
       type: Boolean,
       default: false,

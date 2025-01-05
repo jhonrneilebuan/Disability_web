@@ -1,6 +1,4 @@
-import { XCircle } from "lucide-react";
-
-export default function Modal({ open, onClose, children }) {
+const Modal = ({ open, onClose, children }) => {
   return (
     <div
       onClick={onClose}
@@ -19,3 +17,5 @@ export default function Modal({ open, onClose, children }) {
     </div>
   );
 }
+
+export default Modal;
