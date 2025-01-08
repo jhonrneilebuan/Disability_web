@@ -3,9 +3,13 @@ import Modal from "../components/Modal";
 import { useEffect, useState } from "react";
 import { jobStore } from "../stores/jobStore";
 import NavbarEmployer from "../components/NavbarEmployer";
+import { BriefcaseBusiness } from "lucide-react";
+import { Link } from "react-router-dom";
 const EmployerJobPage = () => {
   const [open, setOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchSubmitted, setIsSearchSubmitted] = useState(false);
 
   const { jobPosts, isLoading, error, getEmployerJobs, deleteJobPost } =
     jobStore();
@@ -13,6 +17,29 @@ const EmployerJobPage = () => {
   useEffect(() => {
     getEmployerJobs();
   }, [getEmployerJobs]);
+
+  useEffect(() => {
+    if (searchQuery === "") {
+      setIsSearchSubmitted(false);
+    }
+  }, [searchQuery]);
+
+  const handleSearch = () => {
+    setIsSearchSubmitted(true);
+  };
+
+  const handleEnterKey = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  const filteredJobs = jobPosts.filter((job) => {
+    if (isSearchSubmitted) {
+      return job.jobTitle.toLowerCase().includes(searchQuery.toLowerCase());
+    }
+    return true;
+  });
 
   const handleDeleteJob = async () => {
     if (!selectedJob) return;
@@ -26,14 +53,40 @@ const EmployerJobPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen overflow-hidden">
       <NavbarEmployer />
       <div className="flex flex-1">
         <Sidebar />
-        <div className="flex-1 p-4">
-          {jobPosts.length > 0 ? (
-            <div className="grid grid-cols-2 gap-4">
-              {jobPosts.map((job) => (
+        <div className="flex-1 p-4 ">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex">
+              <input
+                type="text"
+                placeholder="Search by Job Title or Applicant Name"
+                className="border border-gray-300 px-4 py-2 rounded-l-full w-96 focus:outline-none"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleEnterKey}
+              />
+              <button
+                className="bg-gray-800 text-white px-4 py-2 rounded-r-full hover:bg-gray-900"
+                onClick={handleSearch}
+              >
+                Search
+              </button>
+            </div>
+            <Link
+            to="/employer/job-post"
+              className="text-white bg-[#1da1f2] hover:bg-[#1da1f2]/90 focus:ring-4 focus:outline-none focus:ring-[#1da1f2]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#1da1f2]/55 me-2 mb-2"
+            >
+              <BriefcaseBusiness className="w-4 h-4 me-2" />
+              Post a job
+            </Link>
+          </div>
+          <hr className="" />
+          {filteredJobs.length > 0 ? (
+            <div className="grid grid-cols-2 gap-4 overflow-y-auto h-[90vh] pb-24">
+              {filteredJobs.map((job) => (
                 <div
                   key={job._id}
                   className="card p-4 bg-white shadow-md rounded-lg"

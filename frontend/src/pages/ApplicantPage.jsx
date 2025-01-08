@@ -150,25 +150,25 @@ const ApplicantPage = () => {
           )}
         </section>
 
-        <section className="bg-applicant-bg-2 bg-no-repeat bg-cover bg-center h-[500px] flex items-center justify-center flex-col">
+        <section className="bg-applicant-bg-2 bg-no-repeat bg-cover bg-center h-[500px] flex items-center justify-center flex-col px-4 sm:px-8 md:px-12">
           <div className="text-center">
-            <h2 className="text-6xl font-medium font-poppins text-BLUE mt-16 mb-10">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-medium font-poppins text-BLUE mt-16 mb-8 sm:mb-10">
               Empowering Abilities, Transforming Lives
             </h2>
-            <p className="text-3xl font-normal font-poppins text-black mb-12">
+            <p className="text-xl sm:text-2xl lg:text-3xl font-normal font-poppins text-black mb-8 sm:mb-10">
               Your next chapter begins here. Let’s achieve together!
             </p>
           </div>
-          <div className="flex space-x-7 mt-4">
+          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-7 mt-4">
             <Link
               to="/profile-info"
-              className="px-20 py-3 bg-transparent rounded border-2 border-solid border-BLUE font-poppins text-BLUE font-semibold "
+              className="px-12 py-3 sm:px-20 sm:py-3 bg-transparent rounded border-2 border-solid border-BLUE font-poppins text-BLUE font-semibold text-center"
             >
               Profile
             </Link>
             <Link
               to="/jobs"
-              className="px-24 py-3 bg-buttonBlue text-white rounded font-poppins font-semibold"
+              className="px-12 py-3 sm:px-24 sm:py-3 bg-buttonBlue text-white rounded font-poppins font-semibold text-center"
             >
               Find a Job
             </Link>

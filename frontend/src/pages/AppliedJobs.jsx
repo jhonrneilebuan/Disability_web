@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import { jobStore } from "../stores/jobStore";
 import FormatTimeDate from "../components/FormatTimeDate";
-import { Search, Briefcase, Bookmark, X } from "lucide-react";
+import { Search, Briefcase, Bookmark, X, Loader } from "lucide-react";
 import Footer from "../components/Footer";
 import Modal from "../components/Modal";
 import toast from "react-hot-toast";
+import Loader2 from "../components/Loader";
 
 const AppliedJobs = () => {
   const [open, setOpen] = useState(false);
@@ -19,13 +20,13 @@ const AppliedJobs = () => {
   const [selectedDate, setSelectedDate] = useState("");
 
   const {
-    applications,
+    applications = [],
     savedApplications = [],
     withdrawApplication,
     isLoading,
     error,
     getSavedJobs,
-    savedJobs,
+    savedJobs = [],
     unsaveJob,
     getApplicationsByApplicant,
   } = jobStore();
@@ -33,11 +34,11 @@ const AppliedJobs = () => {
   useEffect(() => {
     getApplicationsByApplicant();
     getSavedJobs();
-  }, [getApplicationsByApplicant, getSavedJobs]);
+  }, []);
 
   useEffect(() => {
     console.log(savedApplications);
-  }, [savedApplications]);
+  }, []);
 
   const handleStatusFilter = (e) => {
     setSelectedStatus(e.target.value);
@@ -128,6 +129,14 @@ const AppliedJobs = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <main className="min-h-screen flex justify-center items-center">
+        <Loader2 />
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen flex flex-col">
       <Navbar />
@@ -159,8 +168,7 @@ const AppliedJobs = () => {
                 value={selectedStatus}
               >
                 <option value="">Select Status</option>
-                <option value="Submitted">Submitted</option>
-                <option value="Reviewed">Reviewed</option>
+                <option value="Pending">Pending</option>
                 <option value="Shortlisted">Shortlisted</option>
                 <option value="Rejected">Rejected</option>
               </select>

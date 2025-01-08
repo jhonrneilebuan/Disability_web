@@ -4,11 +4,13 @@ import Job from "../models/job.model.js";
 
 export const applyJobs = async (req, res) => {
   try {
-    const applicantId = req.userId; 
+    const applicantId = req.userId;
     const { jobId, coverLetter, accessibilityNeeds } = req.body;
 
-    if (!jobId || !applicantId ) {
-      return res.status(400).json({ error: "Job ID and applicant ID are required." });
+    if (!jobId || !applicantId) {
+      return res
+        .status(400)
+        .json({ error: "Job ID and applicant ID are required." });
     }
 
     if (!req.files || !req.files.resume) {
@@ -20,9 +22,20 @@ export const applyJobs = async (req, res) => {
       ? req.files.additionalFiles.map((file) => file.path)
       : [];
 
+    const existingApplication = await Application.findOne({
+      jobId,
+      applicantId,
+    });
+
+    if (existingApplication) {
+      return res
+        .status(409)
+        .json({ error: "You have already applied for this job." });
+    }
+
     const application = new Application({
       jobId,
-      applicantId, 
+      applicantId,
       coverLetter,
       resume: resumePath,
       additionalFiles: additionalFilesPaths,
@@ -182,7 +195,7 @@ export const getApplicantsWithJobs = async (req, res) => {
     })
       .populate("jobId", "jobTitle jobCategory jobType")
       .populate("applicantId", "fullName")
-      .select("applicantId jobId createdAt")
+      .select("applicantId jobId createdAt status")
       .exec();
 
     if (!applicants.length) {
@@ -200,6 +213,7 @@ export const getApplicantsWithJobs = async (req, res) => {
       jobCategory: applicant.jobId.jobCategory,
       jobType: applicant.jobId.jobType,
       appliedAt: applicant.createdAt,
+      status: applicant.status,
     }));
 
     res.status(200).json(ApplicantsInfo);
@@ -211,7 +225,7 @@ export const getApplicantsWithJobs = async (req, res) => {
 
 export const shortlistApplication = async (req, res) => {
   try {
-    const { id: applicationId } = req.params; // Ensure `req.params.id` is used
+    const { id: applicationId } = req.params;
     if (!applicationId) {
       return res.status(400).json({ error: "Application ID is required." });
     }

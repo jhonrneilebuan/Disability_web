@@ -17,12 +17,24 @@ const JobsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("ALL");
   const [selectedJobShift, setSelectedJobShift] = useState("listedAnyTime");
   const [selectedJobType, setselectedJobType] = useState("All work types");
-  const { getJobPosts, jobPosts, isLoading, error, saveJob, applyJobs } =
-    jobStore();
+  const {
+    getJobPosts,
+    jobPosts,
+    isLoading,
+    error,
+    saveJob,
+    applyJobs,
+    getSavedJobs,
+    savedJobs,
+  } = jobStore();
 
   useEffect(() => {
     getJobPosts();
   }, [getJobPosts]);
+
+  useEffect(() => {
+    getSavedJobs(); 
+  }, []);
 
   if (error) {
     return <p className="error">{error}</p>;
@@ -111,8 +123,22 @@ const JobsPage = () => {
     setSearch(filteredJobPosts);
   };
 
-  const handleSaveJob = (jobId) => {
-    saveJob(jobId);
+  useEffect(() => {
+    if (
+      selectedJob &&
+      savedJobs.some((savedJob) => savedJob.jobId._id === selectedJob._id)
+    ) {
+      setIsJobSaved(true);
+    } else {
+      setIsJobSaved(false);
+    }
+  }, [savedJobs, selectedJob]);
+
+  const handleSaveJob = async (jobId) => {
+    await saveJob(jobId); 
+
+    getSavedJobs();
+
     setIsJobSaved(true);
   };
 
@@ -151,10 +177,15 @@ const JobsPage = () => {
 
       setOpen(false);
     } catch (error) {
-      console.error("Error submitting application:", error);
-      alert(
-        "There was an error submitting your application. Please try again."
-      );
+      if (error.message === "You have already applied for this job.") {
+        alert(error.message);
+        setOpen(false);
+      } else {
+        console.error("Error submitting application:", error);
+        alert(
+          "There was an error submitting your application. Please try again."
+        );
+      }
     }
   };
 
@@ -162,14 +193,13 @@ const JobsPage = () => {
     <main className="min-h-screen flex flex-col overflow-auto">
       <Navbar />
       <section className="bg-applicant-bg-3 bg-no-repeat bg-cover bg-center flex-grow flex flex-col items-start justify-start space-y-4 pt-8 h-screen">
-        <h1 className="text-7xl font-semibold self-start font-poppins text-white ml-4 pl-20 pt-10 text-shadow-xl">
+        <h1 className="text-7xl font-semibold self-start font-poppins text-white ml-4 pl-4 pt-10 text-shadow-xl sm:text-5xl md:text-6xl">
           LET'S GET YOU <br />
           FIND A JOB
         </h1>
-        <p className="text-4xl text-left text-md font-medium font-jakarta ml-4 text-white pb-14 pl-20 text-shadow-xl">
+        <p className="text-4xl text-left text-md font-medium font-jakarta ml-4 pl-4 pb-14 text-white text-shadow-xl sm:text-xl md:text-2xl">
           WE'VE GOT {jobPosts?.length || 0} JOBS TO APPLY!
         </p>
-
         <div className="flex flex-col items-center mx-auto space-y-6">
           <SearchBar
             searchKeyword={searchKeyword}
@@ -183,10 +213,10 @@ const JobsPage = () => {
             setSearch={setSearch}
           />
 
-          <div className="w-full flex justify-start space-x-7">
-            <div className="relative">
+          <div className="w-full flex flex-col sm:flex-row justify-start sm:space-x-7 sm:space-y-0 space-y-6 pl-8">
+            <div className="relative w-full sm:w-48 ">
               <select
-                className="px-4 py-3 text-black text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-5/5"
+                className="px-4 py-3 text-black text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
                 onChange={(e) => setselectedJobType(e.target.value)}
                 value={selectedJobType}
               >
@@ -198,9 +228,9 @@ const JobsPage = () => {
               </select>
             </div>
 
-            <div className="relative">
+            <div className="relative w-full sm:w-48 mt-4 sm:mt-0">
               <select
-                className="px-4 py-3 text-black text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-5/5"
+                className="px-4 py-3 text-black text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
                 onChange={(e) => setSelectedJobShift(e.target.value)}
                 value={selectedJobShift}
               >
@@ -215,8 +245,8 @@ const JobsPage = () => {
         </div>
       </section>
 
-      <section className="flex mt-14 h-[150vh]">
-        <div className="w-2/4 p-4 h-full overflow-y-auto ml-24">
+      <section className="flex mt-14 h-[150vh] flex-col sm:flex-row">
+        <div className="w-full sm:w-2/4 p-4 h-full overflow-y-auto ml-24">
           <div className="space-y-4">
             {filteredJobPosts.length > 0 ? (
               filteredJobPosts.map((job) => (
@@ -239,7 +269,7 @@ const JobsPage = () => {
           </div>
         </div>
 
-        <div className="w-2/3 p-8 relative font-poppins">
+        <div className="w-full sm:w-2/3 p-8 relative font-poppins">
           {selectedJob ? (
             <div className="bg-white p-6 rounded-lg shadow-md">
               <button

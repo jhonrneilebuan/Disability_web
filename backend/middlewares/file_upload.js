@@ -13,6 +13,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 export const uploadFiles = upload.fields([
-  { name: "resume", maxCount: 1 }, 
+  { name: "resume", maxCount: 1 },
   { name: "additionalFiles", maxCount: 5 },
+  { name: "jobAttachment", maxCount: 1 },
 ]);

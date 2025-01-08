@@ -19,14 +19,21 @@ export const createJob = async (req, res) => {
       jobLevel,
       applyWithLink,
       jobSkills,
-      expectedSalary,
-      jobAttachment,
     } = req.body;
+
+    let expectedSalary;
+    if (req.body.expectedSalary) {
+      expectedSalary = JSON.parse(req.body.expectedSalary);
+    }
 
     const employer = await User.findById(req.userId);
     if (!employer) {
       return res.status(404).json({ message: "Employer not found." });
     }
+
+    const jobAttachmentPath = req.files?.jobAttachment
+      ? req.files.jobAttachment[0].path
+      : null;
 
     const finalCompanyName =
       companyName || employer.employerInformation?.companyName;
@@ -50,8 +57,8 @@ export const createJob = async (req, res) => {
       jobLevel,
       applyWithLink,
       jobSkills,
-      expectedSalary,
-      jobAttachment,
+      expectedSalary, 
+      jobAttachment: jobAttachmentPath,
     });
 
     res.status(201).json({ message: "Job posted successfully", job });

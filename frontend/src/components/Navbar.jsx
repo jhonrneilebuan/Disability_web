@@ -1,13 +1,14 @@
 import React, { useState } from "react"; 
 import { authStore } from "../stores/authStore";
 import { Link, useLocation } from "react-router-dom";
-import { ChevronDown, Settings, User, Edit, LogOut } from "lucide-react";
+import { ChevronDown, Settings, User, Edit, LogOut, Menu, X } from "lucide-react";
 
 const Navbar = () => {
   const { user, logout } = authStore();
   const location = useLocation();
 
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [isMenuOpen, setMenuOpen] = useState(false);
 
   const isActive = (path) => location.pathname === path;
 
@@ -19,6 +20,9 @@ const Navbar = () => {
     logout();
   };
 
+  const toggleMenu = () => {
+    setMenuOpen(!isMenuOpen);
+  };
 
   return (
     <nav className="bg-white shadow-md">
@@ -46,7 +50,6 @@ const Navbar = () => {
           >
             Home
           </Link>
-
           <Link
             to="/jobs"
             className={`${
@@ -57,7 +60,6 @@ const Navbar = () => {
           >
             Find a Job
           </Link>
-
           <Link
             to="/job"
             className={`${
@@ -68,7 +70,6 @@ const Navbar = () => {
           >
             Jobs
           </Link>
-
           <Link
             to="/messaging"
             className={`${
@@ -79,7 +80,6 @@ const Navbar = () => {
           >
             Messaging
           </Link>
-
           <Link
             to="/notifications"
             className={`${
@@ -148,9 +148,108 @@ const Navbar = () => {
             )}
           </div>
         </div>
+
+        <div className="md:hidden flex items-center">
+          <div className="w-10 h-10 rounded-md overflow-hidden cursor-pointer">
+            <img
+              src={user.profilePicture || "avatar.png"}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div onClick={toggleMenu} className="ml-2 cursor-pointer">
+            {isMenuOpen ? (
+              <X className="text-gray-500" />
+            ) : (
+              <Menu className="text-gray-500" />
+            )}
+          </div>
+        </div>
       </div>
+
+      {isMenuOpen && (
+        <div className="md:hidden flex flex-col items-center bg-white py-4">
+          <Link
+            to="/applicant"
+            className="text-base py-2 px-4 font-poppins hover:text-browny"
+          >
+            Home
+          </Link>
+          <Link
+            to="/jobs"
+            className="text-base py-2 px-4 font-poppins hover:text-browny"
+          >
+            Find a Job
+          </Link>
+          <Link
+            to="/job"
+            className="text-base py-2 px-4 font-poppins hover:text-browny"
+          >
+            Jobs
+          </Link>
+          <Link
+            to="/messaging"
+            className="text-base py-2 px-4 font-poppins hover:text-browny"
+          >
+            Messaging
+          </Link>
+          <Link
+            to="/notifications"
+            className="text-base py-2 px-4 font-poppins hover:text-browny"
+          >
+            Notifications
+          </Link>
+          <div className="py-4">
+            <div onClick={toggleDropdown} className="cursor-pointer">
+              <ChevronDown className="text-gray-500" />
+            </div>
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-60 w-48 bg-white border rounded-lg shadow-lg z-10">
+                <ul className="text-sm font-poppins">
+                  <li>
+                    <Link
+                      to="/profile-info"
+                      className="flex items-center px-4 py-2 hover:bg-gray-200"
+                    >
+                      <User className="mr-2" />
+                      Profile
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/settings"
+                      className="flex items-center px-4 py-2 hover:bg-gray-200"
+                    >
+                      <Edit className="mr-2" />
+                      Edit Profile
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/settings"
+                      className="flex items-center px-4 py-2 hover:bg-gray-200"
+                    >
+                      <Settings className="mr-2" />
+                      Settings
+                    </Link>
+                  </li>
+                  <li>
+                    <p
+                      to="/logout"
+                      className="flex items-center px-4 py-2 hover:bg-gray-200"
+                    >
+                      <LogOut className="mr-2" onClick={handleLogout} />
+                      Logout
+                    </p>
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
-};
+}; 
 
 export default Navbar;

@@ -3,6 +3,18 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      keyframes: {
+        wave: {
+          "0%": { transform: "rotate(0.0deg)" },
+          "10%": { transform: "rotate(14deg)" },
+          "20%": { transform: "rotate(-8deg)" },
+          "30%": { transform: "rotate(14deg)" },
+          "40%": { transform: "rotate(-4deg)" },
+          "50%": { transform: "rotate(10.0deg)" },
+          "60%": { transform: "rotate(0.0deg)" },
+          "100%": { transform: "rotate(0.0deg)" },
+        },
+      },
       boxShadow: {
         custom:
           "rgba(50, 50, 93, 0.25) 0px 12px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px",
@@ -19,7 +31,7 @@ export default {
         browny: "#B7AB8D",
         darkBrowny: "#675832",
         bg: "#8B5A2B",
-        textcolor: "#3B2A1A"
+        textcolor: "#3B2A1A",
       },
       fontFamily: {
         jakarta: ["'Plus Jakarta Sans'", "sans-serif"],
@@ -36,6 +48,9 @@ export default {
         default: "2px 2px 4px rgba(0, 0, 0, 0.5)",
         md: "4px 4px 8px rgba(0, 0, 0, 0.4)",
         lg: "6px 6px 12px rgba(0, 0, 0, 0.3)",
+      },
+      animation: {
+        "waving-hand": "wave 2s linear infinite",
       },
     },
   },

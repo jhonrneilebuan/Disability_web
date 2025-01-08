@@ -10,6 +10,7 @@ const ProfileInfoPage = () => {
   const [isPwdVisible, setIsPwdVisible] = useState(false);
   const birthdayDate = user.birthday ? formatDate(user.birthday) : "N/A";
 
+
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -81,7 +82,7 @@ const ProfileInfoPage = () => {
               </div>
             </div>
           </div>
-
+          
           <div className="flex-1 flex flex-col gap-6">
             <div className="bg-white bg-opacity-65 shadow-lg rounded-lg p-8">
               <h1 className="font-poppins font-extrabold">Bio</h1>

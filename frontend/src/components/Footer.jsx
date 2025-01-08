@@ -8,9 +8,7 @@ const Footer = () => {
         <div className="max-w-screen-xl mx-auto px-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
             <div>
-              <h3 className="text-2xl text-black font-semibold mb-4">
-                Job Seekers
-              </h3>
+              <h3 className="text-2xl text-black font-semibold mb-4">Job Seekers</h3>
               <ul className="space-y-2">
                 <li>
                   <Link to="/job-search" className="hover:underline">
@@ -41,9 +39,7 @@ const Footer = () => {
             </div>
 
             <div>
-              <h3 className="text-2xl text-black font-semibold mb-4">
-                Employers
-              </h3>
+              <h3 className="text-2xl text-black font-semibold mb-4">Employers</h3>
               <ul className="space-y-2">
                 <li>
                   <Link to="/register" className="hover:underline">
@@ -64,9 +60,7 @@ const Footer = () => {
             </div>
 
             <div>
-              <h3 className="text-2xl text-black font-semibold mb-4">
-                About Us
-              </h3>
+              <h3 className="text-2xl text-black font-semibold mb-4">About Us</h3>
               <ul className="space-y-2">
                 <li>
                   <Link to="/careers" className="hover:underline">
@@ -86,15 +80,18 @@ const Footer = () => {
               </ul>
             </div>
           </div>
+
           <div className="mt-20 border-t border-gray-600 pt-6">
-            <div className="flex justify-center space-x-6">
-              <Link to="/terms" className="hover:underline">
+            <div className="flex flex-wrap justify-center space-x-6">
+              <Link to="/terms" className="hover:underline text-lg sm:text-xl">
                 Terms & Conditions
               </Link>
-              <Link to="/security-privacy" className="hover:underline">
+              <Link to="/security-privacy" className="hover:underline text-lg sm:text-xl">
                 Security & Privacy
               </Link>
-              <p className="text-xl">Copyright © 2024, Disabilitycareers</p>
+              <p className="text-lg sm:text-xl mt-4 sm:mt-0">
+                Copyright © 2024, Disabilitycareers
+              </p>
             </div>
           </div>
         </div>

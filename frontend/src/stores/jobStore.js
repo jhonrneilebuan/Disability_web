@@ -198,7 +198,11 @@ export const jobStore = create((set, get) => ({
 
   saveJob: async (jobId) => {
     try {
-      const response = await axios.post(`${API_URL}/savedJobs/save`, { jobId });
+      const response = await axios.post(
+        `${API_URL}/savedJobs/save`,
+        { jobId },
+        { withCredentials: true }
+      );
 
       toast.success(response.data.message);
 
@@ -212,22 +216,34 @@ export const jobStore = create((set, get) => ({
     try {
       const savedJobs = get().savedJobs;
 
+      console.log("Saved Jobs:", savedJobs);
+      console.log("Looking for Job ID:", savedJobId);
+
       const job = savedJobs.find((job) => job._id === savedJobId);
-      const jobId = job?.jobId._id;
 
-      if (jobId) {
-        const response = await axios.delete(`${API_URL}/savedJobs/unsave`, {
-          data: { jobId },
-        });
-
-        console.log(response.data.message);
-
-        set((state) => ({
-          savedJobs: state.savedJobs.filter((job) => job._id !== savedJobId),
-        }));
-      } else {
-        console.error("Job ID not found.");
+      if (!job) {
+        console.error("Job not found in saved jobs.");
+        return; 
       }
+
+      const jobId = job.jobId?._id || job.jobId; 
+
+      console.log("Extracted Job ID:", jobId);
+
+      if (!jobId) {
+        console.error("Job ID is missing.");
+        return; 
+      }
+
+      const response = await axios.delete(`${API_URL}/savedJobs/unsave`, {
+        data: { jobId },
+      });
+
+      console.log(response.data.message);
+
+      set((state) => ({
+        savedJobs: state.savedJobs.filter((job) => job._id !== savedJobId),
+      }));
     } catch (error) {
       console.error("Error removing saved job:", error.message);
       alert("Failed to remove job from saved list. Please try again.");
@@ -308,8 +324,14 @@ export const jobStore = create((set, get) => ({
       throw error;
     }
   },
-  
-  applyJobs: async ({ jobId, coverLetter, accessibilityNeeds, resume, additionalFiles }) => {
+
+  applyJobs: async ({
+    jobId,
+    coverLetter,
+    accessibilityNeeds,
+    resume,
+    additionalFiles,
+  }) => {
     set({ isLoading: true, error: null });
     try {
       const formData = new FormData();
@@ -327,24 +349,108 @@ export const jobStore = create((set, get) => ({
         });
       }
 
-      const response = await axios.post(`${API_URL}/applications/apply`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        `${API_URL}/applications/apply`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-      toast.success(response.data.message || "Application submitted successfully.");
+      toast.success(
+        response.data.message || "Application submitted successfully."
+      );
       set({
         message: response.data.message || "Application submitted successfully.",
         isLoading: false,
       });
     } catch (error) {
-      console.error("Error applying for job:", error);
-      toast.error(error.response?.data?.error || "Error applying for job");
+      if (error.response && error.response.status === 409) {
+        throw new Error("You have already applied for this job.");
+      } else {
+        console.error("Error applying for job:", error);
+        toast.error(error.response?.data?.error || "Error applying for job");
+        set({
+          error: error.response?.data?.error || "Error applying for job",
+          isLoading: false,
+        });
+        throw error;
+      }
+    }
+  },
+
+  createJob: async ({
+    companyName,
+    applicationDeadline,
+    jobTitle,
+    jobDescription,
+    jobCategory,
+    locations,
+    preferredLanguage,
+    jobQualifications,
+    jobExperience,
+    jobType,
+    jobShift,
+    jobLevel,
+    applyWithLink,
+    jobSkills,
+    expectedSalary,
+    jobAttachment,
+  }) => {
+    set({ isLoading: true, error: null });
+    try {
+      const formData = new FormData();
+
+      formData.append("companyName", companyName);
+      formData.append("applicationDeadline", applicationDeadline);
+      formData.append("jobTitle", jobTitle);
+      formData.append("jobDescription", jobDescription);
+      formData.append("jobCategory", jobCategory);
+      formData.append("preferredLanguage", preferredLanguage);
+      formData.append("jobQualifications", jobQualifications);
+      formData.append("jobExperience", jobExperience);
+      formData.append("jobType", jobType);
+      formData.append("jobShift", jobShift);
+      formData.append("jobLevel", jobLevel);
+      formData.append("applyWithLink", applyWithLink);
+
+      if (locations) {
+        formData.append("locations", JSON.stringify(locations));
+      }
+      if (jobSkills) {
+        formData.append("jobSkills", JSON.stringify(jobSkills));
+      }
+
+      if (expectedSalary) {
+        formData.append("expectedSalary", JSON.stringify(expectedSalary));
+      }
+
+      if (jobAttachment) {
+        formData.append("jobAttachment", jobAttachment);
+      }
+
+      const response = await axios.post(`${API_URL}/jobs/`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success(response.data.message || "Job created successfully.");
       set({
-        error: error.response?.data?.error || "Error applying for job",
+        message: response.data.message || "Job created successfully.",
         isLoading: false,
       });
+    } catch (error) {
+      console.error("Error creating job:", error);
+
+      toast.error(error.response?.data?.message || "Error creating job");
+      set({
+        error: error.response?.data?.message || "Error creating job",
+        isLoading: false,
+      });
+
       throw error;
     }
   },

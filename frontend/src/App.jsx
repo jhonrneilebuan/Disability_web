@@ -16,6 +16,9 @@ import JobsPage from "./pages/JobsPage";
 import AppliedJobs from "./pages/AppliedJobs";
 import EmployerJobPage from "./pages/EmployerJobPage";
 import EmployerApplicantsPage from "./pages/EmployerApplicantsPage";
+import UserData from "./pages/UserData";
+import JobPost from "./pages/JobPost";
+import MessagingPage from "./pages/MessagingPage";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();
@@ -155,7 +158,34 @@ function App() {
             </RedirectAuthenticatedUser>
           }
         />
+        <Route
+          path="/user/:userId"
+          element={
+            <ProtectedRoute>
+              <UserData />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/employer/job-post"
+          element={
+            <ProtectedRoute>
+              <JobPost />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/messaging"
+          element={
+            <ProtectedRoute>
+              <MessagingPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
+
       <Toaster />
     </div>
   );
