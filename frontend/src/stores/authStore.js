@@ -13,6 +13,7 @@ export const authStore = create((set) => ({
   isCheckingAuth: true,
   isUpdatingProfile: false,
   message: null,
+  onlineUsers: [],
 
   signup: async (email, password, fullName, role, privacyAgreement) => {
     set({ isLoading: true, error: null });
@@ -87,6 +88,7 @@ export const authStore = create((set) => ({
         user: response.data.user,
         isAuthenticated: true,
         isCheckingAuth: false,
+        
       });
     } catch (error) {
       console.error("checkAuth error:", error.response?.data || error.message);
@@ -94,7 +96,7 @@ export const authStore = create((set) => ({
         error: error.response?.data?.message || "Authentication failed",
         isCheckingAuth: false,
         isAuthenticated: false,
-        error: null,
+        error: null
       });
       throw error;
     }

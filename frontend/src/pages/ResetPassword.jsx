@@ -1,13 +1,15 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { authStore } from "../stores/authStore";
+import { Eye, EyeClosed, Lock } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import Input from "../components/Input";
-import { Lock } from "lucide-react";
-import toast from "react-hot-toast";
+import { authStore } from "../stores/authStore";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const { resetPassword, error, isLoading, message } = authStore();
 
@@ -18,7 +20,7 @@ const ResetPassword = () => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
     try {
@@ -32,7 +34,6 @@ const ResetPassword = () => {
       }, 2000);
     } catch (error) {
       console.error(error);
-      toast.error(error.message || "Error resetting password");
     }
   };
 
@@ -52,23 +53,43 @@ const ResetPassword = () => {
           {message && <p className="text-green-500 text-sm mb-4">{message}</p>}
 
           <form onSubmit={handleSubmit}>
-            <Input
-              icon={Lock}
-              type="password"
-              placeholder="New Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="relative">
+              <Input
+                icon={Lock}
+                type={showNewPassword ? "text" : "password"}
+                placeholder="New Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
 
-            <Input
-              icon={Lock}
-              type="password"
-              placeholder="Confirm New Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500 hover:text-gray-400"
+              >
+                {showNewPassword ? <EyeClosed /> : <Eye />}
+              </button>
+            </div>
+
+            <div className="relative">
+              <Input
+                icon={Lock}
+                type={showPassword ? "text" : "password"}
+                placeholder="Confirm New Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500 hover:text-gray-400"
+              >
+                {showPassword ? <EyeClosed /> : <Eye />}
+              </button>
+            </div>
 
             <motion.button
               whileHover={{ scale: 1.02 }}

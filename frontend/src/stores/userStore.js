@@ -5,7 +5,7 @@ const API_URL = "http://localhost:8080/api";
 
 axios.defaults.withCredentials = true;
 
-export const userStore = create((set, get) => ({
+export const userStore = create((set) => ({
   isLoading: false,
   error: null,
   users: [],

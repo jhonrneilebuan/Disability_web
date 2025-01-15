@@ -7,6 +7,7 @@ const API_URL = "http://localhost:8080/api";
 axios.defaults.withCredentials = true;
 
 export const jobStore = create((set, get) => ({
+  jobDetails: null,
   jobPosts: [],
   applications: [],
   employerApplicants: [],
@@ -34,6 +35,26 @@ export const jobStore = create((set, get) => ({
       throw error;
     }
   },
+
+  getJobById: async (jobId) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.get(`${API_URL}/jobs/${jobId}`);
+      set({
+        jobDetails: response.data,
+        isLoading: false,
+      });
+    } catch (error) {
+      console.error("Error fetching job posts:", error);
+      toast.error(error.response?.data?.message || "Error fetching job posts");
+      set({
+        error: error.response?.data?.message || "Error fetching job posts",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
 
   createJobPost: async (jobData) => {
     set({ isLoading: true, error: null });
@@ -89,9 +110,6 @@ export const jobStore = create((set, get) => ({
       });
     } catch (error) {
       console.error("Error fetching applications:", error);
-      toast.error(
-        error.response?.data?.message || "Error fetching applications"
-      );
       set({
         error: error.response?.data?.message || "Error fetching applications",
         isLoading: false,

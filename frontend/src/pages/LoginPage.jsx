@@ -1,14 +1,15 @@
-import { useState } from "react";
-import Input from "../components/Input";
 import { motion } from "framer-motion";
-import { Mail, Lock, Loader } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { authStore } from "../stores/authStore";
+import { Loader, Lock, Mail, Eye, EyeClosed } from "lucide-react";
+import { useState } from "react";
 import toast from "react-hot-toast";
+import { Link, useNavigate } from "react-router-dom";
+import Input from "../components/Input";
+import { authStore } from "../stores/authStore";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { user, login, error, isLoading } = authStore();
 
@@ -49,13 +50,22 @@ const LoginPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            <Input
-              icon={Lock}
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="relative">
+              <Input
+                icon={Lock}
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500 hover:text-gray-400"
+              >
+                {showPassword ? <EyeClosed /> : <Eye />}
+              </button>
+            </div>
 
             <div className="">
               <Link
@@ -86,7 +96,7 @@ const LoginPage = () => {
         </div>
         <div className="px-8 py-4 bg-gray-900 bg-opacity-50 flex justify-center">
           <p className="text-sm text-gray-400">
-            Don't have an account? {""}
+            Don&apos;t have an account?
             <Link to={"/"} className="text-green-400 hover:underline">
               Sign up
             </Link>

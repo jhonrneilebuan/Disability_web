@@ -11,7 +11,12 @@ const EmployerJobPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchSubmitted, setIsSearchSubmitted] = useState(false);
 
-  const { jobPosts, isLoading, error, getEmployerJobs, deleteJobPost } =
+  const { 
+    jobPosts, 
+    //isLoading, 
+    //error, 
+    getEmployerJobs, 
+    deleteJobPost } =
     jobStore();
 
   useEffect(() => {
@@ -134,8 +139,8 @@ const EmployerJobPage = () => {
             <div className="text-center">
               <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
               <p>
-                Are you sure you want to delete the job "{selectedJob?.jobTitle}
-                "?
+                Are you sure you want to delete the job &quot;{selectedJob?.jobTitle}
+                &quot;?
               </p>
               <div className="mt-4 flex justify-center gap-4">
                 <button

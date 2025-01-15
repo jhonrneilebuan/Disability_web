@@ -1,9 +1,5 @@
-import React from 'react'
-
 const EditProfileInfoPage = () => {
-  return (
-    <div>{""}</div>
-  )
-}
+  return <div>{""}</div>;
+};
 
-export default EditProfileInfoPage
+export default EditProfileInfoPage;

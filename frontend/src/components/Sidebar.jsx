@@ -37,7 +37,7 @@ const Sidebar = () => {
   }, [getTotalApplications]);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex min-h-screen">
       <div
         className={`h-full bg-white shadow-xl relative  ${
           isSidebarCollapsed ? "w-20" : "w-60"

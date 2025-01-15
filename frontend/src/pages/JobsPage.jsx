@@ -1,7 +1,19 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { jobStore } from "../stores/jobStore";
-import { MapPinned, Banknote, XCircle, Clock3, X, Loader } from "lucide-react";
+import {
+  MapPinned,
+  Banknote,
+  XCircle,
+  Clock3,
+  X,
+  Loader,
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+} from "lucide-react";
+
 import SearchBar from "../components/Search";
 import FormatTimeDate from "../components/FormatTimeDate";
 import Footer from "../components/Footer";
@@ -9,6 +21,7 @@ import Modal from "../components/Modal";
 
 const JobsPage = () => {
   const [open, setOpen] = useState(false);
+  const [currentSection, setCurrentSection] = useState("section1");
   const [selectedJob, setSelectedJob] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [location, setLocation] = useState("");
@@ -17,6 +30,10 @@ const JobsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("ALL");
   const [selectedJobShift, setSelectedJobShift] = useState("listedAnyTime");
   const [selectedJobType, setselectedJobType] = useState("All work types");
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 9;
+  const navigate = useNavigate();
+
   const {
     getJobPosts,
     jobPosts,
@@ -28,12 +45,34 @@ const JobsPage = () => {
     savedJobs,
   } = jobStore();
 
-  useEffect(() => {
-    getJobPosts();
-  }, [getJobPosts]);
+  const toggleSection = () => {
+    setCurrentSection((prevSection) =>
+      prevSection === "section1" ? "section2" : "section1"
+    );
+  };
 
   useEffect(() => {
-    getSavedJobs(); 
+    getJobPosts();
+    getSavedJobs();
+  }, [getJobPosts, getSavedJobs]);
+
+  useEffect(() => {
+    if (
+      selectedJob &&
+      savedJobs.some((savedJob) => savedJob.jobId._id === selectedJob._id)
+    ) {
+      setIsJobSaved(true);
+    } else {
+      setIsJobSaved(false);
+    }
+  }, [savedJobs, selectedJob]);
+
+  useEffect(() => {
+    return () => {
+      setSelectedJob(null);
+      setSearchKeyword("");
+      setIsJobSaved(false);
+    };
   }, []);
 
   if (error) {
@@ -119,27 +158,37 @@ const JobsPage = () => {
     "Internship",
   ];
 
+  const totalPages = Math.ceil(filteredJobPosts.length / jobsPerPage);
+
+  const startIndex = (currentPage - 1) * jobsPerPage;
+  const currentJobs = filteredJobPosts.slice(
+    startIndex,
+    startIndex + jobsPerPage
+  );
+
+  const handlePageChange = (page) => {
+    if (page > 0 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  // TODO: Implement search functionality later
+  //* Note: This is unfinished because IDK what functionality I need to add to this button :{
+  /*
   const handleSearch = () => {
     setSearch(filteredJobPosts);
   };
-
-  useEffect(() => {
-    if (
-      selectedJob &&
-      savedJobs.some((savedJob) => savedJob.jobId._id === selectedJob._id)
-    ) {
-      setIsJobSaved(true);
-    } else {
-      setIsJobSaved(false);
-    }
-  }, [savedJobs, selectedJob]);
+  */
+  
 
   const handleSaveJob = async (jobId) => {
-    await saveJob(jobId); 
-
+    await saveJob(jobId);
     getSavedJobs();
-
     setIsJobSaved(true);
+  };
+
+  const handleJobDetails = (jobId) => {
+    navigate(`/job-details/${jobId}`);
   };
 
   const handleApply = async (event) => {
@@ -192,13 +241,13 @@ const JobsPage = () => {
   return (
     <main className="min-h-screen flex flex-col overflow-auto">
       <Navbar />
-      <section className="bg-applicant-bg-3 bg-no-repeat bg-cover bg-center flex-grow flex flex-col items-start justify-start space-y-4 pt-8 h-screen">
+      <section className="bg-applicant-bg-3 bg-transparent bg-no-repeat bg-cover bg-center flex-grow flex flex-col items-start justify-start space-y-4 pt-8 h-screen">
         <h1 className="text-7xl font-semibold self-start font-poppins text-white ml-4 pl-4 pt-10 text-shadow-xl sm:text-5xl md:text-6xl">
-          LET'S GET YOU <br />
+          LET&apos;S GET YOU <br />
           FIND A JOB
         </h1>
         <p className="text-4xl text-left text-md font-medium font-jakarta ml-4 pl-4 pb-14 text-white text-shadow-xl sm:text-xl md:text-2xl">
-          WE'VE GOT {jobPosts?.length || 0} JOBS TO APPLY!
+          WE&apos;VE GOT {jobPosts?.length || 0} JOBS TO APPLY!
         </p>
         <div className="flex flex-col items-center mx-auto space-y-6">
           <SearchBar
@@ -245,190 +294,311 @@ const JobsPage = () => {
         </div>
       </section>
 
-      <section className="flex mt-14 h-[150vh] flex-col sm:flex-row">
-        <div className="w-full sm:w-2/4 p-4 h-full overflow-y-auto ml-24">
-          <div className="space-y-4">
-            {filteredJobPosts.length > 0 ? (
-              filteredJobPosts.map((job) => (
-                <div
-                  key={job.id || job._id}
-                  className="bg-white rounded-lg border-solid border-2 border-browny shadow-md p-4 cursor-pointer font-poppins hover:bg-gray-100"
-                  onClick={() => setSelectedJob(job)}
+      <div className="mx-28 mt-6">
+        <button
+          onClick={toggleSection}
+          className="flex items-center justify-center w-12 h-12 bg-browny text-white rounded-2xl shadow-lg  focus:ring-blue-300 transition mb-2"
+        >
+          {currentSection === "section1" ? (
+            <img src="grid.png" alt="Columns" className="w-6 h-6" />
+          ) : (
+            <img src="verticals.png" alt="Grid" className="w-6 h-6" />
+          )}
+        </button>
+        <hr className="border-t-2 border-browny w-full my-4" />
+      </div>
+
+      {currentSection === "section2" ? (
+        <section className="flex mt-3 h-[150vh] flex-col sm:flex-row bg-white">
+          <div className="w-full sm:w-2/4 p-4 h-full overflow-y-auto ml-24">
+            <div className="space-y-4">
+              {filteredJobPosts.length > 0 ? (
+                filteredJobPosts.map((job) => (
+                  <div
+                    key={job.id || job._id}
+                    className="bg-white rounded-lg border-solid border-2 border-browny shadow-md p-4 cursor-pointer font-poppins hover:bg-gray-100"
+                    onClick={() => setSelectedJob(job)}
+                  >
+                    <h3 className="text-xl font-bold">{job.jobTitle}</h3>
+                    <p className="text-base text-gray-500">
+                      {job.employer?.fullName}
+                    </p>
+                    <br />
+                    <p className="text-sm text-gray-500">
+                      {job.jobDescription}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500">No job posts available.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="w-full sm:w-2/3 p-8 relative font-poppins">
+            {selectedJob ? (
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <button
+                  className="absolute top-4 right-4 text-gray-500"
+                  onClick={() => setSelectedJob(null)}
                 >
-                  <h3 className="text-xl font-bold">{job.jobTitle}</h3>
-                  <p className="text-base text-gray-500">
-                    {job.employer?.fullName}
-                  </p>
-                  <br />
-                  <p className="text-sm text-gray-500">{job.jobDescription}</p>
+                  <XCircle size={24} />
+                </button>
+
+                <h2 className="text-3xl font-extrabold">
+                  {selectedJob.jobTitle}
+                </h2>
+                <p className="text-xl font-normal">
+                  {selectedJob.employer?.fullName}/
+                  {selectedJob.companyName || selectedJob.employer.companyName}
+                </p>
+
+                {selectedJob.locations && selectedJob.locations.length > 0 && (
+                  <div className="flex items-center space-x-2">
+                    <MapPinned className="h-5 w-5 text-gray-500" />
+                    <p className="text-xl font-normal">
+                      {selectedJob.locations.join(", ")}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex items-center space-x-2">
+                  <Clock3 className="h-5 w-5 text-gray-500" />
+                  <p className="text-xl font-normal">{selectedJob.jobType}</p>
                 </div>
-              ))
+
+                {selectedJob.expectedSalary &&
+                selectedJob.expectedSalary.minSalary &&
+                selectedJob.expectedSalary.maxSalary ? (
+                  <div className="flex items-center space-x-2">
+                    <Banknote className="h-5 w-5 text-gray-500" />
+                    <p className="text-xl font-normal">
+                      ₱{selectedJob.expectedSalary.minSalary.toLocaleString()} -
+                      ₱{selectedJob.expectedSalary.maxSalary.toLocaleString()}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <Banknote className="h-5 w-5 text-gray-500" />
+                    <p className="text-lg font-semibold">
+                      Salary information not available
+                    </p>
+                  </div>
+                )}
+
+                <div className="mt-4 text-sm flex items-center space-x-2">
+                  <span>Posted</span>
+                  <FormatTimeDate
+                    date={selectedJob.createdAt}
+                    formatType="relative"
+                  />
+                </div>
+
+                <div className="flex space-x-7 mt-6">
+                  <button
+                    className="px-24 py-3 bg-buttonBlue text-white rounded font-poppins font-semibold"
+                    onClick={() => {
+                      setOpen(true);
+                    }}
+                  >
+                    Apply
+                  </button>
+                  <button
+                    className={`px-20 py-3 rounded border-2 font-poppins font-semibold transition-all ${
+                      isJobSaved
+                        ? "bg-red-500 scale-105 text-white"
+                        : "bg-transparent border-BLUE text-BLUE"
+                    }`}
+                    onClick={() => handleSaveJob(selectedJob._id)}
+                  >
+                    {isJobSaved ? "Saved!" : "Save"}
+                  </button>
+                </div>
+
+                <div className="mt-8">
+                  <ul className="space-y-4">
+                    <li>
+                      <p className="text-base">Application Deadline:</p>
+                      <ul className="list-disc pl-6 text-base">
+                        <li>
+                          {selectedJob.applicationDeadline
+                            ? new Date(
+                                selectedJob.applicationDeadline
+                              ).toLocaleDateString()
+                            : "Not available"}
+                        </li>
+                      </ul>
+                    </li>
+                    <li>
+                      <p className="text-base">Job Qualifications:</p>
+                      <ul className="list-disc pl-6 text-base">
+                        <li>
+                          {selectedJob.jobQualifications || "Not specified"}
+                        </li>
+                      </ul>
+                    </li>
+                    <li>
+                      <p className="text-base">Job Experience:</p>
+                      <ul className="list-disc pl-6 text-base">
+                        <li>{selectedJob.jobExperience || "Not specified"}</li>
+                      </ul>
+                    </li>
+                    <li>
+                      <p className="text-base">Preferred Language:</p>
+                      <ul className="list-disc pl-6 text-base">
+                        <li>
+                          {selectedJob.preferredLanguage || "Not specified"}
+                        </li>
+                      </ul>
+                    </li>
+                    <li>
+                      <p className="text-base">Job Skills:</p>
+                      <ul className="list-disc pl-6 space-y-2 text-base">
+                        {selectedJob.jobSkills &&
+                        selectedJob.jobSkills.length > 0 ? (
+                          selectedJob.jobSkills.map((skill, index) => (
+                            <li key={index} className="text-base text-black">
+                              {skill}
+                            </li>
+                          ))
+                        ) : (
+                          <li className="text-gray-500">No skills listed.</li>
+                        )}
+                      </ul>
+                    </li>
+                    <li>
+                      <p className="text-base">Job Attachment:</p>
+                      <ul className="list-disc pl-6 text-base">
+                        <li>
+                          {selectedJob.jobAttachment ? (
+                            <a
+                              href={selectedJob.jobAttachment}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-500"
+                            >
+                              View Attachment
+                            </a>
+                          ) : (
+                            "No attachment provided"
+                          )}
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             ) : (
-              <p className="text-gray-500">No job posts available.</p>
+              <div className="flex justify-center items-center h-full text-lg font-medium text-gray-500">
+                <p>Click any job to view details</p>
+              </div>
+            )}
+          </div>
+        </section>
+      ) : (
+        <div>
+          <section className="mt-3 h-[170vh] max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4 overflow-hidden">
+            {currentJobs.length > 0 ? (
+              currentJobs.map((job) => {
+                const isJobSaved = savedJobs.some((savedJob) => {
+                  return savedJob.jobId._id === job._id;
+                });
+                return (
+                  <div
+                    key={job.id || job._id}
+                    className="bg-white rounded-lg border-2 border-browny shadow-md p-4 cursor-pointer font-poppins hover:bg-gray-100"
+                  >
+                    <h3 className="text-xl font-bold mb-2 flex items-center justify-between">
+                      {job.jobTitle}
+                      <button>
+                        <Heart
+                          className={`cursor-pointer font-poppins font-semibold transition-all ${
+                            isJobSaved
+                              ? "fill-red-500 text-red-500 scale-110"
+                              : "text-black"
+                          }`}
+                          onClick={() => handleSaveJob(job._id)}
+                        />
+                      </button>
+                    </h3>
+                    <p className="text-base text-black font-light font-poppins bg-green-300 rounded-md w-24 text-center py-1 px-1 mb-2">
+                      {job.jobType || "No job description available"}
+                    </p>
+                    <p className="text-base text-black font-light font-poppins mb-2">
+                      {job.employer?.fullName}
+                    </p>
+                    <p className="text-black font-light font-poppins">
+                      {job.expectedSalary &&
+                      job.expectedSalary.minSalary &&
+                      job.expectedSalary.maxSalary
+                        ? `PHP ${job.expectedSalary.minSalary.toLocaleString()} - PHP ${job.expectedSalary.maxSalary.toLocaleString()}`
+                        : "Salary information not available"}
+                    </p>
+                    <hr className="border-t-2 border-gray-300 my-6" />
+                    <p className="text-black font-poppins font-normal flex-grow">
+                      {job.jobDescription || "No job description available"}
+                    </p>
+                    <button
+                      className="text-blue-500 font-poppins underline py-2 text-left"
+                      onClick={() => {
+                        handleJobDetails(job.id || job._id);
+                      }}
+                    >
+                      See more
+                    </button>
+                    <p className="text-black mt-10 font-poppins">
+                      <FormatTimeDate date={job.createdAt} formatType="date" />
+                    </p>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-gray-500 col-span-full text-center">
+                No job posts available.
+              </p>
+            )}
+          </section>
+
+          <div className="flex justify-center items-center mt-6 space-x-4">
+            {currentPage > 1 && (
+              <button
+                className="flex items-center px-6 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-black font-poppins font-medium"
+                onClick={() => handlePageChange(currentPage - 1)}
+              >
+                <ChevronLeft className="w-5 h-5 mr-2" />
+                Previous
+              </button>
+            )}
+
+            <div className="flex space-x-2">
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index + 1}
+                  className={`px-6 py-3 rounded-lg font-poppins font-medium ${
+                    currentPage === index + 1
+                      ? "bg-browny bg-opacity-25 text-black"
+                      : "bg-gray-100 hover:bg-gray-200"
+                  }`}
+                  onClick={() => handlePageChange(index + 1)}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+
+            {currentPage < totalPages && (
+              <button
+                className="flex items-center px-6 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-black font-poppins font-medium"
+                onClick={() => handlePageChange(currentPage + 1)}
+              >
+                Next
+                <ChevronRight className="w-5 h-5 ml-2" />
+              </button>
             )}
           </div>
         </div>
+      )}
 
-        <div className="w-full sm:w-2/3 p-8 relative font-poppins">
-          {selectedJob ? (
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <button
-                className="absolute top-4 right-4 text-gray-500"
-                onClick={() => setSelectedJob(null)}
-              >
-                <XCircle size={24} />
-              </button>
-
-              <h2 className="text-3xl font-extrabold">
-                {selectedJob.jobTitle}
-              </h2>
-              <p className="text-xl font-normal">
-                {selectedJob.employer?.fullName}/
-                {selectedJob.companyName || selectedJob.employer.companyName}
-              </p>
-
-              {selectedJob.locations && selectedJob.locations.length > 0 && (
-                <div className="flex items-center space-x-2">
-                  <MapPinned className="h-5 w-5 text-gray-500" />
-                  <p className="text-xl font-normal">
-                    {selectedJob.locations.join(", ")}
-                  </p>
-                </div>
-              )}
-
-              <div className="flex items-center space-x-2">
-                <Clock3 className="h-5 w-5 text-gray-500" />
-                <p className="text-xl font-normal">{selectedJob.jobType}</p>
-              </div>
-
-              {selectedJob.expectedSalary &&
-              selectedJob.expectedSalary.minSalary &&
-              selectedJob.expectedSalary.maxSalary ? (
-                <div className="flex items-center space-x-2">
-                  <Banknote className="h-5 w-5 text-gray-500" />
-                  <p className="text-xl font-normal">
-                    ₱{selectedJob.expectedSalary.minSalary.toLocaleString()} - ₱
-                    {selectedJob.expectedSalary.maxSalary.toLocaleString()}
-                  </p>
-                </div>
-              ) : (
-                <div className="flex items-center space-x-2">
-                  <Banknote className="h-5 w-5 text-gray-500" />
-                  <p className="text-lg font-semibold">
-                    Salary information not available
-                  </p>
-                </div>
-              )}
-
-              <div className="mt-4 text-sm flex items-center space-x-2">
-                <span>Posted</span>
-                <FormatTimeDate
-                  date={selectedJob.createdAt}
-                  formatType="relative"
-                />
-              </div>
-
-              <div className="flex space-x-7 mt-6">
-                <button
-                  className="px-24 py-3 bg-buttonBlue text-white rounded font-poppins font-semibold"
-                  onClick={() => {
-                    setOpen(true);
-                  }}
-                >
-                  Apply
-                </button>
-                <button
-                  className={`px-20 py-3 rounded border-2 font-poppins font-semibold transition-all ${
-                    isJobSaved
-                      ? "bg-red-500 scale-105 text-white"
-                      : "bg-transparent border-BLUE text-BLUE"
-                  }`}
-                  onClick={() => handleSaveJob(selectedJob._id)}
-                >
-                  {isJobSaved ? "Saved!" : "Save"}
-                </button>
-              </div>
-
-              <div className="mt-8">
-                <ul className="space-y-4">
-                  <li>
-                    <p className="text-base">Application Deadline:</p>
-                    <ul className="list-disc pl-6 text-base">
-                      <li>
-                        {selectedJob.applicationDeadline
-                          ? new Date(
-                              selectedJob.applicationDeadline
-                            ).toLocaleDateString()
-                          : "Not available"}
-                      </li>
-                    </ul>
-                  </li>
-                  <li>
-                    <p className="text-base">Job Qualifications:</p>
-                    <ul className="list-disc pl-6 text-base">
-                      <li>
-                        {selectedJob.jobQualifications || "Not specified"}
-                      </li>
-                    </ul>
-                  </li>
-                  <li>
-                    <p className="text-base">Job Experience:</p>
-                    <ul className="list-disc pl-6 text-base">
-                      <li>{selectedJob.jobExperience || "Not specified"}</li>
-                    </ul>
-                  </li>
-                  <li>
-                    <p className="text-base">Preferred Language:</p>
-                    <ul className="list-disc pl-6 text-base">
-                      <li>
-                        {selectedJob.preferredLanguage || "Not specified"}
-                      </li>
-                    </ul>
-                  </li>
-                  <li>
-                    <p className="text-base">Job Skills:</p>
-                    <ul className="list-disc pl-6 space-y-2 text-base">
-                      {selectedJob.jobSkills &&
-                      selectedJob.jobSkills.length > 0 ? (
-                        selectedJob.jobSkills.map((skill, index) => (
-                          <li key={index} className="text-base text-black">
-                            {skill}
-                          </li>
-                        ))
-                      ) : (
-                        <li className="text-gray-500">No skills listed.</li>
-                      )}
-                    </ul>
-                  </li>
-                  <li>
-                    <p className="text-base">Job Attachment:</p>
-                    <ul className="list-disc pl-6 text-base">
-                      <li>
-                        {selectedJob.jobAttachment ? (
-                          <a
-                            href={selectedJob.jobAttachment}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-500"
-                          >
-                            View Attachment
-                          </a>
-                        ) : (
-                          "No attachment provided"
-                        )}
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          ) : (
-            <div className="flex justify-center items-center h-full text-lg font-medium text-gray-500">
-              <p>Click any job to view details</p>
-            </div>
-          )}
-        </div>
-      </section>
       {open && selectedJob && (
         <Modal open={open} onClose={() => setOpen(false)}>
           <div className="p-6 w-[90vh] mx-auto relative font-poppins">

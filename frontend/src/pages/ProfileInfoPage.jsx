@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import Navbar from "../components/Navbar";
 import { authStore } from "../stores/authStore";
 import { Camera, Phone, Calendar, Home, User, CheckCircle } from "lucide-react";
@@ -7,7 +7,7 @@ import { formatDate } from "../lib/utils";
 const ProfileInfoPage = () => {
   const { user, updateProfile } = authStore();
   const [selectedImg, setSelectedImg] = useState(null);
-  const [isPwdVisible, setIsPwdVisible] = useState(false);
+  //const [isPwdVisible, setIsPwdVisible] = useState(false);
   const birthdayDate = user.birthday ? formatDate(user.birthday) : "N/A";
 
   const handleImageUpload = async (e) => {

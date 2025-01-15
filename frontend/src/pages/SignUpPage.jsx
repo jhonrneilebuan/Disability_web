@@ -1,16 +1,17 @@
 import { motion } from "framer-motion";
-import Input from "../components/Input";
-import { Mail, User, Lock, Loader } from "lucide-react";
+import { Loader, Lock, Mail, User, Eye, EyeClosed } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { authStore } from "../stores/authStore";
+import Input from "../components/Input";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
-import RoleDropdown from "../components/RoleDropdown";
 import PrivacyAgreementCheckbox from "../components/PrivacyAgreementCheckbox ";
+import RoleDropdown from "../components/RoleDropdown";
+import { authStore } from "../stores/authStore";
 const SignUpPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState("");
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
   const navigate = useNavigate();
@@ -56,13 +57,24 @@ const SignUpPage = () => {
             />
 
             <RoleDropdown role={role} setRole={setRole} />
-            <Input
-              icon={Lock}
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+
+            <div className="relative">
+              <Input
+                icon={Lock}
+                type={showPassword ? "text": "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500 hover:text-gray-400"
+              >
+                {showPassword ? <EyeClosed /> : <Eye />}
+              </button>
+            </div>
             {error && (
               <p className="text-red-500 font-semibold mt-1">{error}</p>
             )}

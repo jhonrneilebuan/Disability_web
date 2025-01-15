@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import { jobStore } from "../stores/jobStore";
 import FormatTimeDate from "../components/FormatTimeDate";
-import { Search, Briefcase, Bookmark, X, Loader } from "lucide-react";
+import { Search, Briefcase, Bookmark, X } from "lucide-react";
 import Footer from "../components/Footer";
 import Modal from "../components/Modal";
 import toast from "react-hot-toast";
@@ -24,7 +24,7 @@ const AppliedJobs = () => {
     savedApplications = [],
     withdrawApplication,
     isLoading,
-    error,
+    //error,
     getSavedJobs,
     savedJobs = [],
     unsaveJob,
@@ -34,11 +34,7 @@ const AppliedJobs = () => {
   useEffect(() => {
     getApplicationsByApplicant();
     getSavedJobs();
-  }, []);
-
-  useEffect(() => {
-    console.log(savedApplications);
-  }, []);
+  }, [getApplicationsByApplicant, getSavedJobs]);
 
   const handleStatusFilter = (e) => {
     setSelectedStatus(e.target.value);
@@ -106,10 +102,8 @@ const AppliedJobs = () => {
   const confirmWithdraw = async () => {
     try {
       await withdrawApplication(selectedApplication);
-      toast.success("Application withdrawn successfully.");
     } catch (error) {
       console.error("Error withdrawing application:", error);
-      toast.error("Failed to withdraw application.");
     } finally {
       setOpen(false);
       setSelectedApplication(null);
@@ -137,11 +131,14 @@ const AppliedJobs = () => {
     );
   }
 
+  // TODO: Implement error state later :>
+  
+
   return (
     <main className="min-h-screen flex flex-col">
       <Navbar />
-      <section className="bg-applicant-bg-3 bg-no-repeat bg-cover bg-center flex-grow flex flex-col space-y-4 pt-8 h-screen">
-        <h1 className="text-5xl font-extrabold text-center font-poppins text-white pt-36 pb-7 text-shadow-xl">
+      <section className="bg-applicant-bg-3 bg-transparent bg-no-repeat bg-cover bg-center flex-grow flex flex-col space-y-4 pt-8 h-screen">
+        <h1 className="text-4xl sm:text-5xl font-extrabold text-center font-poppins text-white pt-36 pb-7 text-shadow-xl">
           MY JOB APPLICATIONS
         </h1>
 
@@ -161,7 +158,7 @@ const AppliedJobs = () => {
           </div>
 
           <div className="flex items-center justify-start w-full max-w-4xl space-x-4 mt-4">
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <select
                 className="px-4 py-3 text-black text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
                 onChange={handleStatusFilter}
@@ -174,7 +171,7 @@ const AppliedJobs = () => {
               </select>
             </div>
 
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <select
                 className="px-4 py-3 text-black text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
                 onChange={handleDateSort}
@@ -190,10 +187,12 @@ const AppliedJobs = () => {
       </section>
 
       <section className="container mx-auto p-6 max-w-4xl overflow-auto">
-        <h3 className="font-medium font-poppins text-4xl my-6">Activity</h3>
+        <h3 className="font-medium font-poppins text-3xl sm:text-4xl my-6">
+          Activity
+        </h3>
         <div className="flex space-x-4 mb-10">
           <button
-            className={`py-2 font-poppins text-2xl flex items-center space-x-2 ${
+            className={`py-2 font-poppins text-xl sm:text-2xl flex items-center space-x-2 ${
               activeTab === "applied"
                 ? "underline underline-offset-8 text-black"
                 : "text-gray-500"
@@ -204,7 +203,7 @@ const AppliedJobs = () => {
             <span>Applied Jobs</span>
           </button>
           <button
-            className={`py-2 font-poppins text-2xl flex items-center space-x-2 ${
+            className={`py-2 font-poppins text-xl sm:text-2xl flex items-center space-x-2 ${
               activeTab === "saved"
                 ? "underline underline-offset-8 text-black"
                 : "text-gray-500"
@@ -223,83 +222,99 @@ const AppliedJobs = () => {
                 className="bg-white rounded-2xl shadow-md p-6 flex flex-col justify-between mb-6 border-2 border-browny border-solid w-full overflow-auto"
               >
                 <div className="flex-1">
-                  <h3 className="text-xl font-base font-poppins mb-2">
+                  <h3 className="text-lg sm:text-xl font-base font-poppins mb-2">
                     Job Title: {application.jobId?.jobTitle}
                   </h3>
                   <div className="flex items-center space-x-2 mb-2">
-                    <p className="text-xl font-base font-poppins">
+                    <p className="text-lg sm:text-xl font-base font-poppins">
                       Date Applied:
                     </p>
-                    <p className="text-xl font-base font-poppins">
+                    <p className="text-lg sm:text-xl font-base font-poppins">
                       <FormatTimeDate
                         date={application.createdAt}
                         formatType="relative"
                       />
                     </p>
                   </div>
-                  <p className="text-xl font-base font-poppins mb-4">
-                    Status: {application.status}
+                  <p className="text-lg sm:text-xl font-base font-poppins mb-4">
+                    Status:{" "}
+                    <span
+                      className={`${
+                        application.status === "Pending"
+                          ? "text-orange-500"
+                          : application.status === "Shortlisted"
+                          ? "text-green-500"
+                          : "text-red-500"
+                      }`}
+                    >
+                      {application.status}
+                    </span>
                   </p>
                 </div>
-                <div className="flex items-center justify-start mt-4">
+                <div className="flex items-center space-x-4 mt-6">
                   <button
-                    className="px-4 py-2 bg-buttonBlue text-white rounded hover:bg-blue-600 mr-5 font-base font-poppins"
                     onClick={() => handleDetails(application)}
+                    className="px-4 py-2 text-sm sm:text-base bg-browny text-white rounded-md"
                   >
-                    View details
+                    View Details
                   </button>
-                  {activeTab === "applied" && (
-                    <button
-                      className="px-4 py-2 bg-buttonBlue text-white rounded hover:bg-blue-600 font-base font-poppins"
-                      onClick={() => handleWithdraw(application._id)}
-                    >
-                      Withdraw Application
-                    </button>
-                  )}
+                  <button
+                    onClick={() => handleWithdraw(application._id)}
+                    className="px-4 py-2 text-sm sm:text-base bg-red-500 text-white rounded-md"
+                  >
+                    Withdraw Application
+                  </button>
                 </div>
               </div>
             ))
           ) : (
-            <p className="text-gray-500 text-center">No applications found.</p>
+            <p className="text-lg sm:text-xl font-poppins text-center text-gray-500">
+              No applications found.
+            </p>
           )
-        ) : activeTab === "saved" ? (
-          filteredSavedJobs.length > 0 ? (
-            filteredSavedJobs.map((savedJob) => (
-              <div
-                key={savedJob._id}
-                className="bg-white rounded-2xl shadow-md p-6 mb-6 border-2 border-browny"
-              >
-                <h3 className="text-xl font-base font-poppins mb-2">
-                  Job Title:{" "}
-                  {savedJob.jobId?.jobTitle || "No job title available"}
+        ) : filteredSavedJobs.length > 0 ? (
+          filteredSavedJobs.map((savedJob) => (
+            <div
+              key={savedJob._id}
+              className="bg-white rounded-2xl shadow-md p-6 flex flex-col justify-between mb-6 border-2 border-browny border-solid w-full overflow-auto"
+            >
+              <div className="flex-1">
+                <h3 className="text-lg sm:text-xl font-base font-poppins mb-2">
+                  Job Title: {savedJob.jobId?.jobTitle}
                 </h3>
-                <div className="flex items-center text-xl font-base font-poppins">
-                  <p className="mr-1">Date Saved:</p>
-                  <p>
+                <div className="flex items-center space-x-2 mb-2">
+                  <p className="text-lg sm:text-xl font-base font-poppins">
+                    Date Saved:
+                  </p>
+                  <p className="text-lg sm:text-xl font-base font-poppins">
                     <FormatTimeDate
                       date={savedJob.createdAt}
-                      formatType="date"
+                      formatType="relative"
                     />
                   </p>
                 </div>
-
-                <div className="flex items-center justify-start mt-4">
-                  <button className="px-4 py-2 bg-buttonBlue text-white rounded hover:bg-blue-600">
-                    View details
-                  </button>
-                  <button
-                    className="px-4 py-2 ml-5 bg-browny hover:bg-orange-700 text-white rounded"
-                    onClick={() => handleUnsave(savedJob._id)}
-                  >
-                    Unsave
-                  </button>
-                </div>
               </div>
-            ))
-          ) : (
-            <p className="text-gray-500 text-center">No saved jobs found.</p>
-          )
-        ) : null}
+              <div className="flex items-center space-x-4 mt-6">
+                <button
+                  onClick={() => handleDetails(savedJob)}
+                  className="px-4 py-2 text-sm sm:text-base bg-browny text-white rounded-md"
+                >
+                  View Details
+                </button>
+                <button
+                  onClick={() => handleUnsave(savedJob._id)}
+                  className="px-4 py-2 text-sm sm:text-base bg-red-500 text-white rounded-md"
+                >
+                  Unsave Job
+                </button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="text-lg sm:text-xl font-poppins text-center text-gray-500">
+            No saved jobs found.
+          </p>
+        )}
 
         {open && (
           <Modal open={open} onClose={() => setOpen(false)}>

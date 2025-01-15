@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import { jobStore } from "../stores/jobStore";
 import FormatTimeDate from "../components/FormatTimeDate";
@@ -12,7 +12,12 @@ const ApplicantPage = () => {
   const [location, setLocation] = useState("");
   const [showAllJobs, setShowAllJobs] = useState(false);
 
-  const { getJobPosts, jobPosts, isLoading, error } = jobStore();
+  const {
+    getJobPosts,
+    jobPosts,
+    //isLoading,
+    error,
+  } = jobStore();
 
   useEffect(() => {
     getJobPosts();
@@ -21,6 +26,8 @@ const ApplicantPage = () => {
   if (error) {
     return <p className="error">{error}</p>;
   }
+
+  // TODO: Implement isLoading state later :) 
 
   const filteredJobPosts = jobPosts.filter((job) => {
     const matchesKeyword =
@@ -75,24 +82,26 @@ const ApplicantPage = () => {
       <Navbar />
 
       <main className="flex-grow flex flex-col">
-        <section className="bg-applicant-bg-1 bg-no-repeat bg-cover bg-center flex flex-col items-center justify-start h-screen pt-48">
+        <section className="bg-applicant-bg-1 bg-no-repeat bg-cover bg-center flex flex-col items-center justify-start h-screen w-full relative pt-32">
           <h1 className="text-7xl font-bold text-center font-poppins text-white ">
             Disability Careers
           </h1>
-          <p className="text-center text-md font-normal font-poppins text-white text-2xl py-6">
+          <p className="text-center text-md font-normal font-poppins text-white text-2xl">
             Connecting Talents with Accessible Job Opportunities
           </p>
 
-          <SearchBar
-            searchKeyword={searchKeyword}
-            setSearchKeyword={setSearchKeyword}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            location={location}
-            setLocation={setLocation}
-            categories={categories}
-            onSearch={handleSearch}
-          />
+          <div className="flex items-center mx-auto">
+            <SearchBar
+              searchKeyword={searchKeyword}
+              setSearchKeyword={setSearchKeyword}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              location={location}
+              setLocation={setLocation}
+              categories={categories}
+              onSearch={handleSearch}
+            />
+          </div>
         </section>
 
         <section className="bg-white h-[150] mb-10">
@@ -150,7 +159,7 @@ const ApplicantPage = () => {
           )}
         </section>
 
-        <section className="bg-applicant-bg-2 bg-no-repeat bg-cover bg-center h-[500px] flex items-center justify-center flex-col px-4 sm:px-8 md:px-12">
+        <section className="bg-applicant-bg-2 bg-transparent bg-no-repeat bg-cover bg-center h-[500px] flex items-center justify-center flex-col px-4 sm:px-8 md:px-12">
           <div className="text-center">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-medium font-poppins text-BLUE mt-16 mb-8 sm:mb-10">
               Empowering Abilities, Transforming Lives

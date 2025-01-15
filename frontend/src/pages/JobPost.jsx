@@ -5,13 +5,16 @@ import { CircleCheck, Undo2 } from "lucide-react";
 import { jobStore } from "../stores/jobStore";
 import { motion } from "framer-motion";
 
-const jobPosts = () => {
+const JobPosts = () => {
   const navigate = useNavigate();
   const [showApplyLink, setShowApplyLink] = useState(false);
   const [skillInput, setSkillInput] = useState("");
   const [skills, setSkills] = useState([]);
   const [isSuccess, setIsSuccess] = useState(false);
-  const { isLoading, error, createJob } = jobStore();
+  const { 
+    //isLoading, 
+    //error, 
+    createJob } = jobStore();
 
   const handleSkillInputChange = (e) => {
     setSkillInput(e.target.value);
@@ -270,7 +273,7 @@ const jobPosts = () => {
                   className="w-full border rounded-lg p-2"
                 >
                   <option value="">Select qualification</option>
-                  <option value="Bachelor's Degree">Bachelor's Degree</option>
+                  <option value="Bachelor's Degree">Bachelor&apos;s Degree</option>
                   <option value="High School Diploma">
                     High School Diploma
                   </option>
@@ -385,7 +388,7 @@ const jobPosts = () => {
               <div className="flex-1">
                 <label className="flex items-center gap-4">
                   <span className="text-sm font-medium">
-                    Add "Apply with Link" Field
+                    Add &quot;Apply with Link&quot; Field
                   </span>
                   <div className="relative inline-block w-10 h-6">
                     <input
@@ -430,4 +433,4 @@ const jobPosts = () => {
   );
 };
 
-export default jobPosts;
+export default JobPosts;

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
@@ -19,6 +19,7 @@ import EmployerApplicantsPage from "./pages/EmployerApplicantsPage";
 import UserData from "./pages/UserData";
 import JobPost from "./pages/JobPost";
 import MessagingPage from "./pages/MessagingPage";
+import JobDetailsPage from "./pages/JobDetailsPage";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();
@@ -163,6 +164,15 @@ function App() {
           element={
             <ProtectedRoute>
               <UserData />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/job-details/:jobId"
+          element={
+            <ProtectedRoute>
+              <JobDetailsPage />
             </ProtectedRoute>
           }
         />

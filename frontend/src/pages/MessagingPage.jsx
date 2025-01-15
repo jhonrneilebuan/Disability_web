@@ -1,11 +1,25 @@
-import React from "react";
-import Loader2 from "../components/Loader";
-const MessagingPage = () => {
+import { chatStore } from "../stores/chatStore";
+import ChatContainer from "../components/chatContainer";
+import NoChatSelected from "../components/NoChatSelected";
+import ChatSidebar from "../components/chatSidebar";
+import Navbar from "../components/Navbar";
+
+const HomePage = () => {
+  const { selectedUser } = chatStore();
+
   return (
-    <div>
-      <Loader2 />
+    <div> 
+      <Navbar />
+      <div className="flex items-stretch justify-center h-[89vh] overflow-hidden"> 
+        <div className="bg-white shadow-cl w-full ">
+          <div className="flex h-full rounded-lg overflow-hidden">
+            <ChatSidebar />
+            {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default MessagingPage;
+export default HomePage;

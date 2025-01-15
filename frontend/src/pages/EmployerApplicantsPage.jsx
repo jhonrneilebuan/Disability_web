@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "../components/Modal";
 import Sidebar from "../components/Sidebar";
 import { jobStore } from "../stores/jobStore";
@@ -24,7 +24,6 @@ const EmployerApplicantsPage = () => {
 
   useEffect(() => {
     getEmployerApplicants();
-    console.log("Applicants fetched:", employerApplicants);
   }, [getEmployerApplicants]);
 
   useEffect(() => {
