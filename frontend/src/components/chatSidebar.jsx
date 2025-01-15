@@ -20,6 +20,7 @@ const ChatSidebar = () => {
 
   if (isUserLoading) return <SideBarSkeleton />;
 
+
   return (
     <aside
       className={`h-full transition-all duration-200 ${
