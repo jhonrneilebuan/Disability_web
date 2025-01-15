@@ -21,6 +21,7 @@ import JobPost from "./pages/JobPost";
 import MessagingPage from "./pages/MessagingPage";
 import JobDetailsPage from "./pages/JobDetailsPage";
 
+
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();
   if (!isAuthenticated) {
@@ -49,7 +50,9 @@ const RedirectAuthenticatedUser = ({ children }) => {
 };
 
 function App() {
-  const { isCheckingAuth, checkAuth } = authStore();
+  const { isCheckingAuth, checkAuth, onlineUsers } = authStore();
+
+  console.log("Online Users: ",onlineUsers)
 
   useEffect(() => {
     checkAuth();

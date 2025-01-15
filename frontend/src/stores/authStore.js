@@ -1,11 +1,15 @@
 import { create } from "zustand";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { io } from "socket.io-client";
 
 const API_URL = "http://localhost:8080/api";
 
+const BASE_URL = "http://localhost:8080";
+
+
 axios.defaults.withCredentials = true;
-export const authStore = create((set) => ({
+export const authStore = create((set, get) => ({
   user: null,
   isAuthenticated: false,
   error: null,
@@ -14,6 +18,7 @@ export const authStore = create((set) => ({
   isUpdatingProfile: false,
   message: null,
   onlineUsers: [],
+  socket:null,
 
   signup: async (email, password, fullName, role, privacyAgreement) => {
     set({ isLoading: true, error: null });
@@ -30,6 +35,7 @@ export const authStore = create((set) => ({
         isAuthenticated: true,
         isLoading: false,
       });
+      get().connectSocket();
     } catch (error) {
       set({
         error: error.response.data.message || "Error signing up",
@@ -51,6 +57,7 @@ export const authStore = create((set) => ({
         isAuthenticated: true,
         isLoading: false,
       });
+      get().connectSocket();
     } catch (error) {
       set({
         error: error.response.data.message || "Error login",
@@ -88,16 +95,11 @@ export const authStore = create((set) => ({
         user: response.data.user,
         isAuthenticated: true,
         isCheckingAuth: false,
-        
       });
+      get().connectSocket();
     } catch (error) {
       console.error("checkAuth error:", error.response?.data || error.message);
-      set({
-        error: error.response?.data?.message || "Authentication failed",
-        isCheckingAuth: false,
-        isAuthenticated: false,
-        error: null
-      });
+      set({ error: null, isCheckingAuth: false, isAuthenticated: false });
       throw error;
     }
   },
@@ -112,6 +114,7 @@ export const authStore = create((set) => ({
         error: null,
         isLoading: false,
       });
+      get().disconnectSocket();
     } catch (error) {
       set({ error: "Error logging out", isLoading: false });
       throw error;
@@ -181,6 +184,25 @@ export const authStore = create((set) => ({
     } finally {
       set({ isUpdatingProfile: false });
     }
-  }
-  
+  },
+  connectSocket: () => {
+    const { user } = get();
+    if (!user || get().socket?.connected) return;
+
+    const socket = io(BASE_URL, {
+      query: {
+        userId: user._id,
+      },
+    });
+    socket.connect();
+
+    set({ socket: socket });
+
+    socket.on("getOnlineUsers", (userIds) => {
+      set({ onlineUsers: userIds });
+    });
+  },
+  disconnectSocket: () => {
+    if (get().socket?.connected) get().socket.disconnect();
+  },
 }));

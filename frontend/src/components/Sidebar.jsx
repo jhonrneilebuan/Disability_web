@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Briefcase,
   Mail,
-  User,
   Clipboard,
-  Bell,
   LogOut,
   ChevronLeft,
   ChevronRight,

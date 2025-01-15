@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { chatStore } from "../stores/chatStore";
 import SideBarSkeleton from "./SidebarSkeleton";
 import { Menu } from "lucide-react";
+import { authStore } from "../stores/authStore";
 
 const ChatSidebar = () => {
   const { getUsersForSidebar, users, selectedUser, setSelectedUser, isUserLoading } = chatStore();
+  const { onlineUsers } = authStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); 
 
-  const onlineUsers = [];
 
   useEffect(() => {
     getUsersForSidebar();

@@ -1,5 +1,5 @@
 import { CircleX } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatTime } from "../lib/utils";
 import { authStore } from "../stores/authStore";
 import { chatStore } from "../stores/chatStore";
@@ -8,15 +8,56 @@ import MessagesInput from "./MessagesInput";
 import MessagesSkeleton from "./MessagesSkeleton";
 
 const ChatContainer = () => {
-  const { messages, getMessages, isMessagesLoading, selectedUser } =
-    chatStore();
+  const {
+    messages,
+    getMessages,
+    isMessagesLoading,
+    selectedUser,
+    subscribeToMessages,
+    unsubscribeFromMessages,
+  } = chatStore();
   const { user } = authStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [zoomedImage, setZoomedImage] = useState(null);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    const images = document.querySelectorAll("img");
+    const promises = Array.from(images).map(
+      (img) =>
+        new Promise((resolve) => {
+          if (img.complete) {
+            resolve();
+          } else {
+            img.onload = resolve;
+            img.onerror = resolve;
+          }
+        })
+    );
+
+    Promise.all(promises).then(scrollToBottom);
+  }, [messages]);
 
   useEffect(() => {
     getMessages(selectedUser._id);
-  }, [selectedUser._id, getMessages]);
+
+    subscribeToMessages();
+
+    return () => unsubscribeFromMessages();
+  }, [
+    selectedUser._id,
+    getMessages,
+    subscribeToMessages,
+    unsubscribeFromMessages,
+  ]);
 
   const handleImageClick = (image) => {
     setZoomedImage(image);
@@ -81,20 +122,17 @@ const ChatContainer = () => {
                 )}
                 {message.text && (
                   <div
-                    className={`chat-bubble text-start items-center justify-center ${
+                    className={`chat-bubble text-start items-center justify-center max-w-96 ${
                       message.senderId === user._id
                         ? "text-right self-end chat-bubble-primary"
                         : "text-left self-start chat-bubble-info"
+                    }  ${
+                      message.text.includes(" ")
+                        ? ""
+                        : "overflow-hidden truncate"
                     } `}
                   >
-                    {message.text.replace(/\s/g, "").length > 78 ? (
-                      <>
-                        {message.text.slice(0, 77)} <br />
-                        {message.text.slice(77)}
-                      </>
-                    ) : (
-                      message.text
-                    )}
+                    {message.text}
                   </div>
                 )}
               </div>
@@ -112,6 +150,7 @@ const ChatContainer = () => {
             </div>
           </div>
         ))}
+        <div ref={messagesEndRef}></div>
       </div>
       <MessagesInput />
 

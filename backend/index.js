@@ -1,30 +1,24 @@
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
 import cookieParser from "cookie-parser";
+import cors from "cors";
+import dotenv from "dotenv";
+import express from "express";
 
+import { corsOptions } from "./config/cors.config.js";
 import { connectDB } from "./db/database.js";
 //import { createAdminAccount } from "./scripts/admin.js";
 
-import authRoutes from "./routes/auth.route.js";
-import profileSettingsRoutes from "./routes/profileSettings.route.js";
-import jobRoutes from "./routes/job.route.js";
-import applicationRoutes from "./routes/application.route.js";
+import { app, server } from "./db/socket.js";
 import adminRoutes from "./routes/admin.route.js";
+import applicationRoutes from "./routes/application.route.js";
+import authRoutes from "./routes/auth.route.js";
+import jobRoutes from "./routes/job.route.js";
+import messageRoutes from "./routes/message.route.js";
+import profileSettingsRoutes from "./routes/profileSettings.route.js";
 import SavedJobRoutes from "./routes/savedJob.js";
 import userRoutes from "./routes/user.route.js";
-import messageRoutes  from "./routes/message.route.js";
-import { app, server } from "./db/socket.js";
-
 
 dotenv.config();
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
 
 //createAdminAccount();
 
@@ -38,9 +32,6 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/savedJobs", SavedJobRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
-
-
-
 
 const PORT = process.env.PORT;
 

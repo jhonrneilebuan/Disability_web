@@ -1,6 +1,7 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 import { create } from "zustand";
+import { authStore } from "./authStore";
 
 const API_URL = "http://localhost:8080/api";
 axios.defaults.withCredentials = true;
@@ -47,6 +48,27 @@ export const chatStore = create((set, get) => ({
     } catch (error) {
       toast.error(error.response.data.message);
     }
+  },
+
+  subscribeToMessages: () => {
+    const { selectedUser } = get();
+    if (!selectedUser) return;
+
+    const socket = authStore.getState().socket;
+
+    socket.on("newMessage", (newMessage) => {
+      const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
+      if (!isMessageSentFromSelectedUser) return;
+
+      set({
+        messages: [...get().messages, newMessage],
+      });
+    });
+  },
+
+  unsubscribeFromMessages: () => {
+    const socket = authStore.getState().socket;
+    socket.off("newMessage");
   },
 
   setSelectedUser: (selectedUser) => set({ selectedUser }),

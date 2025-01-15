@@ -69,12 +69,21 @@ const MessagesInput = () => {
 
       <form onSubmit={handleSendMessage} className="flex items-center gap-3">
         <div className="flex-1 flex gap-3 items-center">
-          <input
-            type="text"
-            className="w-full h-9 p-3 rounded-md border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <textarea
+            className="w-full h-12  pl-3 rounded-lg border border-gray-300 shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 transition-all duration-200 overflow-hidden overflow-x-auto place-content-center font-poppins"
             placeholder="Type a message..."
             value={text}
             onChange={(e) => setText(e.target.value)}
+            wrap="off"
+            rows={5}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+              } else if (e.key === "Enter") {
+                ` ${handleSendMessage()}`;
+              }
+            }}
           />
           <input
             type="file"
@@ -91,12 +100,12 @@ const MessagesInput = () => {
             } hover:text-green-700`}
             onClick={() => fileInputRef.current?.click()}
           >
-            <Plus size={24} />
+            <Plus size={28} />
           </button>
         </div>
         <button
           type="submit"
-          className={`p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl disabled:opacity-50`}
+          className={`flex items-center justify-center p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl disabled:opacity-50 h-12 w-12`}
           disabled={!text.trim() && !imagePreview}
         >
           <SendHorizontal size={20} className="fill-current" />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { Bell, Search, CircleUser, Eye } from "lucide-react";
 import { userStore } from "../stores/userStore";
 import { useNavigate } from "react-router-dom";
@@ -109,7 +109,7 @@ const NavbarEmployer = () => {
                   <span className="font-semibold text-gray-900 dark:text-white">
                     Mark Tristan Raroque
                   </span>
-                  : "Good Morning"
+                  : &quot;Good Morning&quot;
                 </div>
                 <div className="text-xs text-blue-600 dark:text-blue-500">
                   a few moments ago
