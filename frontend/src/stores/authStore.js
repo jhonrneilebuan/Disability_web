@@ -1,12 +1,11 @@
-import { create } from "zustand";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
+import { create } from "zustand";
 
 const API_URL = "http://localhost:8080/api";
 
 const BASE_URL = "http://localhost:8080";
-
 
 axios.defaults.withCredentials = true;
 export const authStore = create((set, get) => ({
@@ -17,9 +16,12 @@ export const authStore = create((set, get) => ({
   isCheckingAuth: true,
   isUpdatingProfile: false,
   isUpdatingCoverPhoto: false,
+  isUpdatingCertificates: false,
+  isUpdatingProfileInfo: false,
+  isUpdatingResume: false,
   message: null,
   onlineUsers: [],
-  socket:null,
+  socket: null,
 
   signup: async (email, password, fullName, role, privacyAgreement) => {
     set({ isLoading: true, error: null });
@@ -121,6 +123,7 @@ export const authStore = create((set, get) => ({
       throw error;
     }
   },
+
   forgotPassword: async (email) => {
     set({ error: null, isLoading: true });
     try {
@@ -137,6 +140,7 @@ export const authStore = create((set, get) => ({
       throw error;
     }
   },
+
   resetPassword: async (token, password) => {
     set({ isLoading: true, error: null });
     try {
@@ -190,20 +194,52 @@ export const authStore = create((set, get) => ({
     }
   },
 
-  userProfileInfo: async (data) => {
-    set({ isUpdatingProfile: true });
+  uploadCertificates: async (data) => {
+    set({ isUpdatingCertificates: true });
     try {
-      const response = await axios.put(`${API_URL}/user/profile`, data);
-      set({ user: response.data.user });
-      toast.success("Profile updated successfully");
+      const response = await axios.put(
+        `${API_URL}/profilesettings/user/certificates`,
+        data
+      );
+      set({ user: response.data });
     } catch (error) {
-      console.error("Error updating profile:", error);
-      toast.error(error.response?.data?.message || "Error updating profile");
+      console.log("Error in uploading certificates", error);
+      toast.error(error.response?.data || "An error occurred");
     } finally {
-      set({ isUpdatingProfile: false });
+      set({ isUpdatingCertificates: false });
     }
   },
-  
+
+  uploadResume: async (data) => {
+    set({ isUpdatingResume: true });
+    try {
+      const response = await axios.put(`${API_URL}/user/resume`, data);
+      set({ user: response.data });
+    } catch (error) {
+      console.log("Error in uploading resume", error);
+      toast.error(error.response?.data || "An error occurred");
+    } finally {
+      set({ isUpdatingResume: false });
+    }
+  },
+
+  userProfileInfo: async (profileData) => {
+    set({ isUpdatingProfileInfo: true, error: null });
+    try {
+      const response = await axios.put(`${API_URL}/profilesettings/user/profile`, profileData);
+      set({ user: response.data.user });
+      toast.success(response.data.message || "Profile updated successfully!");
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+
+      const errorMessage = error.response?.data?.message || "Failed to update profile.";
+      set({ error: errorMessage });
+      toast.error(errorMessage);
+    } finally {
+      set({ isUpdatingProfileInfo: false });
+    }
+  },
+
   connectSocket: () => {
     const { user } = get();
     if (!user || get().socket?.connected) return;
