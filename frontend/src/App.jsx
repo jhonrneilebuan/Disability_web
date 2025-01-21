@@ -20,6 +20,7 @@ import SignUpPage from "./pages/SignUpPage";
 import UserData from "./pages/UserData";
 import { authStore } from "./stores/authStore";
 import VideoChatRoom from "./pages/VideoChatRoom";
+import EditProfileInfoPage from "./pages/EditProfileInfoPage";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();
@@ -202,6 +203,16 @@ function App() {
           element={
             <ProtectedRoute>
               <VideoChatRoom />
+            </ProtectedRoute>
+          }
+        />
+
+
+      <Route
+          path="/edit-profile"
+          element={
+            <ProtectedRoute>
+              < EditProfileInfoPage />
             </ProtectedRoute>
           }
         />

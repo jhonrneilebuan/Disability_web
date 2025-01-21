@@ -135,7 +135,7 @@ const Navbar = () => {
                     </li>
                     <li>
                       <Link
-                        to="/settings"
+                        to="/edit-profile"
                         className="flex items-center px-4 py-2 hover:bg-gray-200"
                       >
                         <Edit className="mr-2 w-4 h-4" />
