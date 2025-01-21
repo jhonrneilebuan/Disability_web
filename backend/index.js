@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 
+
+
 import { corsOptions } from "./config/cors.config.js";
 import { connectDB } from "./db/database.js";
 //import { createAdminAccount } from "./scripts/admin.js";
@@ -16,10 +18,12 @@ import messageRoutes from "./routes/message.route.js";
 import profileSettingsRoutes from "./routes/profileSettings.route.js";
 import SavedJobRoutes from "./routes/savedJob.js";
 import userRoutes from "./routes/user.route.js";
+import emailRoutes from "./routes/email.route.js"
 
 dotenv.config();
 app.use(cors(corsOptions));
 
+app.use("/uploads", express.static("uploads"));
 //createAdminAccount();
 
 app.use(express.json());
@@ -32,6 +36,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/savedJobs", SavedJobRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/email", emailRoutes);
 
 const PORT = process.env.PORT;
 

@@ -21,10 +21,9 @@ export const createJob = async (req, res) => {
       jobSkills,
     } = req.body;
 
-    let expectedSalary;
-    if (req.body.expectedSalary) {
-      expectedSalary = JSON.parse(req.body.expectedSalary);
-    }
+    const expectedSalary = req.body.expectedSalary
+      ? JSON.parse(req.body.expectedSalary)
+      : undefined;
 
     const employer = await User.findById(req.userId);
     if (!employer) {
@@ -32,7 +31,7 @@ export const createJob = async (req, res) => {
     }
 
     const jobAttachmentPath = req.files?.jobAttachment
-      ? req.files.jobAttachment[0].path
+      ? `/uploads/${req.files.jobAttachment[0].filename}` 
       : null;
 
     const finalCompanyName =
@@ -57,11 +56,19 @@ export const createJob = async (req, res) => {
       jobLevel,
       applyWithLink,
       jobSkills,
-      expectedSalary, 
+      expectedSalary,
       jobAttachment: jobAttachmentPath,
     });
 
-    res.status(201).json({ message: "Job posted successfully", job });
+    res.status(201).json({
+      message: "Job posted successfully",
+      job: {
+        ...job._doc,
+        jobAttachment: jobAttachmentPath
+          ? `http://localhost:8080${jobAttachmentPath}`
+          : null,
+      },
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -73,11 +80,21 @@ export const getAllJobs = async (req, res) => {
       "employer",
       "fullName email employerInformation.companyName employerInformation.companyAddress employerInformation.isIdVerified"
     );
-    res.status(200).json(jobs);
+
+    const updatedJobs = jobs.map((job) => {
+      const jobData = job.toObject(); 
+      if (jobData.jobAttachment) {
+        jobData.jobAttachment = `http://localhost:8080/${jobData.jobAttachment}`;
+      }
+      return jobData;
+    });
+
+    res.status(200).json(updatedJobs);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
+
 
 export const getEmployerJobs = async (req, res) => {
   try {
@@ -109,11 +126,18 @@ export const getJobById = async (req, res) => {
     if (!job) {
       return res.status(404).json({ message: "Job not found" });
     }
-    res.status(200).json(job);
+
+    const jobData = job.toObject(); 
+    if (jobData.jobAttachment) {
+      jobData.jobAttachment = `http://localhost:8080/${jobData.jobAttachment}`;
+    }
+
+    res.status(200).json(jobData);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
+
 
 export const deleteJobById = async (req, res) => {
   try {

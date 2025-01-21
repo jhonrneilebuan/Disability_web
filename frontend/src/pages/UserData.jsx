@@ -2,6 +2,7 @@ import  { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { userStore } from "../stores/userStore";
 import Sidebar from "../components/Sidebar";
+import { chatStore } from "../stores/chatStore";
 import {
   Accessibility,
   User,
@@ -21,6 +22,7 @@ const UserData = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("bio");
   const { fetchUserData, profileData, isLoading, error } = userStore();
+  const {setSelectedUser} = chatStore();
 
   const tabs = ["bio", "career Info", "Accessibility Info"];
 
@@ -49,6 +51,11 @@ const UserData = () => {
     setActiveTab(tabs[newIndex]);
   };
 
+  const handleMessageClick = () => {
+    setSelectedUser(profileData);
+    navigate("/messaging");
+  };
+
   return (
     <div className="flex flex-col h-screen font-poppins">
       <div className="flex flex-1 h-[90vh]">
@@ -71,7 +78,7 @@ const UserData = () => {
                 />
 
                 <div className="flex space-x-4 mt-4">
-                  <button className="bg-blue-600 text-white py-2 px-4 rounded-full flex items-center">
+                  <button className="bg-blue-600 text-white py-2 px-4 rounded-full flex items-center" onClick={handleMessageClick}>
                     <Send size={18} className="mr-2" /> Message
                   </button>
 

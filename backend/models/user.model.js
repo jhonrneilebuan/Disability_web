@@ -43,6 +43,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    coverPhoto: {
+      type: String,
+      default: "",
+    },
     contact: {
       type: String,
       required: false,
@@ -75,6 +79,10 @@ const userSchema = new mongoose.Schema(
       workExperience: {
         type: String,
       },
+      resume: {
+        type: String,
+      },
+      certifications: [{ type: String }],
     },
 
     disabilityInformation: {
@@ -84,6 +92,9 @@ const userSchema = new mongoose.Schema(
       isIdVerified: {
         type: Boolean,
         default: false,
+      },
+      accessibilityNeeds: {
+        type: String,
       },
       disabilityType: {
         type: String,

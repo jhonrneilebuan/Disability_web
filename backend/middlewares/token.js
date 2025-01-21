@@ -16,6 +16,7 @@ export const verifyToken = async (req, res, next) => {
     }
 
     req.userId = decode.userId;
+    
     next();
   } catch (error) {
     console.error(`Error in verifyToken middleware: ${error.message}`);

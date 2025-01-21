@@ -70,7 +70,7 @@ const MessagesInput = () => {
       <form onSubmit={handleSendMessage} className="flex items-center gap-3">
         <div className="flex-1 flex gap-3 items-center">
           <textarea
-            className="w-full h-12  pl-3 rounded-lg border border-gray-300 shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 transition-all duration-200 overflow-hidden overflow-x-auto place-content-center font-poppins"
+            className="w-full h-12  pl-3 rounded-lg border border-gray-300 shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 transition-all duration-200 overflow-hidden place-content-center font-poppins"
             placeholder="Type a message..."
             value={text}
             onChange={(e) => setText(e.target.value)}

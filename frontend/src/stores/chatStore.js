@@ -72,4 +72,15 @@ export const chatStore = create((set, get) => ({
   },
 
   setSelectedUser: (selectedUser) => set({ selectedUser }),
+
+  startPolling: () => {
+    const interval = setInterval(() => {
+      get().getUsersForSidebar();
+    }, 30000);
+    set({ pollingInterval: interval });
+  },
+
+  stopPolling: () => {
+    clearInterval(get().pollingInterval);
+  },
 }));

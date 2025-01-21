@@ -185,6 +185,7 @@ export const authStore = create((set, get) => ({
       set({ isUpdatingProfile: false });
     }
   },
+  
   connectSocket: () => {
     const { user } = get();
     if (!user || get().socket?.connected) return;

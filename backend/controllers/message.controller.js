@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
+import { transporter } from "../mailtrap/gmail.config.js";
 
 import cloudinary from "../db/cloudinary.js";
 import { getReceiverSocketId, io } from "../db/socket.js";
@@ -7,14 +8,30 @@ import { getReceiverSocketId, io } from "../db/socket.js";
 export const getUsersForSidebar = async (req, res) => {
   try {
     const loggedInUserId = req.userId;
-    const filteredUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
+
+    const messages = await Message.find({
+      $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
+    }).select("senderId receiverId");
+
+    const userIds = new Set();
+    messages.forEach((message) => {
+      if (message.senderId.toString() !== loggedInUserId) {
+        userIds.add(message.senderId.toString());
+      }
+      if (message.receiverId.toString() !== loggedInUserId) {
+        userIds.add(message.receiverId.toString());
+      }
+    });
+
+    const filteredUsers = await User.find({ _id: { $in: Array.from(userIds) } }).select("-password");
 
     res.status(200).json(filteredUsers);
   } catch (error) {
-    console.error("Error in getUsersForSidebar: ", error.message);
+    console.error("Error in getUsersForSidebar:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 export const getMessages = async (req, res) => {
   try {
@@ -67,3 +84,4 @@ export const sendMessage = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+

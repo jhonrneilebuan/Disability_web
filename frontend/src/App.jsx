@@ -1,26 +1,25 @@
-import { Routes, Route } from "react-router-dom";
-import SignUpPage from "./pages/SignUpPage";
-import LoginPage from "./pages/LoginPage";
-import EmailVerificationPage from "./pages/EmailVerificationPage";
-import { Toaster } from "react-hot-toast";
-import { authStore } from "./stores/authStore";
 import { useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import { Navigate, Route, Routes } from "react-router-dom";
+import Loading from "./components/Loading";
 import ApplicantPage from "./pages/ApplicantPage";
+import AppliedJobs from "./pages/AppliedJobs";
+import EmailVerificationPage from "./pages/EmailVerificationPage";
+import EmployerApplicantsPage from "./pages/EmployerApplicantsPage";
+import EmployerJobPage from "./pages/EmployerJobPage";
 import EmployerPage from "./pages/EmployerPage";
 import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import Loading from "./components/Loading";
-import ProfileInfoPage from "./pages/ProfileInfoPage";
-import JobsPage from "./pages/JobsPage";
-import AppliedJobs from "./pages/AppliedJobs";
-import EmployerJobPage from "./pages/EmployerJobPage";
-import EmployerApplicantsPage from "./pages/EmployerApplicantsPage";
-import UserData from "./pages/UserData";
-import JobPost from "./pages/JobPost";
-import MessagingPage from "./pages/MessagingPage";
 import JobDetailsPage from "./pages/JobDetailsPage";
-
+import JobPost from "./pages/JobPost";
+import JobsPage from "./pages/JobsPage";
+import LoginPage from "./pages/LoginPage";
+import MessagingPage from "./pages/MessagingPage";
+import ProfileInfoPage from "./pages/ProfileInfoPage";
+import ResetPassword from "./pages/ResetPassword";
+import SignUpPage from "./pages/SignUpPage";
+import UserData from "./pages/UserData";
+import { authStore } from "./stores/authStore";
+import VideoChatRoom from "./pages/VideoChatRoom";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();
@@ -52,7 +51,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
 function App() {
   const { isCheckingAuth, checkAuth, onlineUsers } = authStore();
 
-  console.log("Online Users: ",onlineUsers)
+  console.log("Online Users: ", onlineUsers);
 
   useEffect(() => {
     checkAuth();
@@ -194,6 +193,15 @@ function App() {
           element={
             <ProtectedRoute>
               <MessagingPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/videoRoom"
+          element={
+            <ProtectedRoute>
+              <VideoChatRoom />
             </ProtectedRoute>
           }
         />

@@ -22,6 +22,8 @@ const LoginPage = () => {
           navigate("/applicant");
         } else if (user.role === "Employer") {
           navigate("/employer");
+        } else if (user.role === "Admin") {
+          navigate("/");
         }
       }
       toast.success("Login successfully");

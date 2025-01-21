@@ -1,25 +1,31 @@
 import { useEffect, useState } from "react";
 import { chatStore } from "../stores/chatStore";
 import SideBarSkeleton from "./SidebarSkeleton";
-import { Menu } from "lucide-react";
+import { Menu, Video } from "lucide-react";
 import { authStore } from "../stores/authStore";
 
 const ChatSidebar = () => {
-  const { getUsersForSidebar, users, selectedUser, setSelectedUser, isUserLoading } = chatStore();
+  const { getUsersForSidebar, users, selectedUser, setSelectedUser, isUserLoading, startPolling, stopPolling } = chatStore();
   const { onlineUsers } = authStore();
-  const [showOnlineOnly, setShowOnlineOnly] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); 
 
 
   useEffect(() => {
     getUsersForSidebar();
-  }, [getUsersForSidebar]);
+    startPolling(); 
 
-  const filteredUsers = showOnlineOnly
-    ? users.filter((user) => onlineUsers.includes(user._id))
-    : users;
+    return () => {
+      stopPolling(); 
+    };
+  }, [getUsersForSidebar, startPolling, stopPolling]);
 
   if (isUserLoading) return <SideBarSkeleton />;
+
+  const handleCreateRoom = () => {
+    window.open("/videoRoom", "_blank", "width=800,height=600,resizable=yes,scrollbars=yes");
+  };
+
+  
 
 
   return (
@@ -41,23 +47,14 @@ const ChatSidebar = () => {
           </span>
         </div>
         {!isSidebarCollapsed && (
-          <div className="mt-3 hidden lg:flex items-center gap-2">
-            <label className="cursor-pointer flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={showOnlineOnly}
-                onChange={(e) => setShowOnlineOnly(e.target.checked)}
-                className="checkbox checkbox-sm"
-              />
-              <span className="text-sm">Show online only</span>
-            </label>
-            <span className="text-xs text-zinc-500">({onlineUsers.length - 1} online)</span>
-          </div>
+         <button className="bg-blue-600 text-white py-2 px-4 mt-2 rounded-md flex items-center" onClick={handleCreateRoom}>
+         <Video size={18} className="mr-2" /> Create Room
+       </button>
         )}
       </div>
 
       <div className="overflow-y-auto w-full py-3">
-        {filteredUsers.map((user) => (
+        {users.map((user) => (
           <button
             key={user._id}
             onClick={() => setSelectedUser(user)}
@@ -90,7 +87,7 @@ const ChatSidebar = () => {
           </button>
         ))}
 
-        {filteredUsers.length === 0 && (
+        {users.length === 0 && (
           <div className="text-center text-zinc-500 py-4">No online users</div>
         )}
       </div>

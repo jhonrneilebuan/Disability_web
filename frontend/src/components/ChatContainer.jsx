@@ -79,6 +79,13 @@ const ChatContainer = () => {
     );
   }
 
+  const formatMessageText = (text) => {
+    const urlPattern = /https?:\/\/[^\s]+/g; 
+    return text.replace(urlPattern, (url) => {
+      return `<a href="${url}" target="_blank" class="text-blue-500 hover:underline">${url}</a>`;
+    });
+  };
+
   return (
     <main className="flex-1 flex flex-col overflow-auto">
       <ChatHeader />
@@ -120,20 +127,19 @@ const ChatContainer = () => {
                     onClick={() => handleImageClick(message.image)}
                   />
                 )}
-                {message.text && (
+                 {message.text && (
                   <div
                     className={`chat-bubble text-start items-center justify-center max-w-96 ${
                       message.senderId === user._id
                         ? "text-right self-end chat-bubble-primary"
                         : "text-left self-start chat-bubble-info"
                     }  ${
-                      message.text.includes(" ")
-                        ? ""
-                        : "overflow-hidden truncate"
+                      message.text.includes(" ") ? "" : "overflow-hidden truncate"
                     } `}
-                  >
-                    {message.text}
-                  </div>
+                    dangerouslySetInnerHTML={{
+                      __html: formatMessageText(message.text),
+                    }}
+                  ></div>
                 )}
               </div>
 

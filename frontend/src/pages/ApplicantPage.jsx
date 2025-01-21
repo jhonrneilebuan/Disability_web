@@ -1,16 +1,17 @@
-import { useState, useEffect } from "react";
-import Navbar from "../components/Navbar";
-import { jobStore } from "../stores/jobStore";
-import FormatTimeDate from "../components/FormatTimeDate";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
+import FormatTimeDate from "../components/FormatTimeDate";
+import Navbar from "../components/Navbar";
 import SearchBar from "../components/Search";
-import { Link } from "react-router-dom";
+import { jobStore } from "../stores/jobStore";
 
 const ApplicantPage = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("ALL");
   const [location, setLocation] = useState("");
   const [showAllJobs, setShowAllJobs] = useState(false);
+  const navigate = useNavigate();
 
   const {
     getJobPosts,
@@ -27,7 +28,7 @@ const ApplicantPage = () => {
     return <p className="error">{error}</p>;
   }
 
-  // TODO: Implement isLoading state later :) 
+  // TODO: Implement isLoading state later :)
 
   const filteredJobPosts = jobPosts.filter((job) => {
     const matchesKeyword =
@@ -77,6 +78,10 @@ const ApplicantPage = () => {
     console.log;
   };
 
+  const handleJobDetails = (jobId) => {
+    navigate(`/job-details/${jobId}`)
+  };
+
   return (
     <div className="min-h-screen flex flex-col overflow-auto">
       <Navbar />
@@ -120,9 +125,12 @@ const ApplicantPage = () => {
                 <h3 className="text-xl font-semibold text-black mb-2 font-poppins">
                   {job.jobTitle || "Job Type Not Specified"}
                 </h3>
-
                 <p className="text-black font-light font-poppins bg-green-300 rounded-md w-24 text-center py-1 px-1 mb-1">
                   {job.jobType || "No job description available"}
+                </p>
+                <p className="text-base text-black font-light font-poppins mb-2">
+                  {job.employer?.fullName}/
+                  {job.companyName || job.employer.companyName}
                 </p>
                 <p className="text-black font-light font-poppins">
                   {job.expectedSalary &&
@@ -137,7 +145,7 @@ const ApplicantPage = () => {
                 <p className="text-black font-poppins font-normal flex-grow">
                   {job.jobDescription || "No job description available"}
                 </p>
-                <button className="text-blue-500 font-poppins underline py-2 text-left">
+                <button className="text-blue-500 font-poppins underline py-2 text-left" onClick={() => handleJobDetails(job._id)}>
                   See more
                 </button>
                 <p className="text-black mt-10 font-poppins">

@@ -1,11 +1,19 @@
+import {
+  Banknote,
+  Clock3,
+  Download,
+  Link,
+  Loader,
+  MapPinned,
+  Undo2,
+  X,
+} from "lucide-react";
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import { Undo2, MapPinned, Clock3, Banknote, X, Loader } from "lucide-react";
-import { jobStore } from "../stores/jobStore";
+import { useNavigate, useParams } from "react-router-dom";
 import FormatTimeDate from "../components/FormatTimeDate";
 import Modal from "../components/Modal";
-
+import Navbar from "../components/Navbar";
+import { jobStore } from "../stores/jobStore";
 
 const JobDetailsPage = () => {
   const { jobId } = useParams();
@@ -82,14 +90,14 @@ const JobDetailsPage = () => {
       <Navbar />
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center text-black py-4 px-4"
+        className="flex items-center text-black py-4 px-4 font-poppins"
       >
         <Undo2 className="w-5 h-5 mr-2" />
         Go Back
       </button>
       <section className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-4xl font-extrabold">{jobDetails?.jobTitle}</h2>
-        <p className="text-2xl font-normal mt-2">
+        <h2 className="text-4xl font-extrabold font-poppins">{jobDetails?.jobTitle}</h2>
+        <p className="text-2xl font-normal mt-2 font-poppins">
           {jobDetails?.employer?.fullName || "Employer Name"}/
           {jobDetails?.companyName ||
             jobDetails?.employer?.companyName ||
@@ -99,7 +107,7 @@ const JobDetailsPage = () => {
         {jobDetails?.locations?.length > 0 && (
           <div className="flex items-center space-x-2 mt-4">
             <MapPinned className="h-5 w-5 text-gray-500" />
-            <p className="text-xl font-normal">
+            <p className="text-xl font-normal font-poppins">
               {jobDetails?.locations.join(", ")}
             </p>
           </div>
@@ -107,14 +115,14 @@ const JobDetailsPage = () => {
 
         <div className="flex items-center space-x-2 mt-4">
           <Clock3 className="h-5 w-5 text-gray-500" />
-          <p className="text-xl font-normal">{jobDetails?.jobType}</p>
+          <p className="text-xl font-normal font-poppins">{jobDetails?.jobType}</p>
         </div>
 
         {jobDetails?.expectedSalary?.minSalary &&
         jobDetails?.expectedSalary?.maxSalary ? (
           <div className="flex items-center space-x-2 mt-4">
             <Banknote className="h-5 w-5 text-gray-500" />
-            <p className="text-xl font-normal">
+            <p className="text-xl font-normal font-poppins">
               ₱{jobDetails?.expectedSalary?.minSalary?.toLocaleString()} - ₱
               {jobDetails?.expectedSalary?.maxSalary?.toLocaleString()}
             </p>
@@ -122,7 +130,7 @@ const JobDetailsPage = () => {
         ) : (
           <div className="flex items-center space-x-2 mt-4">
             <Banknote className="h-5 w-5 text-gray-500" />
-            <p className="text-lg font-semibold">
+            <p className="text-lg font-semibold font-poppins">
               Salary information not available
             </p>
           </div>
@@ -143,69 +151,108 @@ const JobDetailsPage = () => {
         </div>
 
         <div className="mt-8">
-          <ul className="space-y-4">
-            <li>
-              <p className="text-lg">Application Deadline:</p>
-              <ul className="list-disc pl-6 text-lg">
-                <li>
+          <ul className="space-y-4 font-poppins">
+            <li className="border-b pb-4">
+              <div className="flex justify-between items-center">
+                <p className="text-lg font-medium">Application Deadline:</p>
+                <span className="text-lg">
                   {jobDetails?.applicationDeadline
                     ? new Date(
                         jobDetails?.applicationDeadline
                       ).toLocaleDateString()
                     : "Not available"}
-                </li>
-              </ul>
+                </span>
+              </div>
             </li>
-            <li>
-              <p className="text-lg">Job Qualifications:</p>
-              <ul className="list-disc pl-6 text-lg">
-                <li>{jobDetails?.jobQualifications || "Not specified"}</li>
-              </ul>
+
+            <li className="border-b pb-4">
+              <div className="flex justify-between items-center">
+                <p className="text-lg font-medium">Job Qualifications:</p>
+                <span className="text-lg">
+                  {jobDetails?.jobQualifications || "Not specified"}
+                </span>
+              </div>
             </li>
-            <li>
-              <p className="text-lg">Job Experience:</p>
-              <ul className="list-disc pl-6 text-lg">
-                <li>{jobDetails?.jobExperience || "Not specified"}</li>
-              </ul>
+
+            <li className="border-b pb-4">
+              <div className="flex justify-between items-center">
+                <p className="text-lg font-medium">Job Shift:</p>
+                <span className="text-lg">
+                  {jobDetails?.jobShift || "Not specified"}
+                </span>
+              </div>
             </li>
-            <li>
-              <p className="text-lg">Preferred Language:</p>
-              <ul className="list-disc pl-6 text-lg">
-                <li>{jobDetails?.preferredLanguage || "Not specified"}</li>
-              </ul>
+
+            <li className="border-b pb-4">
+              <div className="flex justify-between items-center">
+                <p className="text-lg font-medium">Job Experience:</p>
+                <span className="text-lg">
+                  {jobDetails?.jobExperience || "Not specified"}
+                </span>
+              </div>
             </li>
-            <li>
-              <p className="text-lg">Job Skills:</p>
-              <ul className="list-disc pl-6 space-y-2 text-lg">
-                {jobDetails?.jobSkills?.length > 0 ? (
-                  jobDetails?.jobSkills.map((skill, index) => (
-                    <li key={index} className="text-lg text-black">
-                      {skill}
-                    </li>
-                  ))
-                ) : (
-                  <li className="text-gray-500">No skills listed.</li>
-                )}
-              </ul>
+
+            <li className="border-b pb-4">
+              <div className="flex justify-between items-center">
+                <p className="text-lg font-medium">Preferred Language:</p>
+                <span className="text-lg">
+                  {jobDetails?.preferredLanguage || "Not specified"}
+                </span>
+              </div>
             </li>
-            <li>
-              <p className="text-lg">Job Attachment:</p>
-              <ul className="list-disc pl-6 text-lg">
-                <li>
-                  {jobDetails?.jobAttachment ? (
-                    <a
-                      href={jobDetails?.jobAttachment}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500"
-                    >
-                      View Attachment
-                    </a>
+
+            <li className="border-b pb-4">
+              <div>
+                <p className="text-lg font-medium mb-2">Job Skills:</p>
+                <ul className="flex flex-wrap gap-4">
+                  {jobDetails?.jobSkills?.length > 0 ? (
+                    jobDetails?.jobSkills.map((skill, index) => (
+                      <li
+                        key={index}
+                        className="text-lg text-black bg-gray-200 px-4 py-2 rounded-full"
+                      >
+                        {skill}
+                      </li>
+                    ))
                   ) : (
-                    "No attachment provided"
+                    <li className="text-gray-500 bg-gray-200 px-4 py-2 rounded-full">
+                      No skills listed.
+                    </li>
                   )}
-                </li>
-              </ul>
+                </ul>
+              </div>
+            </li>
+            <li className="border-b pb-4">
+              <div className="flex items-center space-x-4">
+                <p className="text-base flex-shrink-0 font-medium pr-10">
+                  Job Attachment:
+                </p>
+                <div className="p-4 border border-gray-300 rounded-lg flex items-center flex-1">
+                  {jobDetails?.jobAttachment ? (
+                    <div className="flex items-center w-full">
+                      <a
+                        href={jobDetails?.jobAttachment}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline flex items-center"
+                      >
+                        <Link size={20} className="mr-2" />
+                        View Attachment
+                      </a>
+                      <a
+                        href={jobDetails?.jobAttachment}
+                        download
+                        className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center ml-auto"
+                      >
+                        <Download size={20} className="mr-2" />
+                        Download
+                      </a>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500">No attachment available</p>
+                  )}
+                </div>
+              </div>
             </li>
           </ul>
         </div>
