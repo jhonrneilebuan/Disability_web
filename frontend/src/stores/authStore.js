@@ -16,6 +16,7 @@ export const authStore = create((set, get) => ({
   isLoading: false,
   isCheckingAuth: true,
   isUpdatingProfile: false,
+  isUpdatingCoverPhoto: false,
   message: null,
   onlineUsers: [],
   socket:null,
@@ -169,6 +170,23 @@ export const authStore = create((set, get) => ({
       toast.error(error.response.data.message);
     } finally {
       set({ isUpdatingProfile: false });
+    }
+  },
+
+  updateCoverPhoto: async (data) => {
+    set({ isUpdatingCoverPhoto: true });
+    try {
+      const response = await axios.put(
+        `${API_URL}/profilesettings/update-coverPhoto`,
+        data
+      );
+      set({ user: response.data });
+      toast.success("Cover Photo updated successfully");
+    } catch (error) {
+      console.log("error in update cover photo:", error);
+      toast.error(error.response.data.message);
+    } finally {
+      set({ isUpdatingCoverPhoto: false });
     }
   },
 

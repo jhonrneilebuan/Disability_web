@@ -9,15 +9,17 @@ cloudinary.config({
   api_secret: "_4yG3rD87ZvkvgnoTNXjeSnoN8c",
 });
 
+export default cloudinary;
+
 export const uploadToCloudinary = async (file, options = {}) => {
   try {
     const uploadOptions = {
       resource_type: "auto",
-      chunk_size: 6000000,
+      chunk_size: 10000000,
       ...options,
     };
 
-    const uploadResponse = await cloudinary.v2.uploader.upload(
+    const uploadResponse = await cloudinary.uploader.upload(
       file,
       uploadOptions
     );
@@ -28,4 +30,3 @@ export const uploadToCloudinary = async (file, options = {}) => {
     throw new Error("Cloudinary upload failed");
   }
 };
-export default cloudinary;

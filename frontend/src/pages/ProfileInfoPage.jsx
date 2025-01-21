@@ -5,25 +5,43 @@ import { Camera, Phone, Calendar, Home, User, CheckCircle } from "lucide-react";
 import { formatDate } from "../lib/utils";
 
 const ProfileInfoPage = () => {
-  const { user, updateProfile } = authStore();
+  const { user, updateProfile, updateCoverPhoto } = authStore();
   const [selectedImg, setSelectedImg] = useState(null);
-  const [coverImg, setCoverImg] = useState(null);
+  const [selectedCoverImg, setSelectedCoverImg] = useState(null);
   const birthdayDate = user.birthday ? formatDate(user.birthday) : "N/A";
 
-  const handleImageUpload = async (e, isCover) => {
+  const handleImageUpload = async (e, isCoverPhoto = false) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    const validTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (!validTypes.includes(file.type)) {
+      alert("Invalid file type. Please upload a JPEG or PNG image.");
+      return;
+    }
 
     const reader = new FileReader();
     reader.readAsDataURL(file);
 
     reader.onload = async () => {
       const base64Image = reader.result;
-      if (isCover) {
-        setCoverImg(base64Image);
+
+      if (isCoverPhoto) {
+        setSelectedCoverImg(base64Image);
+        try {
+          await updateCoverPhoto({ coverPhoto: base64Image });
+        } catch (error) {
+          console.error("Failed to upload cover photo:", error);
+          alert("Failed to upload cover photo. Please try again.");
+        }
       } else {
         setSelectedImg(base64Image);
-        await updateProfile({ profilePicture: base64Image });
+        try {
+          await updateProfile({ profilePicture: base64Image });
+        } catch (error) {
+          console.error("Failed to upload profile picture:", error);
+          alert("Failed to upload profile picture. Please try again.");
+        }
       }
     };
   };
@@ -36,7 +54,7 @@ const ProfileInfoPage = () => {
           {/* Cover Photo */}
           <div className="relative h-48 bg-gradient-to-r from-gray-400 via-gray-300 to-gray-200">
             <img
-              src={coverImg || "/default-cover.jpg"}
+              src={ selectedImg || user.coverPhoto || "/default-cover.jpg"}
               alt="Cover"
               className="w-full h-full object-cover rounded-t-xl"
             />
@@ -59,7 +77,7 @@ const ProfileInfoPage = () => {
           <div className="flex flex-col md:flex-row items-center p-8 gap-6">
             <div className="relative w-32 h-32">
               <img
-                src={selectedImg || user.profilePicture || "/avatar.png"}
+                src={selectedCoverImg  || user.profilePicture || "/avatar.png"}
                 alt="Profile"
                 className="w-full h-full object-cover rounded-full border-4 border-white shadow-lg"
               />
@@ -124,9 +142,9 @@ const ProfileInfoPage = () => {
                 {
                   label: "Skills",
                   value: user.careerInformation?.skills?.length ? (
-                    <ul className="list-disc pl-6">
+                    <ul className="flex flex-wrap gap-4">
                       {user.careerInformation.skills.map((skill, index) => (
-                        <li key={index}>{skill}</li>
+                        <li key={index} className="text-lg text-black bg-gray-200 px-4 py-2 rounded-full">{skill}</li>
                       ))}
                     </ul>
                   ) : (
