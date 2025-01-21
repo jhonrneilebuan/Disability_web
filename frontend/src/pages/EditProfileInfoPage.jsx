@@ -84,21 +84,26 @@ const EditProfileInfoPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-      const updatedFormData = {
+
+    const updatedFormData = {
       ...formData,
       careerInformation: {
         ...formData.careerInformation,
-        skills: formData.careerInformation.skills.split(",").map((skill) => skill.trim()),
+        skills:
+          typeof formData.careerInformation.skills === "string"
+            ? formData.careerInformation.skills
+                .split(",")
+                .map((skill) => skill.trim())
+            : formData.careerInformation.skills,
       },
     };
-  
+
     try {
       await userProfileInfo(updatedFormData);
     } catch (error) {
       console.error("Error updating profile:", error);
     }
   };
-  
 
   const loading = isUpdatingProfileInfo;
 
