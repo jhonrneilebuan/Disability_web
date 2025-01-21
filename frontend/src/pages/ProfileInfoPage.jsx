@@ -62,7 +62,7 @@ const ProfileInfoPage = () => {
               htmlFor="cover-upload"
               className="absolute top-4 right-4 bg-gray-800 text-white p-3 rounded-md cursor-pointer shadow-lg hover:bg-gray-700 transition duration-300"
             >
-              Change Cover
+              <Camera size={20} />
               <input
                 id="cover-upload"
                 type="file"
@@ -102,6 +102,14 @@ const ProfileInfoPage = () => {
                 <CheckCircle className="text-green-500 w-6 h-6 ml-2" />
               </div>
               <p className="text-gray-600 mt-2">{user.email || "N/A"}</p>
+            </div>
+          </div>
+          <div className="flex-1 flex flex-col gap-6">
+            <div className="bg-white rounded-lg p-8">
+              <h1 className="font-poppins font-extrabold">Bio</h1>
+              <p className="text-xs font-poppins text-justify">
+                {user.bio || "N/A"}
+              </p>
             </div>
           </div>
 
@@ -186,6 +194,10 @@ const ProfileInfoPage = () => {
                 {
                   label: "Disability Type",
                   value: user.disabilityInformation?.disabilityType || "N/A",
+                },
+                {
+                  label: "Accessibility Needs",
+                  value: user.disabilityInformation?.accessibilityNeeds || "N/A",
                 },
               ].map((info, index) => (
                 <div key={index} className="flex">
