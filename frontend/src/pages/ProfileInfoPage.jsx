@@ -27,7 +27,7 @@ const ProfileInfoPage = () => {
       const base64Image = reader.result;
 
       if (isCoverPhoto) {
-        setSelectedCoverImg(base64Image);
+        setSelectedCoverImg(base64Image); // Update cover image state
         try {
           await updateCoverPhoto({ coverPhoto: base64Image });
         } catch (error) {
@@ -35,7 +35,7 @@ const ProfileInfoPage = () => {
           alert("Failed to upload cover photo. Please try again.");
         }
       } else {
-        setSelectedImg(base64Image);
+        setSelectedImg(base64Image); // Update profile image state
         try {
           await updateProfile({ profilePicture: base64Image });
         } catch (error) {
@@ -54,7 +54,7 @@ const ProfileInfoPage = () => {
           {/* Cover Photo */}
           <div className="relative h-48 bg-gradient-to-r from-gray-400 via-gray-300 to-gray-200">
             <img
-              src={ selectedImg || user.coverPhoto || "/default-cover.jpg"}
+              src={selectedCoverImg || user.coverPhoto || "/default-cover.jpg"}
               alt="Cover"
               className="w-full h-full object-cover rounded-t-xl"
             />
@@ -68,7 +68,7 @@ const ProfileInfoPage = () => {
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) => handleImageUpload(e, true)}
+                onChange={(e) => handleImageUpload(e, true)} // true for cover photo
               />
             </label>
           </div>
@@ -77,7 +77,7 @@ const ProfileInfoPage = () => {
           <div className="flex flex-col md:flex-row items-center p-8 gap-6">
             <div className="relative w-32 h-32">
               <img
-                src={selectedCoverImg  || user.profilePicture || "/avatar.png"}
+                src={selectedImg || user.profilePicture || "/avatar.png"}
                 alt="Profile"
                 className="w-full h-full object-cover rounded-full border-4 border-white shadow-lg"
               />
@@ -91,7 +91,7 @@ const ProfileInfoPage = () => {
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={(e) => handleImageUpload(e, false)}
+                  onChange={(e) => handleImageUpload(e, false)} // false for profile picture
                 />
               </label>
             </div>
@@ -104,6 +104,8 @@ const ProfileInfoPage = () => {
               <p className="text-gray-600 mt-2">{user.email || "N/A"}</p>
             </div>
           </div>
+
+          {/* Bio Section */}
           <div className="flex-1 flex flex-col gap-6">
             <div className="bg-white rounded-lg p-8">
               <h1 className="font-poppins font-extrabold">Bio</h1>
@@ -152,7 +154,12 @@ const ProfileInfoPage = () => {
                   value: user.careerInformation?.skills?.length ? (
                     <ul className="flex flex-wrap gap-4">
                       {user.careerInformation.skills.map((skill, index) => (
-                        <li key={index} className="text-lg text-black bg-gray-200 px-4 py-2 rounded-full">{skill}</li>
+                        <li
+                          key={index}
+                          className="text-lg text-black bg-gray-200 px-4 py-2 rounded-full"
+                        >
+                          {skill}
+                        </li>
                       ))}
                     </ul>
                   ) : (
@@ -197,7 +204,8 @@ const ProfileInfoPage = () => {
                 },
                 {
                   label: "Accessibility Needs",
-                  value: user.disabilityInformation?.accessibilityNeeds || "N/A",
+                  value:
+                    user.disabilityInformation?.accessibilityNeeds || "N/A",
                 },
               ].map((info, index) => (
                 <div key={index} className="flex">
