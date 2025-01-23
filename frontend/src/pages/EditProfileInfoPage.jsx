@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { Loader, LogOut } from "lucide-react";
+import { useEffect, useState, } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { authStore } from "../stores/authStore";
-
 const EditProfileInfoPage = () => {
   const { user, userProfileInfo, isUpdatingProfileInfo } = authStore();
+  const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
   const steps = [
@@ -73,11 +75,10 @@ const EditProfileInfoPage = () => {
     const { name, value } = e.target;
 
     if (name === "birthday") {
-      // Update the birthday and calculate age
       setFormData((prev) => ({
         ...prev,
         birthday: value,
-        age: calculateAge(value), // Calculate age based on the new birthday
+        age: calculateAge(value),
       }));
     } else if (name.includes(".")) {
       const [parent, child] = name.split(".");
@@ -114,6 +115,7 @@ const EditProfileInfoPage = () => {
 
     try {
       await userProfileInfo(updatedFormData);
+      navigate("/profile-info");
     } catch (error) {
       console.error("Error updating profile:", error);
     }
@@ -126,60 +128,68 @@ const EditProfileInfoPage = () => {
       case 1:
         return (
           <div>
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
+            <h2 className="text-xl font-bold text-gray-800 mb-6 font-poppins">
               Personal Information
             </h2>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Contact Number
-              </label>
-              <input
-                type="text"
-                name="contact"
-                value={formData.contact}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label className="block text-gray-700 font-medium mb-2 font-poppins">
+                  Contact Number
+                </label>
+                <input
+                  type="text"
+                  name="contact"
+                  value={formData.contact}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-medium mb-2 font-poppins">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Address
-              </label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label className="block text-gray-700 font-medium mb-2 font-poppins">
+                  Birthday
+                </label>
+                <input
+                  type="date"
+                  name="birthday"
+                  value={formData.birthday}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-medium mb-2 font-poppins">
+                  Age
+                </label>
+                <input
+                  type="number"
+                  name="age"
+                  value={formData.age}
+                  onChange={handleChange}
+                  readOnly
+                  className="w-full border border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
+
             <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Birthday
-              </label>
-              <input
-                type="date"
-                name="birthday"
-                value={formData.birthday}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Age
-              </label>
-              <input
-                type="number"
-                name="age"
-                value={formData.age}
-                onChange={handleChange}
-                readOnly
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
+              <label className="block text-gray-700 font-medium mb-2 font-poppins">
                 Bio
               </label>
               <textarea
@@ -187,19 +197,20 @@ const EditProfileInfoPage = () => {
                 value={formData.bio}
                 onChange={handleChange}
                 rows={4}
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border text-justify border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 overflow-hidden overflow-y-scroll no-scrollbar"
               />
             </div>
           </div>
         );
+
       case 2:
         return (
           <div>
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
+            <h2 className="text-xl font-bold text-gray-800 mb-4 font-poppins">
               Career Information
             </h2>
             <div>
-              <label className="block text-gray-700 font-medium mb-2">
+              <label className="block text-gray-700 font-medium font-poppins">
                 Field of Work
               </label>
               <input
@@ -207,23 +218,23 @@ const EditProfileInfoPage = () => {
                 name="careerInformation.fieldOfWork"
                 value={formData.careerInformation.fieldOfWork}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
               />
             </div>
             <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Skills
+              <label className="block text-gray-700 font-medium font-poppins">
+                Skills [Type a skill and press comma]
               </label>
-              <textarea
+              <input
                 name="careerInformation.skills"
                 value={formData.careerInformation.skills}
                 onChange={handleChange}
                 rows={3}
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
               />
             </div>
             <div>
-              <label className="block text-gray-700 font-medium mb-2">
+              <label className="block text-gray-700 font-medium font-poppins">
                 Education
               </label>
               <input
@@ -231,19 +242,19 @@ const EditProfileInfoPage = () => {
                 name="careerInformation.education"
                 value={formData.careerInformation.education}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
               />
             </div>
             <div>
-              <label className="block text-gray-700 font-medium mb-2">
+              <label className="block text-gray-700 font-medium font-poppins">
                 Work Experience
               </label>
               <textarea
                 name="careerInformation.workExperience"
                 value={formData.careerInformation.workExperience}
                 onChange={handleChange}
-                rows={3}
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows={2}
+                className="w-full border border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
               />
             </div>
           </div>
@@ -251,18 +262,18 @@ const EditProfileInfoPage = () => {
       case 3:
         return (
           <div>
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
+            <h2 className="text-xl font-bold text-gray-800 mb-4 font-poppins">
               Disability Information
             </h2>
             <div>
-              <label className="block text-gray-700 font-medium mb-2">
+              <label className="block text-gray-700 font-medium font-poppins">
                 Disability Type
               </label>
               <select
                 name="disabilityInformation.disabilityType"
                 value={formData.disabilityInformation.disabilityType}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
               >
                 <option value="">Select Disability Type</option>
                 <option value="Visual Impairment">Visual Impairment</option>
@@ -275,7 +286,7 @@ const EditProfileInfoPage = () => {
               </select>
             </div>
             <div>
-              <label className="block text-gray-700 font-medium mb-2">
+              <label className="block text-gray-700 font-medium font-poppins">
                 Accessibility Needs
               </label>
               <input
@@ -283,7 +294,7 @@ const EditProfileInfoPage = () => {
                 name="disabilityInformation.accessibilityNeeds"
                 value={formData.disabilityInformation.accessibilityNeeds}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
               />
             </div>
           </div>
@@ -294,64 +305,70 @@ const EditProfileInfoPage = () => {
   };
 
   return (
-    <>
+    <div className="h-screen overflow-hidden bg-gray-200">
       <Navbar />
-      <main className="flex flex-col lg:flex-row items-start justify-center min-h-screen bg-gray-100 p-6">
-        <div className="w-full lg:w-1/4 bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-lg font-semibold mb-4 text-gray-700">Progress</h2>
-          <ul className="space-y-4">
-            {steps.map((stepTitle, index) => {
-              const isCurrent = index + 1 === step;
-              const isCompleted = index + 1 < step;
+      <main className="relative flex lg:flex-row items-stretch m-5 ">
+        <div className="sticky top-0 lg:h-[570px] bg-blue-600 text-white p-6 rounded-tl-lg rounded-bl-lg z-10 flex flex-col justify-start">
+          <div className="flex-grow">
+            <h2 className="text-lg font-semibold mb-4 font-poppins">
+              Progress
+            </h2>
+            <ul className="space-y-4">
+              {steps.map((stepTitle, index) => {
+                const isCurrent = index + 1 === step;
+                const isCompleted = index + 1 < step;
 
-              return (
-                <li
-                  key={index}
-                  className={`flex items-center space-x-3 ${
-                    isCurrent
-                      ? "text-blue-600 font-bold"
-                      : isCompleted
-                      ? "text-green-500"
-                      : "text-gray-500"
-                  }`}
-                >
-                  <span
-                    className={`h-8 w-8 flex items-center justify-center rounded-full text-sm font-medium shadow-md ${
+                return (
+                  <li
+                    key={index}
+                    className={`flex items-center space-x-3 font-poppins ${
                       isCurrent
-                        ? "bg-blue-100 text-blue-600 border-blue-500 border"
+                        ? "font-bold"
                         : isCompleted
-                        ? "bg-green-100 text-green-500 border-green-400 border"
-                        : "bg-gray-200 text-gray-500 border-gray-300 border"
+                        ? "opacity-70"
+                        : "opacity-50"
                     }`}
-                    title={
-                      isCompleted
-                        ? "Completed"
-                        : isCurrent
-                        ? "Current Step"
-                        : "Upcoming"
-                    }
                   >
-                    {index + 1}
-                  </span>
-                  <span>{stepTitle}</span>
-                </li>
-              );
-            })}
-          </ul>
+                    <span
+                      className={`h-8 w-8 flex items-center justify-center rounded-full text-sm font-medium border-2 ${
+                        isCurrent
+                          ? "bg-blue-200 text-blue-800 border-blue-400"
+                          : isCompleted
+                          ? "bg-green-200 text-green-800 border-green-400"
+                          : "bg-gray-300 text-gray-700 border-gray-400"
+                      }`}
+                    >
+                      {index + 1}
+                    </span>
+                    <span>{stepTitle}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          <div className="mt-auto flex items-center space-x-2">
+            <button className="flex items-center justify-center px-4 py-2 text-white font-poppins font-medium rounded-lg shadow-sm" onClick={() => navigate(-1)}>
+              <LogOut className="w-5 h-5 mr-2" />
+              Exit
+            </button>
+          </div>
         </div>
 
-        <div className="flex-grow w-full lg:w-3/4 bg-white rounded-lg shadow-lg p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="flex-grow w-full lg:w-3/4 lg:h-[570px] bg-white rounded-lg shadow-lg p-8">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4 h-full flex flex-col justify-between"
+          >
             {renderStep()}
-            <div className="flex justify-between mt-8">
+            <div className="flex justify-between">
               <div>
                 {step > 1 && (
                   <button
                     type="button"
                     onClick={() => setStep(step - 1)}
-                    className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg shadow-sm hover:bg-gray-300 focus:ring focus:ring-gray-400 transition-all duration-200"
+                    className="bg-gray-300 text-gray-700 font-poppins  w-40 px-6 py-3 rounded-2xl shadow-sm hover:bg-gray-400 focus:ring focus:ring-gray-400 transition-all duration-200"
                   >
-                    Back
+                    Go Back
                   </button>
                 )}
               </div>
@@ -360,45 +377,23 @@ const EditProfileInfoPage = () => {
                   <button
                     type="button"
                     onClick={() => setStep(step + 1)}
-                    className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-sm hover:bg-blue-600 focus:ring focus:ring-blue-400 transition-all duration-200"
+                    className="bg-blue-500 text-white font-poppins w-40 px-6 py-3 rounded-2xl shadow-sm hover:bg-blue-600 focus:ring focus:ring-blue-400 transition-all duration-200"
                   >
-                    Next
+                    Proceed
                   </button>
                 )}
                 {step === steps.length && (
                   <button
                     type="submit"
-                    className={`bg-green-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-600 focus:ring focus:ring-green-400 transition-all duration-200 ${
+                    className={`bg-green-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-600 focus:ring focus:ring-green-400 transition-all duration-200 font-poppins ${
                       loading ? "opacity-50 cursor-not-allowed" : ""
                     }`}
-                    disabled={loading}
+                    disabled={isUpdatingProfileInfo}
                   >
-                    {loading ? (
-                      <span className="flex items-center space-x-2">
-                        <svg
-                          className="animate-spin h-5 w-5 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8V12H4z"
-                          ></path>
-                        </svg>
-                        <span>Saving...</span>
-                      </span>
+                    {isUpdatingProfileInfo ? (
+                      <Loader className="w-6 h-6 animate-spin mx-auto" />
                     ) : (
-                      "Submit"
+                      "Complete"
                     )}
                   </button>
                 )}
@@ -407,7 +402,7 @@ const EditProfileInfoPage = () => {
           </form>
         </div>
       </main>
-    </>
+    </div>
   );
 };
 

@@ -55,27 +55,6 @@ export const jobStore = create((set, get) => ({
     }
   },
 
-
-  createJobPost: async (jobData) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await axios.post(`${API_URL}/jobs/`, jobData);
-      set({
-        jobPosts: [...set.getState().jobPosts, response.data],
-        isLoading: false,
-      });
-      toast.success("Job post created successfully");
-    } catch (error) {
-      console.error("Error creating job post:", error);
-      toast.error(error.response?.data?.message || "Error creating job post");
-      set({
-        error: error.response?.data?.message || "Error creating job post",
-        isLoading: false,
-      });
-      throw error;
-    }
-  },
-
   deleteJobPost: async (jobId) => {
     set({ isLoading: true, error: null });
     try {

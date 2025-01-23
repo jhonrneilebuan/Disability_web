@@ -1,6 +1,8 @@
 import Job from "../models/job.model.js";
 import Application from "../models/application.model.js";
 import User from "../models/user.model.js";
+import mongoose from "mongoose";
+
 
 export const createJob = async (req, res) => {
   try {
@@ -95,7 +97,6 @@ export const getAllJobs = async (req, res) => {
   }
 };
 
-
 export const getEmployerJobs = async (req, res) => {
   try {
     const employerId = req.userId;
@@ -106,12 +107,17 @@ export const getEmployerJobs = async (req, res) => {
     );
 
     if (jobs.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No jobs found for this employer." });
+      return res.status(404).json({ message: "No jobs found for this employer." });
     }
 
-    res.status(200).json(jobs);
+    const jobsWithApplicants = await Promise.all(
+      jobs.map(async (job) => {
+        const totalApplicants = await Application.countDocuments({ jobId: job._id });
+        return { ...job._doc, totalApplicants }; 
+      })
+    );
+
+    res.status(200).json(jobsWithApplicants);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

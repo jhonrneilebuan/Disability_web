@@ -1,5 +1,6 @@
-import Sidebar from "../components/Sidebar";
+import { Briefcase, User, VideoIcon } from "lucide-react";
 import NavbarEmployer from "../components/NavbarEmployer";
+import Sidebar from "../components/Sidebar";
 
 const EmployerPage = () => {
   return (
@@ -7,57 +8,38 @@ const EmployerPage = () => {
       <NavbarEmployer />
       <div className="flex flex-1">
         <Sidebar />
-        <main className="flex-1 p-6 bg-white">
+        <main className="flex-1 bg-white p-20">
+          <h1 className="font-poppins text-2xl font-light">
+            Dashboard Overview
+          </h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-lg shadow-xl flex flex-col items-center justify-center text-center text-white">
-              <h3 className="text-xl font-semibold">Total Applicants</h3>
-              <p className="text-5xl font-bold">125</p>
-              <p className="text-md">Applications Received</p>
-            </div>
-
-            <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-lg shadow-xl flex flex-col items-center justify-center text-center text-white">
-              <h3 className="text-xl font-semibold">Total Jobs</h3>
-              <p className="text-5xl font-bold">8</p>
-              <p className="text-md">Active Job Postings</p>
-            </div>
-
-            <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 p-6 rounded-lg shadow-xl flex flex-col items-center justify-center text-center text-white">
-              <h3 className="text-xl font-semibold">Analytics</h3>
-              <div className="flex flex-col mt-4 w-full max-w-md space-y-4">
-                <div className="flex items-center justify-between text-sm text-white">
-                  <span>Applications Received</span>
-                  <span>75%</span>
-                </div>
-                <div className="w-full bg-gray-300 h-2 rounded-full">
-                  <div
-                    className="bg-blue-400 h-2 rounded-full"
-                    style={{ width: "75%" }}
-                  ></div>
-                </div>
-
-                <div className="flex items-center justify-between text-sm text-white">
-                  <span>Applications Processed</span>
-                  <span>50%</span>
-                </div>
-                <div className="w-full bg-gray-300 h-2 rounded-full">
-                  <div
-                    className="bg-green-400 h-2 rounded-full"
-                    style={{ width: "50%" }}
-                  ></div>
-                </div>
-
-                <div className="flex items-center justify-between text-sm text-white">
-                  <span>Applicants Shortlisted</span>
-                  <span>30%</span>
-                </div>
-                <div className="w-full bg-gray-300 h-2 rounded-full">
-                  <div
-                    className="bg-red-400 h-2 rounded-full"
-                    style={{ width: "30%" }}
-                  ></div>
-                </div>
+            <div className="p-4 shadow-md flex flex-col items-center justify-center text-center text-black bg-gradient-to-r from-blue-200 to-blue-400">
+              <div className="bg-blue-300 p-2 rounded-full">
+                <User size={24} className="text-blue-600" />
               </div>
-              <p className="text-sm mt-2">Performance Metrics</p>
+              <h3 className="text-lg font-semibold mt-3">Total Applicants</h3>
+              <p className="text-3xl font-bold mt-1">125</p>
+              <p className="text-sm mt-1">Applications Received</p>
+            </div>
+
+            <div className="p-4 shadow-md flex flex-col items-center justify-center text-center text-white bg-gradient-to-r from-green-400 to-green-600">
+              <div className="bg-green-300 p-2 rounded-full">
+                <Briefcase size={24} className="text-green-800" />
+              </div>
+              <h3 className="text-lg font-semibold mt-3">Total Jobs</h3>
+              <p className="text-3xl font-bold mt-1">8</p>
+              <p className="text-sm mt-1">Active Job Postings</p>
+            </div>
+
+            <div className="p-4 shadow-md flex flex-col items-center justify-center text-center text-white bg-gradient-to-r from-yellow-300 to-yellow-500">
+              <div className="bg-yellow-300 p-2 rounded-full">
+                <VideoIcon size={24} className="text-yellow-700" />
+              </div>
+              <h3 className="text-lg font-semibold mt-3">
+                Available Interviews
+              </h3>
+              <p className="text-3xl font-bold mt-1">?</p>
+              <p className="text-sm mt-1">Coming Soon</p>
             </div>
           </div>
 
