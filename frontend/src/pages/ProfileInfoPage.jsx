@@ -27,7 +27,7 @@ const ProfileInfoPage = () => {
       const base64Image = reader.result;
 
       if (isCoverPhoto) {
-        setSelectedCoverImg(base64Image); // Update cover image state
+        setSelectedCoverImg(base64Image);
         try {
           await updateCoverPhoto({ coverPhoto: base64Image });
         } catch (error) {
@@ -35,7 +35,7 @@ const ProfileInfoPage = () => {
           alert("Failed to upload cover photo. Please try again.");
         }
       } else {
-        setSelectedImg(base64Image); // Update profile image state
+        setSelectedImg(base64Image);
         try {
           await updateProfile({ profilePicture: base64Image });
         } catch (error) {
@@ -49,10 +49,9 @@ const ProfileInfoPage = () => {
   return (
     <>
       <Navbar />
-      <main className="flex items-center justify-center min-h-screen bg-gray-100 p-6">
+      <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-gray-100 to-blue-100 p-6">
         <div className="flex flex-col w-full max-w-6xl bg-white rounded-xl shadow-2xl overflow-hidden">
-          {/* Cover Photo */}
-          <div className="relative h-48 bg-gradient-to-r from-gray-400 via-gray-300 to-gray-200">
+          <div className="relative h-60 bg-gradient-to-r from-blue-500 via-blue-400 to-blue-300">
             <img
               src={selectedCoverImg || user.coverPhoto || "/default-cover.jpg"}
               alt="Cover"
@@ -60,7 +59,7 @@ const ProfileInfoPage = () => {
             />
             <label
               htmlFor="cover-upload"
-              className="absolute top-4 right-4 bg-gray-800 text-white p-3 rounded-md cursor-pointer shadow-lg hover:bg-gray-700 transition duration-300"
+              className="absolute top-4 right-4 bg-gray-800 text-white p-3 rounded-full cursor-pointer shadow-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center"
             >
               <Camera size={20} />
               <input
@@ -68,22 +67,21 @@ const ProfileInfoPage = () => {
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) => handleImageUpload(e, true)} // true for cover photo
+                onChange={(e) => handleImageUpload(e, true)}
               />
             </label>
           </div>
 
-          {/* Profile Info */}
-          <div className="flex flex-col md:flex-row items-center p-8 gap-6">
+          <div className="flex flex-col md:flex-row items-center p-8 gap-6 bg-gradient-to-br from-white to-gray-50">
             <div className="relative w-32 h-32">
               <img
                 src={selectedImg || user.profilePicture || "/avatar.png"}
                 alt="Profile"
-                className="w-full h-full object-cover rounded-full border-4 border-white shadow-lg"
+                className="w-full h-full object-cover rounded-full border-4 border-blue-500 shadow-lg"
               />
               <label
                 htmlFor="profile-upload"
-                className="absolute bottom-2 right-2 bg-gray-200 p-2 rounded-full cursor-pointer shadow-md hover:bg-gray-300 transition duration-300"
+                className="absolute bottom-2 right-2 bg-blue-500 text-white p-3 rounded-full cursor-pointer shadow-md hover:bg-blue-400 transition duration-300 flex items-center justify-center"
               >
                 <Camera size={20} />
                 <input
@@ -91,34 +89,37 @@ const ProfileInfoPage = () => {
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={(e) => handleImageUpload(e, false)} // false for profile picture
+                  onChange={(e) => handleImageUpload(e, false)}
                 />
               </label>
             </div>
-
             <div className="text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start">
-                <h1 className="text-3xl font-bold">{user.fullName || "N/A"}</h1>
+                <h1 className="text-3xl font-bold font-poppins text-gray-800">
+                  {user.fullName || "N/A"}
+                </h1>
                 <CheckCircle className="text-green-500 w-6 h-6 ml-2" />
               </div>
-              <p className="text-gray-600 mt-2">{user.email || "N/A"}</p>
+              <p className="text-gray-600 mt-2 font-poppins">
+                {user.email || "N/A"}
+              </p>
             </div>
           </div>
 
-          {/* Bio Section */}
-          <div className="flex-1 flex flex-col gap-6">
-            <div className="bg-white rounded-lg p-8">
-              <h1 className="font-poppins font-extrabold">Bio</h1>
-              <p className="text-xs font-poppins text-justify">
+          <div className="flex flex-col gap-6 px-8 py-4">
+            <div className="bg-gradient-to-r from-gray-50 to-white rounded-lg p-6 shadow-md">
+              <h1 className="font-poppins font-bold text-xl text-gray-800">
+                Bio
+              </h1>
+              <p className="text-sm font-poppins text-gray-600 mt-2">
                 {user.bio || "N/A"}
               </p>
             </div>
           </div>
 
-          {/* Candidate Details */}
           <div className="border-t p-8">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-              Candidate Details
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800 font-poppins">
+              Profile Overview
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
@@ -129,21 +130,20 @@ const ProfileInfoPage = () => {
               ].map((detail, index) => (
                 <div
                   key={index}
-                  className="flex items-center bg-gray-50 p-4 rounded-lg shadow-sm"
+                  className="flex items-center bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
                 >
-                  <detail.icon className="w-6 h-6 text-gray-600 mr-3" />
+                  <detail.icon className="w-6 h-6 text-blue-500 mr-3" />
                   <span className="text-gray-700">{detail.label}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Career Information */}
           <div className="border-t p-8">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800 font-poppins">
               Career Information
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-6 font-poppins">
               {[
                 {
                   label: "Field of Work",
@@ -156,7 +156,7 @@ const ProfileInfoPage = () => {
                       {user.careerInformation.skills.map((skill, index) => (
                         <li
                           key={index}
-                          className="text-lg text-black bg-gray-200 px-4 py-2 rounded-full"
+                          className="bg-blue-500 text-white px-4 py-2 rounded-full shadow-md"
                         >
                           {skill}
                         </li>
@@ -179,18 +179,17 @@ const ProfileInfoPage = () => {
                   <span className="font-medium w-48 text-gray-700">
                     {info.label}
                   </span>
-                  <span className="text-gray-600">: {info.value}</span>
+                  <span className="text-gray-600"> : {info.value}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* PWD Information */}
           <div className="border-t p-8">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800 font-poppins">
               PWD Information
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-6 font-poppins">
               {[
                 {
                   label: "Status",
@@ -212,7 +211,7 @@ const ProfileInfoPage = () => {
                   <span className="font-medium w-48 text-gray-700">
                     {info.label}
                   </span>
-                  <span className="text-gray-600">: {info.value}</span>
+                  <span className="text-gray-600"> : {info.value}</span>
                 </div>
               ))}
             </div>
