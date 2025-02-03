@@ -185,7 +185,6 @@ const EmployerPage = () => {
             </h3>
 
             <div className="flex flex-col lg:flex-row gap-8">
-              {/* Line Chart Container */}
               <div className="w-full lg:w-1/2 bg-white p-6 rounded-lg shadow-lg">
                 <h3 className="text-xl font-semibold text-center mb-4">
                   Applicants Over Time
@@ -212,7 +211,7 @@ const EmployerPage = () => {
                 </h3>
                 {isChartLoading ? (
                   <p className="text-center">Loading...</p>
-                ) : (
+                ) : chartData?.datasets?.length > 0 ? (
                   <Bar
                     data={chartData}
                     options={{
@@ -227,12 +226,14 @@ const EmployerPage = () => {
                       scales: {
                         y: {
                           beginAtZero: true,
-                          max: maxValue, 
+                          max: maxValue,
                           ticks: { stepSize: 1 },
                         },
                       },
                     }}
                   />
+                ) : (
+                  <p className="text-center">No data available</p>
                 )}
               </div>
             </div>
