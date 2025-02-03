@@ -2,8 +2,10 @@ import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Loading from "./components/Loading";
+import AdminPanel from "./pages/AdminPanel";
 import ApplicantPage from "./pages/ApplicantPage";
 import AppliedJobs from "./pages/AppliedJobs";
+import EditProfileInfoPage from "./pages/EditProfileInfoPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
 import EmployerApplicantsPage from "./pages/EmployerApplicantsPage";
 import EmployerJobPage from "./pages/EmployerJobPage";
@@ -18,9 +20,8 @@ import ProfileInfoPage from "./pages/ProfileInfoPage";
 import ResetPassword from "./pages/ResetPassword";
 import SignUpPage from "./pages/SignUpPage";
 import UserData from "./pages/UserData";
-import { authStore } from "./stores/authStore";
 import VideoChatRoom from "./pages/VideoChatRoom";
-import EditProfileInfoPage from "./pages/EditProfileInfoPage";
+import { authStore } from "./stores/authStore";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();
@@ -44,6 +45,9 @@ const RedirectAuthenticatedUser = ({ children }) => {
     }
     if (user.role === "Employer") {
       return <Navigate to="/employer" replace />;
+    }
+    if (user.role === "Admin") {
+      return <Navigate to="/admin" replace />;
     }
   }
   return children;
@@ -207,17 +211,25 @@ function App() {
           }
         />
 
-
-      <Route
+        <Route
           path="/edit-profile"
           element={
             <ProtectedRoute>
-              < EditProfileInfoPage />
+              <EditProfileInfoPage />
             </ProtectedRoute>
           }
         />
-      </Routes>
 
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminPanel />
+            </ProtectedRoute>
+          }
+        />
+
+      </Routes>
       <Toaster />
     </div>
   );
