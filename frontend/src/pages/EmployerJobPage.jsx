@@ -77,11 +77,11 @@ const EmployerJobPage = () => {
         <Sidebar />
         <div className="flex-1 p-4 overflow-y-auto">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex">
+            <div className="flex w-2/3">
               <input
                 type="text"
                 placeholder="Search by Job Title or Applicant Name"
-                className="border border-gray-300 px-4 py-2 rounded-l-full w-96 focus:outline-none"
+                className="border border-gray-300 px-4 py-2 rounded-l-full w-full focus:outline-none"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleEnterKey}

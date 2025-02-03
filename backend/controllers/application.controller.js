@@ -1,5 +1,5 @@
-import Application from "../models/application.model.js";
 import { sendConfirmationEmail } from "../mailtrap/gmail.js";
+import Application from "../models/application.model.js";
 import Job from "../models/job.model.js";
 
 export const applyJobs = async (req, res) => {
@@ -194,8 +194,10 @@ export const getApplicantsWithJobs = async (req, res) => {
       jobId: { $in: employerJobs.map((job) => job._id) },
     })
       .populate("jobId", "jobTitle jobCategory jobType")
-      .populate("applicantId", "fullName")
-      .select("applicantId jobId createdAt status")
+      .populate("applicantId", "fullName profilePicture")
+      .select(
+        "applicantId jobId createdAt status coverLetter resume additionalFiles accessibilityNeeds"
+      )
       .exec();
 
     if (!applicants.length) {
@@ -206,14 +208,21 @@ export const getApplicantsWithJobs = async (req, res) => {
 
     const ApplicantsInfo = applicants.map((applicant) => ({
       id: applicant._id,
-      applicantId: applicant.applicantId
+      applicantName: applicant.applicantId
         ? applicant.applicantId.fullName
         : "No name provided",
+      applicantProfilePicture: applicant.applicantId
+        ? applicant.applicantId.profilePicture || "No profile picture available"
+        : "No profile picture available",
       jobTitle: applicant.jobId.jobTitle,
       jobCategory: applicant.jobId.jobCategory,
       jobType: applicant.jobId.jobType,
       appliedAt: applicant.createdAt,
       status: applicant.status,
+      coverLetter: applicant.coverLetter || "No cover letter provided",
+      resume: applicant.resume,
+      additionalFiles: applicant.additionalFiles || [],
+      accessibilityNeeds: applicant.accessibilityNeeds || "None",
     }));
 
     res.status(200).json(ApplicantsInfo);
@@ -250,6 +259,93 @@ export const shortlistApplication = async (req, res) => {
   }
 };
 
+export const interviewApplication = async (req, res) => {
+  try {
+    const { id: applicationId } = req.params;
+
+    if (!applicationId) {
+      return res.status(400).json({ error: "Application ID is required." });
+    }
+
+    const application = await Application.findById(applicationId);
+    if (!application) {
+      return res.status(404).json({ error: "Application not found." });
+    }
+
+    application.status = "Interview";
+    await application.save();
+
+    res.status(200).json({
+      message: "Application successfully moved to the interview stage.",
+      application,
+    });
+  } catch (error) {
+    console.error("Error updating application to interview stage:", error);
+    res.status(500).json({
+      error:
+        "An error occurred while updating the application status to interview.",
+    });
+  }
+};
+
+export const acceptApplication = async (req, res) => {
+  try {
+    const { id: applicationId } = req.params;
+
+    if (!applicationId) {
+      return res.status(400).json({ error: "Application ID is required." });
+    }
+
+    const application = await Application.findById(applicationId);
+    if (!application) {
+      return res.status(404).json({ error: "Application not found." });
+    }
+
+    application.status = "Acceptance";
+    await application.save();
+
+    res.status(200).json({
+      message: "Application successfully moved to acceptance stage.",
+      application,
+    });
+  } catch (error) {
+    console.error("Error updating application to acceptance stage:", error);
+    res.status(500).json({
+      error:
+        "An error occurred while updating the application status to acceptance.",
+    });
+  }
+};
+
+export const hireApplication = async (req, res) => {
+  try {
+    const { id: applicationId } = req.params;
+
+    if (!applicationId) {
+      return res.status(400).json({ error: "Application ID is required." });
+    }
+
+    const application = await Application.findById(applicationId);
+    if (!application) {
+      return res.status(404).json({ error: "Application not found." });
+    }
+
+    application.status = "Hired";
+    await application.save();
+
+    res.status(200).json({
+      message: "Application successfully moved to hired stage.",
+      application,
+    });
+  } catch (error) {
+    console.error("Error updating application to hired stage:", error);
+    res.status(500).json({
+      error:
+        "An error occurred while updating the application status to hired.",
+    });
+  }
+};
+
 export const rejectApplication = async (req, res) => {
   try {
     const { id: applicationId } = req.params;
@@ -272,5 +368,254 @@ export const rejectApplication = async (req, res) => {
     res
       .status(500)
       .json({ error: "An error occurred while rejecting the application." });
+  }
+};
+
+export const getTotalPending = async (req, res) => {
+  const employerId = req.userId;
+
+  try {
+    const jobs = await Job.find({ employer: employerId });
+
+    if (jobs.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No jobs found posted by the employer." });
+    }
+
+    const jobIds = jobs.map((job) => job._id);
+
+    const totalPending = await Application.countDocuments({
+      jobId: { $in: jobIds },
+      status: "Pending",
+    });
+
+    return res.status(200).json({ totalPending });
+  } catch (error) {
+    console.error("Error fetching pending applications:", error);
+    return res.status(500).json({
+      error: "An error occurred while fetching the pending applications.",
+    });
+  }
+};
+
+export const getTotalShortlist = async (req, res) => {
+  const employerId = req.userId;
+  try {
+    const jobs = await Job.find({ employer: employerId });
+
+    if (jobs.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No jobs found posted by the employer." });
+    }
+
+    const jobIds = jobs.map((job) => job._id);
+
+    const totalShortlist = await Application.countDocuments({
+      jobId: { $in: jobIds },
+      status: "Shortlisted", 
+    });
+
+    return res.status(200).json({ totalShortlist });
+  } catch (error) {
+    console.error("Error fetching shortlisted applications:", error);
+    return res
+      .status(500)
+      .json({
+        error: "An error occurred while fetching the shortlisted applications.",
+      });
+  }
+};
+
+export const getTotalInterview = async (req, res) => {
+  const employerId = req.userId;
+  try {
+    const jobs = await Job.find({ employer: employerId });
+
+    if (jobs.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No jobs found posted by the employer." });
+    }
+
+    const jobIds = jobs.map((job) => job._id);
+
+    const totalShortlist = await Application.countDocuments({
+      jobId: { $in: jobIds },
+      status: "Interview", 
+    });
+
+    return res.status(200).json({ totalShortlist });
+  } catch (error) {
+    console.error("Error fetching Interview applications:", error);
+    return res
+      .status(500)
+      .json({
+        error: "An error occurred while fetching the Interview applications.",
+      });
+  }
+};
+
+export const getTotalHired = async (req, res) => {
+  const employerId = req.userId;
+  try {
+    const jobs = await Job.find({ employer: employerId });
+
+    if (jobs.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No jobs found posted by the employer." });
+    }
+
+    const jobIds = jobs.map((job) => job._id);
+
+    const totalShortlist = await Application.countDocuments({
+      jobId: { $in: jobIds },
+      status: "Hired", 
+    });
+
+    return res.status(200).json({ totalShortlist });
+  } catch (error) {
+    console.error("Error fetching Hired applications:", error);
+    return res
+      .status(500)
+      .json({
+        error: "An error occurred while fetching the Hired applications.",
+      });
+  }
+};
+
+export const getShortlistedApplicants = async (req, res) => {
+  try {
+    const employerId = req.userId;
+
+    const employerJobs = await Job.find({ employer: employerId });
+
+    if (!employerJobs.length) {
+      return res
+        .status(403)
+        .json({ message: "No jobs found for this employer." });
+    }
+
+    const shortlistedApplicants = await Application.find({
+      jobId: { $in: employerJobs.map((job) => job._id) },
+      status: "Shortlisted",
+    })
+      .populate("jobId", "jobTitle jobCategory jobType")
+      .populate("applicantId", "fullName profilePicture")
+      .select(
+        "applicantId jobId createdAt status coverLetter resume additionalFiles accessibilityNeeds"
+      )
+      .exec();
+
+    if (!shortlistedApplicants.length) {
+      return res
+        .status(404)
+        .json({ message: "No shortlisted applicants found for your jobs." });
+    }
+
+    const shortlistedInfo = shortlistedApplicants.map((applicant) => ({
+      id: applicant._id,
+      applicantName: applicant.applicantId
+        ? applicant.applicantId.fullName
+        : "No name provided",
+      applicantProfilePicture: applicant.applicantId
+        ? applicant.applicantId.profilePicture || "No profile picture available"
+        : "No profile picture available",
+      jobTitle: applicant.jobId.jobTitle,
+      jobCategory: applicant.jobId.jobCategory,
+      jobType: applicant.jobId.jobType,
+      appliedAt: applicant.createdAt,
+      status: applicant.status,
+      coverLetter: applicant.coverLetter || "No cover letter provided",
+      resume: applicant.resume,
+      additionalFiles: applicant.additionalFiles || [],
+      accessibilityNeeds: applicant.accessibilityNeeds || "None",
+    }));
+
+    res.status(200).json({
+      message: "Shortlisted applicants retrieved successfully.",
+      shortlistedApplicants: shortlistedInfo,
+    });
+  } catch (error) {
+    console.error("Error fetching shortlisted applicants:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+export const getTotalApplicant = async (req, res) => {
+  const employerId = req.userId;
+
+  try {
+    const jobs = await Job.find({ employer: employerId });
+
+    if (jobs.length === 0) {
+      return res.status(404).json({ message: "No jobs found for this employer." });
+    }
+
+    const jobIds = jobs.map((job) => job._id);
+
+    const totalApplicants = await Application.aggregate([
+      { $match: { jobId: { $in: jobIds } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, 
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    const chartData = {
+      labels: totalApplicants.map(applicant => applicant._id),  
+      datasets: [
+        {
+          label: "Total Applicants",
+          data: totalApplicants.map(applicant => applicant.count),  
+          fill: false,
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1,
+        },
+      ],
+    };
+
+    return res.status(200).json(chartData);
+  } catch (error) {
+    console.error("Error fetching applicants:", error);
+    return res.status(500).json({
+      error: "An error occurred while fetching the applicant data.",
+    });
+  }
+};
+
+export const getJobApplicantsCount = async (req, res) => {
+  try {
+    const employerId = req.userId;
+
+    const employerJobs = await Job.find({ employer: employerId });
+
+    if (!employerJobs.length) {
+      return res.status(403).json({ message: "No jobs found for this employer" });
+    }
+
+    const jobCounts = await Application.aggregate([
+      { $match: { jobId: { $in: employerJobs.map(job => job._id) } } },
+      { $group: { _id: "$jobId", applicantCount: { $sum: 1 } } }
+    ]);
+
+    const jobStats = employerJobs.map(job => {
+      const count = jobCounts.find(j => j._id.toString() === job._id.toString());
+      return {
+        jobTitle: job.jobTitle,
+        applicantCount: count ? count.applicantCount : 0
+      };
+    });
+
+    res.status(200).json(jobStats);
+  } catch (error) {
+    console.error("Error fetching job applicant counts:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };

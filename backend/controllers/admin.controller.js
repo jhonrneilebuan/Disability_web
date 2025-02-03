@@ -161,3 +161,85 @@ export const updateVerificationStatus = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+export const updateUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (updateData.email) user.email = updateData.email;
+    if (updateData.password) user.password = updateData.password;
+    if (updateData.isVerified !== undefined) user.isVerified = updateData.isVerified;
+
+    if (updateData.fullName) user.fullName = updateData.fullName;
+    if (updateData.contact) user.contact = updateData.contact;
+
+    if (user.role === "Employer" && updateData.employerInformation) {
+      user.employerInformation = {
+        ...user.employerInformation,
+        ...updateData.employerInformation,
+      };
+    }
+
+    if (user.role === "Applicant" && updateData.disabilityInformation) {
+      user.disabilityInformation = {
+        ...user.disabilityInformation,
+        ...updateData.disabilityInformation,
+      };
+    }
+
+    if (user.role === "Applicant") {
+      if (updateData.address) user.address = updateData.address;
+    }
+
+    await user.save();
+    res.status(200).json({ message: "User updated successfully", user });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ message: "An error occurred while updating the user." });
+  }
+};
+
+
+export const getTotalUsers = async (req, res) => {
+  try {
+    const users = await User.find({});
+    const totalUsers = users.length;
+
+    res.status(200).json({ totalUsers });
+  } catch (error) {
+    console.error("Error fetching total users:", error);
+    res.status(500).json({ error: "An error occurred while fetching total users." });
+  }
+};
+
+
+export const getTotalEmployers = async (req, res) => {
+  try {
+    const users = await User.find({});
+    const totalEmployers = users.filter(user => user.role === "Employer").length;
+
+    res.status(200).json({ totalEmployers });
+  } catch (error) {
+    console.error("Error fetching total employers:", error);
+    res.status(500).json({ error: "An error occurred while fetching total employers." });
+  }
+};
+
+
+export const getTotalApplicants = async (req, res) => {
+  try {
+    const users = await User.find({});
+    const totalApplicants = users.filter(user => user.role === "Applicant").length;
+
+    res.status(200).json({ totalApplicants });
+  } catch (error) {
+    console.error("Error fetching total applicants:", error);
+    res.status(500).json({ error: "An error occurred while fetching total applicants." });
+  }
+};

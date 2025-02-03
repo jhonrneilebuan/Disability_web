@@ -1,6 +1,6 @@
-import { create } from "zustand";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { create } from "zustand";
 
 const API_URL = "http://localhost:8080/api";
 
@@ -11,11 +11,57 @@ export const jobStore = create((set, get) => ({
   jobPosts: [],
   applications: [],
   employerApplicants: [],
+  totalApplicantCount: [],
   savedJobs: [],
+  totalPending: 0,
+  totalDataOfApplicants: null,
+  totalShortlist: 0,
+  totalInterview: 0,
+  totalHired: 0,
   totalApplicants: 0,
+  totalJobs: 0,
   isLoading: false,
+  isTotalLoading: false,
+  isChartLoading: false,
   error: null,
   message: null,
+
+  getTotalApplicant: async () => {
+    set({ isTotalLoading: true, error: null });
+    try {
+      const response = await axios.get(`${API_URL}/applications/total-applicant`);
+      set({
+        totalDataOfApplicants: response.data, 
+        isTotalLoading: false,
+      });
+    } catch (error) {
+      console.error("Error fetching total applicants:", error);
+      toast.error(error.response?.data?.message || "Error fetching total applicants");
+      set({
+        error: error.response?.data?.message || "Error fetching total applicants",
+        isTotalLoading: false,
+      });
+    }
+  }, 
+
+  getJobApplicantsCount: async () => {
+    set({ isChartLoading: true, error: null });
+    try {
+      const response = await axios.get(`${API_URL}/applications/applicant-count`);
+      set({
+        totalApplicantCount: response.data, 
+        isChartLoading: false,
+      });
+    } catch (error) {
+      console.error("Error fetching job applicants count:", error);
+      toast.error(error.response?.data?.message || "Error fetching job applicants count");
+      set({
+        error: error.response?.data?.message || "Error fetching job applicants count",
+        isChartLoading: false,
+      });
+    }
+  },
+  
 
   getJobPosts: async () => {
     set({ isLoading: true, error: null });
@@ -132,6 +178,85 @@ export const jobStore = create((set, get) => ({
     }
   },
 
+  getTotalJobs: async () => {
+    set({ isTotalLoading: true, error: null });
+
+    try {
+      const response = await axios.get(`${API_URL}/jobs/total-job`);
+      const totalJobs = response.data.totalJobs || 0;
+      set({
+        totalJobs,
+        isTotalLoading: false,
+      });
+    } catch (error) {
+      console.error("Error fetching total jobs:", error);
+      set({ error: error.response?.data?.message, isTotalLoading: false });
+    }
+  },
+
+  getTotalPending: async () => {
+    set({ isTotalLoading: true, error: null });
+
+    try {
+      const response = await axios.get(`${API_URL}/applications/total-pending`);
+      const totalPending = response.data.totalPending || 0;
+      set({
+        totalPending,
+        isTotalLoading: false,
+      });
+    } catch (error) {
+      console.error("Error fetching total pending:", error);
+      set({ error: error.response?.data?.message, isTotalLoading: false });
+    }
+  },
+
+  getTotalShortlist: async () => {
+    set({ isTotalLoading: true, error: null });
+
+    try {
+      const response = await axios.get(
+        `${API_URL}/applications/total-shortlist`
+      );
+      const totalShortlist = response.data.totalShortlist || 0;
+      set({
+        totalShortlist,
+        isTotalLoading: false,
+      });
+    } catch (error) {
+      console.error("Error fetching total shortlist:", error);
+      set({ error: error.response?.data?.message, isTotalLoading: false });
+    }
+  },
+
+  getTotalInterview: async () => {
+    set({ isTotalLoading: true, error: null });
+    try {
+      const response = await axios.get(
+        `${API_URL}/applications/total-interview`
+      );
+      const totalInterview = response.data.totalInterview || 0;
+      set({
+        totalInterview,
+        isTotalLoading: false,
+      });
+    } catch (error) {
+      console.error("Error fetching total interview:", error);
+      set({ error: error.response?.data?.message, isTotalLoading: false });
+    }
+  },
+
+  getTotalHired: async () => {
+    set({ isTotalLoading: true, error: null });
+    try {
+      const response = await axios.get(`${API_URL}/applications/total-hired`);
+      const totalHired = response.data.totalHired || 0;
+      set({ totalHired, isTotalLoading: false });
+    } catch (error) {
+      console.error("Error in fetching total hired", error);
+      set({ error: error.response?.data?.message, isTotalLoading: false });
+    }
+  },
+
   getEmployerApplicants: async () => {
     set({ isLoading: true, error: null });
     try {
@@ -220,16 +345,16 @@ export const jobStore = create((set, get) => ({
 
       if (!job) {
         console.error("Job not found in saved jobs.");
-        return; 
+        return;
       }
 
-      const jobId = job.jobId?._id || job.jobId; 
+      const jobId = job.jobId?._id || job.jobId;
 
       console.log("Extracted Job ID:", jobId);
 
       if (!jobId) {
         console.error("Job ID is missing.");
-        return; 
+        return;
       }
 
       const response = await axios.delete(`${API_URL}/savedJobs/unsave`, {

@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
+import { Bookmark, Briefcase, Search, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import Footer from "../components/Footer";
+import FormatTimeDate from "../components/FormatTimeDate";
+import Loader2 from "../components/Loader";
+import Modal from "../components/Modal";
 import Navbar from "../components/Navbar";
 import { jobStore } from "../stores/jobStore";
-import FormatTimeDate from "../components/FormatTimeDate";
-import { Search, Briefcase, Bookmark, X } from "lucide-react";
-import Footer from "../components/Footer";
-import Modal from "../components/Modal";
-import toast from "react-hot-toast";
-import Loader2 from "../components/Loader";
 
 const AppliedJobs = () => {
   const [open, setOpen] = useState(false);
@@ -46,24 +46,29 @@ const AppliedJobs = () => {
 
   const filterApplications = (applications) => {
     return applications.filter((application) => {
+      const jobTitle = application.jobId?.jobTitle
+        ? application.jobId.jobTitle.toLowerCase()
+        : '';
+  
+      const status = application.status ? application.status.toLowerCase() : '';
+  
       const matchesKeyword =
-        application.jobId?.jobTitle
-          .toLowerCase()
-          .includes(searchKeyword.toLowerCase()) ||
-        application.status.toLowerCase().includes(searchKeyword.toLowerCase());
-
+        jobTitle.includes(searchKeyword.toLowerCase()) ||
+        status.includes(searchKeyword.toLowerCase());
+  
       const matchesStatus = selectedStatus
-        ? application.status.toLowerCase() === selectedStatus.toLowerCase()
+        ? status === selectedStatus.toLowerCase()
         : true;
-
+  
       const matchesDate = selectedDate
         ? new Date(application.createdAt).toDateString() ===
           new Date(selectedDate).toDateString()
         : true;
-
+  
       return matchesKeyword && matchesStatus && matchesDate;
     });
   };
+  
 
   const filteredApplications =
     activeTab === "applied"
@@ -132,7 +137,6 @@ const AppliedJobs = () => {
   }
 
   // TODO: Implement error state later :>
-  
 
   return (
     <main className="min-h-screen flex flex-col">
@@ -251,19 +255,21 @@ const AppliedJobs = () => {
                     </span>
                   </p>
                 </div>
-                <div className="flex items-center space-x-4 mt-6">
+                <div className="flex items-center space-x-4">
                   <button
                     onClick={() => handleDetails(application)}
                     className="px-4 py-2 text-sm sm:text-base bg-browny text-white rounded-md"
                   >
                     View Details
                   </button>
-                  <button
-                    onClick={() => handleWithdraw(application._id)}
-                    className="px-4 py-2 text-sm sm:text-base bg-red-500 text-white rounded-md"
-                  >
-                    Withdraw Application
-                  </button>
+                  {application.status !== "Rejected" && (
+                    <button
+                      onClick={() => handleWithdraw(application._id)}
+                      className="px-4 py-2 text-sm sm:text-base bg-red-500 text-white rounded-md"
+                    >
+                      Withdraw Application
+                    </button>
+                  )}
                 </div>
               </div>
             ))
@@ -294,7 +300,7 @@ const AppliedJobs = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-4 mt-6">
+              <div className="flex items-center space-x-4">
                 <button
                   onClick={() => handleDetails(savedJob)}
                   className="px-4 py-2 text-sm sm:text-base bg-browny text-white rounded-md"

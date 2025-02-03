@@ -144,6 +144,28 @@ export const getJobById = async (req, res) => {
   }
 };
 
+export const getTotalJobs = async (req, res) => {
+  const employerId = req.userId;
+
+  try {
+    const jobs = await Job.find({ employer: employerId });
+
+    if (jobs.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No jobs found posted by the employer." });
+    }
+
+    const totalJobs = jobs.length;
+
+    return res.status(200).json({ totalJobs });
+  } catch (error) {
+    console.error("Error fetching jobs:", error);
+    return res.status(500).json({
+      error: "An error occurred while fetching the jobs.",
+    });
+  }
+};
 
 export const deleteJobById = async (req, res) => {
   try {

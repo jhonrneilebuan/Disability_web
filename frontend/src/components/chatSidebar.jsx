@@ -6,8 +6,9 @@ import { authStore } from "../stores/authStore";
 
 const ChatSidebar = () => {
   const { getUsersForSidebar, users, selectedUser, setSelectedUser, isUserLoading, startPolling, stopPolling } = chatStore();
-  const { onlineUsers } = authStore();
+  const { onlineUsers, user } = authStore();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); 
+  const isEmployer = user.role === 'Employer';
 
 
   useEffect(() => {
@@ -46,7 +47,7 @@ const ChatSidebar = () => {
             Messages
           </span>
         </div>
-        {!isSidebarCollapsed && (
+        {!isSidebarCollapsed && isEmployer && (
          <button className="bg-blue-600 text-white py-2 px-4 mt-2 rounded-md flex items-center" onClick={handleCreateRoom}>
          <Video size={18} className="mr-2" /> Create Room
        </button>

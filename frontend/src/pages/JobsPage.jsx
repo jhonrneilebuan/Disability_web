@@ -329,6 +329,17 @@ const JobsPage = () => {
                     <p className="text-sm text-gray-500">
                       {job.jobDescription}
                     </p>
+                    <div className="flex flex-nowrap gap-4 mt-3">
+                      <p className="rounded-lg bg-blue-100 text-xs p-2 font-semibold text-blue-500">
+                        {job.jobCategory}
+                      </p>
+                      <p className="rounded-lg bg-blue-100 text-xs p-2 font-semibold text-blue-500">
+                        {job.jobType}
+                      </p>
+                      <p className="rounded-lg bg-blue-100 text-xs p-2 font-semibold text-blue-500">
+                        {job.jobLevel}
+                      </p>
+                    </div>
                   </div>
                 ))
               ) : (
@@ -539,7 +550,7 @@ const JobsPage = () => {
         </section>
       ) : (
         <div>
-          <section className="mt-3 h-[170vh] max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4 overflow-hidden">
+          <section className="mt-3 max-h-[170vh] max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4 overflow-auto">
             {currentJobs.length > 0 ? (
               currentJobs.map((job) => {
                 const isJobSaved = savedJobs.some((savedJob) => {
@@ -578,7 +589,7 @@ const JobsPage = () => {
                         : "Salary information not available"}
                     </p>
                     <hr className="border-t-2 border-gray-300 my-6" />
-                    <p className="text-black font-poppins font-normal flex-grow">
+                    <p className="text-black font-poppins font-normal flex-grow overflow-y-auto">
                       {job.jobDescription || "No job description available"}
                     </p>
                     <button
