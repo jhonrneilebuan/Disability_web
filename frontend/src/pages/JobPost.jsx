@@ -1,9 +1,10 @@
+import { motion } from "framer-motion";
+import { CircleCheck, Undo2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Select from "react-select";
 import Sidebar from "../components/Sidebar";
-import { CircleCheck, Undo2 } from "lucide-react";
 import { jobStore } from "../stores/jobStore";
-import { motion } from "framer-motion";
 
 const JobPosts = () => {
   const navigate = useNavigate();
@@ -11,10 +12,13 @@ const JobPosts = () => {
   const [skillInput, setSkillInput] = useState("");
   const [skills, setSkills] = useState([]);
   const [isSuccess, setIsSuccess] = useState(false);
-  const { 
-    //isLoading, 
-    //error, 
-    createJob } = jobStore();
+  const [selectedDisabilities, setSelectedDisabilities] = useState([]);
+
+  const {
+    //isLoading,
+    //error,
+    createJob,
+  } = jobStore();
 
   const handleSkillInputChange = (e) => {
     setSkillInput(e.target.value);
@@ -48,7 +52,7 @@ const JobPosts = () => {
       .get("locations")
       ?.split(",")
       .map((loc) => loc.trim());
-    const preferredLanguage = formData.get("preferredLanguage");
+    const preferredLanguage = formData.get("preferredLanguage") || "Any";
     const jobQualifications = formData.get("jobQualifications");
     const jobExperience = formData.get("jobExperience");
     const jobType = formData.get("jobType");
@@ -56,6 +60,16 @@ const JobPosts = () => {
     const jobLevel = formData.get("jobLevel");
     const applyWithLink = showApplyLink ? formData.get("applyWithLink") : null;
     const jobAttachment = formData.get("jobAttachment");
+
+    const preferredDisabilitiesArray = selectedDisabilities.map(
+      (disability) => disability.value
+    );
+
+    const finalPreferredDisabilities =
+      preferredDisabilitiesArray.length === 1 &&
+      preferredDisabilitiesArray[0] === "Any"
+        ? []
+        : preferredDisabilitiesArray;
 
     const minSalary = formData.get("minSalary");
     const maxSalary = formData.get("maxSalary");
@@ -79,15 +93,75 @@ const JobPosts = () => {
         jobSkills: skills,
         expectedSalary,
         jobAttachment,
+        preferredDisabilities: finalPreferredDisabilities,
       });
 
       setIsSuccess(true);
     } catch (error) {
-      console.log(error);
       console.error("Error creating job:", error);
       alert("There was an error creating your job. Please try again.");
     }
   };
+
+  const disabilityOptions = [
+    { value: "Any", label: "Any" },
+    { value: "Mobility Impairment", label: "Mobility Impairment" },
+    { value: "Amputation", label: "Amputation" },
+    { value: "Cerebral Palsy", label: "Cerebral Palsy" },
+    { value: "Muscular Dystrophy", label: "Muscular Dystrophy" },
+    { value: "Spinal Cord Injury", label: "Spinal Cord Injury" },
+    { value: "Multiple Sclerosis", label: "Multiple Sclerosis" },
+    { value: "Arthritis", label: "Arthritis" },
+    { value: "Stroke-related Disability", label: "Stroke-related Disability" },
+    { value: "Visual Impairment", label: "Visual Impairment" },
+    { value: "Blindness", label: "Blindness" },
+    { value: "Hearing Impairment", label: "Hearing Impairment" },
+    { value: "Deafness", label: "Deafness" },
+    { value: "Deafblindness", label: "Deafblindness" },
+    { value: "Down Syndrome", label: "Down Syndrome" },
+    {
+      value: "Autism Spectrum Disorder (ASD)",
+      label: "Autism Spectrum Disorder (ASD)",
+    },
+    { value: "Intellectual Disability", label: "Intellectual Disability" },
+    {
+      value: "Learning Disability",
+      label: "Learning Disability (Dyslexia, Dyscalculia, Dysgraphia)",
+    },
+    { value: "ADHD", label: "ADHD (Attention Deficit Hyperactivity Disorder)" },
+    { value: "Dyslexia", label: "Dyslexia" },
+    { value: "Dyspraxia", label: "Dyspraxia" },
+    { value: "Tourette Syndrome", label: "Tourette Syndrome" },
+    { value: "Anxiety Disorder", label: "Anxiety Disorder" },
+    { value: "Depression", label: "Depression" },
+    { value: "Bipolar Disorder", label: "Bipolar Disorder" },
+    { value: "Schizophrenia", label: "Schizophrenia" },
+    { value: "PTSD", label: "Post-Traumatic Stress Disorder (PTSD)" },
+    { value: "OCD", label: "Obsessive-Compulsive Disorder (OCD)" },
+    { value: "Epilepsy", label: "Epilepsy" },
+    { value: "CFS", label: "Chronic Fatigue Syndrome (CFS)" },
+    { value: "Fibromyalgia", label: "Fibromyalgia" },
+    { value: "Lupus", label: "Lupus" },
+    {
+      value: "Diabetes-related Disability",
+      label: "Diabetes-related Disability",
+    },
+    { value: "Chronic Pain", label: "Chronic Pain" },
+    {
+      value: "Speech Impairment",
+      label: "Speech Impairment (Stuttering, Apraxia)",
+    },
+    {
+      value: "Nonverbal Communication Disabilities",
+      label: "Nonverbal Communication Disabilities",
+    },
+    { value: "Rare Genetic Disorders", label: "Rare Genetic Disorders" },
+    {
+      value: "Autoimmune Disorders",
+      label: "Autoimmune Disorders affecting mobility or cognition",
+    },
+    { value: "Traumatic Brain Injury", label: "Traumatic Brain Injury (TBI)" },
+  ];
 
   if (isSuccess) {
     return (
@@ -185,20 +259,34 @@ const JobPosts = () => {
                 placeholder="Enter job description"
               ></textarea>
             </div>
-            <div>
-              <label className="text-sm font-medium block mb-2">
-                Job Category
-              </label>
-              <select
-                id="jobCategory"
-                name="jobCategory"
-                className="w-full border rounded-lg p-2"
-              >
-                <option value="">Select category</option>
-                <option value="DESIGN">Design</option>
-                <option value="DEVELOPMENT">Development</option>
-                <option value="MARKETING">Marketing</option>
-              </select>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="text-sm font-medium block mb-2">
+                  Job Category
+                </label>
+                <select
+                  id="jobCategory"
+                  name="jobCategory"
+                  className="w-full border rounded-lg p-2"
+                >
+                  <option value="">Select category</option>
+                  <option value="DESIGN">Design</option>
+                  <option value="DEVELOPMENT">Development</option>
+                  <option value="MARKETING">Marketing</option>
+                </select>
+              </div>
+              <div className="flex-1">
+                <label className="text-sm font-medium block mb-2">
+                  Preferred Disabilities
+                </label>
+                <Select
+                  options={disabilityOptions}
+                  isMulti
+                  className="w-full"
+                  value={selectedDisabilities}
+                  onChange={(options) => setSelectedDisabilities(options)}
+                />
+              </div>
             </div>
             <div className="flex gap-4">
               <div className="flex-1">
@@ -273,7 +361,9 @@ const JobPosts = () => {
                   className="w-full border rounded-lg p-2"
                 >
                   <option value="">Select qualification</option>
-                  <option value="Bachelor's Degree">Bachelor&apos;s Degree</option>
+                  <option value="Bachelor's Degree">
+                    Bachelor&apos;s Degree
+                  </option>
                   <option value="High School Diploma">
                     High School Diploma
                   </option>

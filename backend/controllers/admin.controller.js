@@ -243,3 +243,55 @@ export const getTotalApplicants = async (req, res) => {
     res.status(500).json({ error: "An error occurred while fetching total applicants." });
   }
 };
+
+export const getTotalUser = async (req, res) => {
+
+  try {
+    const users = await User.find({});
+
+    if (users.length === 0) {
+      return res.status(400).json({ message: "No users found" });
+    }
+
+    const totalUsers = await User.aggregate([
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      totalUsers: totalUsers[0]?.count || 0,
+    });
+  } catch (error) {
+    console.error("Error fetching total users:", error);
+    res.status(500).json({ message: "An error occurred while fetching total users." });
+  }
+};
+
+export const getUserPercentage = async (req, res) => {
+  try {
+    const totalApplicants = await User.countDocuments({ role: "Applicant" });
+
+    const totalEmployers = await User.countDocuments({ role: "Employer" });
+
+    const totalUsers = totalApplicants + totalEmployers;
+
+    if (totalUsers === 0) {
+      return res.status(400).json({ message: "No users found" });
+    }
+    const applicantPercentage = ((totalApplicants / totalUsers) * 100).toFixed(2);
+    const employerPercentage = ((totalEmployers / totalUsers) * 100).toFixed(2);
+
+    res.status(200).json({
+      totalUsers,
+      applicantPercentage,
+      employerPercentage,
+    });
+  } catch (error) {
+    console.error("Error fetching user percentages:", error);
+    res.status(500).json({ message: "An error occurred while fetching percentages." });
+  }
+};

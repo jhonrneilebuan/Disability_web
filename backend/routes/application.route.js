@@ -19,7 +19,9 @@ import {
   getTotalInterview,
   getTotalHired,
   getTotalApplicant,
-  getJobApplicantsCount
+  getJobApplicantsCount,
+  getJobPreferences,
+  updateJobPreferences
 } from "../controllers/application.controller.js";
 
 const router = express.Router();
@@ -48,7 +50,9 @@ router.get("/total-shortlist", verifyToken, employerOnly, getTotalShortlist);
 router.get("/total-interview", verifyToken, employerOnly, getTotalInterview);
 router.get("/total-hired", verifyToken, employerOnly, getTotalHired);
 router.get("/total-applicant", verifyToken, employerOnly, getTotalApplicant);
-router.get("/applicant-count", verifyToken, employerOnly, getJobApplicantsCount)
+router.get("/applicant-count", verifyToken, employerOnly, getJobApplicantsCount);
+router.get("/", verifyToken, getJobPreferences);
+router.put("/", verifyToken, updateJobPreferences);
 
 
 

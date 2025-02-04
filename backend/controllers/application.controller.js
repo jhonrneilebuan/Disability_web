@@ -1,6 +1,7 @@
 import { sendConfirmationEmail } from "../mailtrap/gmail.js";
 import Application from "../models/application.model.js";
 import Job from "../models/job.model.js";
+import User from "../models/user.model.js";
 
 export const applyJobs = async (req, res) => {
   try {
@@ -15,6 +16,34 @@ export const applyJobs = async (req, res) => {
 
     if (!req.files || !req.files.resume) {
       return res.status(400).json({ error: "Resume is required." });
+    }
+
+    const job = await Job.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ error: "Job not found." });
+    }
+
+    const applicant = await User.findById(applicantId);
+    if (!applicant) {
+      return res.status(404).json({ error: "Applicant not found." });
+    }
+
+    const applicantDisability = applicant.disabilityInformation?.disabilityType;
+
+    if (!applicantDisability) {
+      return res
+        .status(400)
+        .json({ error: "Applicant disability information is required." });
+    }
+
+    if (!job.preferredDisabilities.includes("Any")) {
+      const isEligible = job.preferredDisabilities.includes(applicantDisability);
+
+      if (!isEligible) {
+        return res.status(403).json({
+          error: "You do not meet the preferred disability criteria for this job.",
+        });
+      }
     }
 
     const resumePath = req.files.resume ? req.files.resume[0].path : null;
@@ -43,7 +72,6 @@ export const applyJobs = async (req, res) => {
     });
 
     await application.save();
-
     await sendConfirmationEmail(applicantId, jobId);
 
     res.status(200).json({ message: "Application submitted successfully." });
@@ -54,6 +82,7 @@ export const applyJobs = async (req, res) => {
     });
   }
 };
+
 
 export const getApplications = async (req, res) => {
   try {
@@ -561,7 +590,7 @@ export const getTotalApplicant = async (req, res) => {
       { $match: { jobId: { $in: jobIds } } },
       {
         $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, 
+          _id:  {$dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, 
           count: { $sum: 1 },
         },
       },
@@ -617,5 +646,70 @@ export const getJobApplicantsCount = async (req, res) => {
   } catch (error) {
     console.error("Error fetching job applicant counts:", error);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const getJobPreferences = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId); 
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.role !== "Applicant") {
+      return res.status(403).json({ message: "Access denied. Only applicants can view job preferences." });
+    }
+
+    return res.status(200).json({
+      jobPreferences: user.jobPreferences,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const updateJobPreferences = async (req, res) => {
+  try {
+    const { jobCategory, jobType, preferredLocations, preferredDisability, expectedSalary, jobShift, jobLevel } = req.body;
+
+    if (!jobCategory || !jobType || !preferredLocations || !preferredDisability || !expectedSalary || !jobShift || !jobLevel) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const user = await User.findById(req.userId); 
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.role !== "Applicant") {
+      return res.status(403).json({ message: "Access denied. Only applicants can update job preferences." });
+    }
+
+    user.jobPreferences = {
+      jobCategory,
+      jobType,
+      preferredLocations,
+      preferredDisability,
+      expectedSalary,
+      jobShift,
+      jobLevel,
+    };
+
+    if (!user.hasCompletedProfile) {
+      user.hasCompletedProfile = true;
+    }
+
+    await user.save(); 
+
+    return res.status(200).json({
+      message: "Job preferences updated successfully",
+      jobPreferences: user.jobPreferences,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Server error" });
   }
 };

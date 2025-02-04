@@ -8,6 +8,7 @@ axios.defaults.withCredentials = true;
 
 export const jobStore = create((set, get) => ({
   jobDetails: null,
+  jobPreferences: null,
   jobPosts: [],
   applications: [],
   employerApplicants: [],
@@ -26,42 +27,89 @@ export const jobStore = create((set, get) => ({
   error: null,
   message: null,
 
+  getJobPreferences: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.get(`${API_URL}/applications/`);
+      set({ jobPreferences: response.data, isLoading: false });
+    } catch (error) {
+      console.error("Error fetching job preferences:", error);
+      toast.error(
+        error.response?.data?.message || "Error fetching job preferences"
+      );
+      set({
+        error:
+          error.response?.data?.message || "Error fetching job preferences",
+        isLoading: false,
+      });
+    }
+  },
+
+  updateJobPreferences: async (preferences) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.put(`${API_URL}/applications/`, preferences);
+      set({ jobPreferences: response.data, isLoading: false });
+      toast.success("Job preferences updated successfully");
+    } catch (error) {
+      console.error("Error updating job preferences:", error);
+      toast.error(
+        error.response?.data?.message || "Error updating job preferences"
+      );
+      set({
+        error:
+          error.response?.data?.message || "Error updating job preferences",
+        isLoading: false,
+      });
+    }
+  },
+
   getTotalApplicant: async () => {
     set({ isTotalLoading: true, error: null });
     try {
-      const response = await axios.get(`${API_URL}/applications/total-applicant`);
+      const response = await axios.get(
+        `${API_URL}/applications/total-applicant`
+      );
       set({
-        totalDataOfApplicants: response.data, 
+        totalDataOfApplicants: response.data,
         isTotalLoading: false,
       });
     } catch (error) {
       console.error("Error fetching total applicants:", error);
-      toast.error(error.response?.data?.message || "Error fetching total applicants");
+      toast.error(
+        error.response?.data?.message || "Error fetching total applicants"
+      );
       set({
-        error: error.response?.data?.message || "Error fetching total applicants",
+        error:
+          error.response?.data?.message || "Error fetching total applicants",
         isTotalLoading: false,
       });
     }
-  }, 
+  },
 
   getJobApplicantsCount: async () => {
     set({ isChartLoading: true, error: null });
     try {
-      const response = await axios.get(`${API_URL}/applications/applicant-count`);
+      const response = await axios.get(
+        `${API_URL}/applications/applicant-count`
+      );
       set({
-        totalApplicantCount: response.data, 
+        totalApplicantCount: response.data,
         isChartLoading: false,
       });
     } catch (error) {
       console.error("Error fetching job applicants count:", error);
-      toast.error(error.response?.data?.message || "Error fetching job applicants count");
+      toast.error(
+        error.response?.data?.message || "Error fetching job applicants count"
+      );
       set({
-        error: error.response?.data?.message || "Error fetching job applicants count",
+        error:
+          error.response?.data?.message ||
+          "Error fetching job applicants count",
         isChartLoading: false,
       });
     }
   },
-  
 
   getJobPosts: async () => {
     set({ isLoading: true, error: null });
@@ -520,6 +568,7 @@ export const jobStore = create((set, get) => ({
     jobSkills,
     expectedSalary,
     jobAttachment,
+    preferredDisabilities,
   }) => {
     set({ isLoading: true, error: null });
     try {
@@ -537,6 +586,7 @@ export const jobStore = create((set, get) => ({
       formData.append("jobShift", jobShift);
       formData.append("jobLevel", jobLevel);
       formData.append("applyWithLink", applyWithLink);
+      formData.append("preferredDisabilities", preferredDisabilities);
 
       if (locations) {
         formData.append("locations", JSON.stringify(locations));

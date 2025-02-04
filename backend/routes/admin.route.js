@@ -10,7 +10,9 @@ import {
   updateUserById,
   getTotalUsers,
   getTotalEmployers,
-  getTotalApplicants
+  getTotalApplicants,
+  getTotalUser,
+  getUserPercentage
 } from "../controllers/admin.controller.js";
 
 const router = express.Router();
@@ -25,6 +27,10 @@ router.put("/users/:id", verifyToken, admin ,updateUserById);
 router.get("/users/total", getTotalUsers);
 router.get("/users/employers/total", getTotalEmployers);
 router.get("/users/applicants/total", getTotalApplicants);
+router.get("/total-users", verifyToken, admin, getTotalUser);
+router.get("/user-percentage", verifyToken, admin, getUserPercentage);
+
+
 
 
 export default router;

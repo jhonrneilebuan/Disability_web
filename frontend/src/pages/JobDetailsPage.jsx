@@ -1,4 +1,5 @@
 import {
+  Accessibility ,
   Banknote,
   Clock3,
   Download,
@@ -116,6 +117,11 @@ const JobDetailsPage = () => {
         <div className="flex items-center space-x-2 mt-4">
           <Clock3 className="h-5 w-5 text-gray-500" />
           <p className="text-xl font-normal font-poppins">{jobDetails?.jobType}</p>
+        </div>
+
+        <div className="flex items-center space-x-2 mt-4">
+          <Accessibility className="h-5 w-5 text-gray-500" />
+          <p className="text-xl font-normal font-poppins">{jobDetails?.preferredDisabilities}</p>
         </div>
 
         {jobDetails?.expectedSalary?.minSalary &&

@@ -581,6 +581,14 @@ const JobsPage = () => {
                       {job.employer?.fullName}/
                       {job.companyName || job.employer.companyName}
                     </p>
+                    <p className="text-base text-black font-light font-poppins mb-2 flex-grow">
+                      <span className="text-base text-black font-light font-poppins">Preferred Disability: </span>
+                      {Array.isArray(job.preferredDisabilities) &&
+                      job.preferredDisabilities.length > 0
+                        ? job.preferredDisabilities.join(", ")
+                        : "Any"}
+                    </p>
+
                     <p className="text-black font-light font-poppins">
                       {job.expectedSalary &&
                       job.expectedSalary.minSalary &&

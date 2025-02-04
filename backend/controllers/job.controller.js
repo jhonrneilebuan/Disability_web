@@ -21,6 +21,7 @@ export const createJob = async (req, res) => {
       jobLevel,
       applyWithLink,
       jobSkills,
+      preferredDisabilities,
     } = req.body;
 
     const expectedSalary = req.body.expectedSalary
@@ -32,8 +33,8 @@ export const createJob = async (req, res) => {
       return res.status(404).json({ message: "Employer not found." });
     }
 
-    const jobAttachmentPath = req.files?.jobAttachment
-      ? `/uploads/${req.files.jobAttachment[0].filename}` 
+    const jobAttachmentPath = req.files?.jobAttachment?.[0]?.filename
+      ? `http://localhost:8080/uploads/${req.files.jobAttachment[0].filename}`
       : null;
 
     const finalCompanyName =
@@ -41,6 +42,9 @@ export const createJob = async (req, res) => {
     const finalLocations = locations || [
       employer.employerInformation?.companyAddress,
     ];
+    const finalPreferredDisabilities = preferredDisabilities?.length
+      ? preferredDisabilities
+      : ["Any"];
 
     const job = await Job.create({
       employer: req.userId,
@@ -60,16 +64,12 @@ export const createJob = async (req, res) => {
       jobSkills,
       expectedSalary,
       jobAttachment: jobAttachmentPath,
+      preferredDisabilities: finalPreferredDisabilities,
     });
 
     res.status(201).json({
       message: "Job posted successfully",
-      job: {
-        ...job._doc,
-        jobAttachment: jobAttachmentPath
-          ? `http://localhost:8080${jobAttachmentPath}`
-          : null,
-      },
+      job: { ...job._doc },
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -86,7 +86,7 @@ export const getAllJobs = async (req, res) => {
     const updatedJobs = jobs.map((job) => {
       const jobData = job.toObject(); 
       if (jobData.jobAttachment) {
-        jobData.jobAttachment = `http://localhost:8080/${jobData.jobAttachment}`;
+        jobData.jobAttachment = `${jobData.jobAttachment}`;
       }
       return jobData;
     });
@@ -135,7 +135,7 @@ export const getJobById = async (req, res) => {
 
     const jobData = job.toObject(); 
     if (jobData.jobAttachment) {
-      jobData.jobAttachment = `http://localhost:8080/${jobData.jobAttachment}`;
+      jobData.jobAttachment = `${jobData.jobAttachment}`;
     }
 
     res.status(200).json(jobData);
