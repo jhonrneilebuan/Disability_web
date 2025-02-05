@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import bcrypt from "bcryptjs";
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -173,11 +174,18 @@ export const updateUserById = async (req, res) => {
     }
 
     if (updateData.email) user.email = updateData.email;
-    if (updateData.password) user.password = updateData.password;
     if (updateData.isVerified !== undefined) user.isVerified = updateData.isVerified;
-
     if (updateData.fullName) user.fullName = updateData.fullName;
     if (updateData.contact) user.contact = updateData.contact;
+
+    if (updateData.password) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(updateData.password, salt);
+    }
+
+    if (updateData.role && ["Applicant", "Employer", "Admin"].includes(updateData.role)) {
+      user.role = updateData.role;
+    }
 
     if (user.role === "Employer" && updateData.employerInformation) {
       user.employerInformation = {
@@ -185,16 +193,15 @@ export const updateUserById = async (req, res) => {
         ...updateData.employerInformation,
       };
     }
-
-    if (user.role === "Applicant" && updateData.disabilityInformation) {
-      user.disabilityInformation = {
-        ...user.disabilityInformation,
-        ...updateData.disabilityInformation,
-      };
-    }
-
+    
     if (user.role === "Applicant") {
       if (updateData.address) user.address = updateData.address;
+      if (updateData.disabilityInformation) {
+        user.disabilityInformation = {
+          ...user.disabilityInformation,
+          ...updateData.disabilityInformation,
+        };
+      }
     }
 
     await user.save();
