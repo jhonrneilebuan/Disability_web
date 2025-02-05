@@ -22,6 +22,9 @@ import SignUpPage from "./pages/SignUpPage";
 import UserData from "./pages/UserData";
 import VideoChatRoom from "./pages/VideoChatRoom";
 import { authStore } from "./stores/authStore";
+import AdminUserList from "./pages/AdminUserList";
+import UserBan from "./pages/UserBan";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();
@@ -31,6 +34,10 @@ const ProtectedRoute = ({ children }) => {
 
   if (!user.isVerified) {
     return <Navigate to="/" replace />;
+  }
+
+  if (user?.banned) {
+    return <Navigate to="/ban" replace />;
   }
 
   return children;
@@ -220,14 +227,19 @@ function App() {
           }
         />
 
+<Route path="/admin" element={<AdminPanel />}>
+    <Route index element={<AdminDashboard />} />
+    <Route path="dashboard" element={<AdminDashboard />} />
+    <Route path="AdminUserList" element={<AdminUserList />} />
+  </Route>
+
         <Route
-          path="/admin"
-          element={
-            <ProtectedRoute>
-              <AdminPanel />
-            </ProtectedRoute>
+          path="/ban"
+          element={ 
+              <UserBan />
           }
         />
+
         
       </Routes>
       <Toaster />

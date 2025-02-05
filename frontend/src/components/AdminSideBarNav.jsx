@@ -9,22 +9,16 @@ const Sidebar = ({ handleNavigation, handleLogout }) => {
       </h1>
       <nav className="mt-5 space-y-4 text-center md:text-left">
         <button
-          onClick={() => handleNavigation("/dashboard")}
+          onClick={() => handleNavigation("dashboard")}
           className="block w-full py-2 px-4 rounded hover:bg-gray-700"
         >
           Dashboard
         </button>
         <button
-          onClick={() => handleNavigation("/users")}
+          onClick={() => handleNavigation("AdminUserList")}
           className="block w-full py-2 px-4 rounded hover:bg-gray-700"
         >
           Users
-        </button>
-        <button
-          onClick={() => handleNavigation("/employers")}
-          className="block w-full py-2 px-4 rounded hover:bg-gray-700"
-        >
-          Employers
         </button>
       </nav>
       <button
