@@ -1,12 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
 import { MdLogout } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
+import { authStore } from "../stores/authStore";
 
-const Sidebar = ({ handleNavigation, handleLogout }) => {
+const AdminSidebarNav = ({ handleNavigation }) => {
+  const { logout } = authStore(); 
+  const navigate = useNavigate(); 
+
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed);
+  };
+
   return (
-    <aside className="w-full md:w-64 bg-gray-900 text-white flex flex-col p-5">
+    <aside className={`w-full md:w-64 bg-gray-900 text-white flex flex-col p-5 ${isSidebarCollapsed ? 'w-20' : 'w-64'} transition-all`}>
       <h1 className="text-xl font-bold text-center md:text-left">
         Admin Panel
       </h1>
+      <button
+        onClick={toggleSidebar}
+        className="absolute top-6 -right-3 bg-white shadow-md border rounded-full p-1"
+      >
+        {isSidebarCollapsed ? ">" : "<"}
+      </button>
       <nav className="mt-5 space-y-4 text-center md:text-left">
         <button
           onClick={() => handleNavigation("dashboard")}
@@ -31,4 +53,4 @@ const Sidebar = ({ handleNavigation, handleLogout }) => {
   );
 };
 
-export default Sidebar;
+export default AdminSidebarNav;

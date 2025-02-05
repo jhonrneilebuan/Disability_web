@@ -227,11 +227,18 @@ function App() {
           }
         />
 
-<Route path="/admin" element={<AdminPanel />}>
-    <Route index element={<AdminDashboard />} />
-    <Route path="dashboard" element={<AdminDashboard />} />
-    <Route path="AdminUserList" element={<AdminUserList />} />
-  </Route>
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminPanel />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="AdminUserList" element={<AdminUserList />} />
+        </Route>
 
         <Route
           path="/ban"
