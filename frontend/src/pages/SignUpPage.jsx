@@ -36,7 +36,7 @@ const SignUpPage = () => {
         initial={{ opacity: 0, x: 100 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex max-w-full w-[calc(100vh)] bg-white bg-opacity-50 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden h-[60vh]"
+        className="flex max-w-full w-[calc(100vh)] bg-white bg-opacity-50 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden h-[70vh]"
       >
         <div className="w-1/2 p-8 h-full flex justify-center items-center">
           <div className="w-full max-w-sm">
