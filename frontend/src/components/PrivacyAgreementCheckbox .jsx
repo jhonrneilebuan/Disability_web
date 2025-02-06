@@ -8,7 +8,7 @@ const PrivacyAgreementCheckbox = ({ agreedToPrivacy, setAgreedToPrivacy }) => {
         id="privacyAgreement"
         checked={agreedToPrivacy}
         onChange={() => setAgreedToPrivacy(!agreedToPrivacy)}
-        className="text-green-500 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+        className="text-yellow-500 focus:ring-2 focus:ring-yellow-600 focus:ring-offset-2"
         required
       />
       <label
@@ -18,7 +18,7 @@ const PrivacyAgreementCheckbox = ({ agreedToPrivacy, setAgreedToPrivacy }) => {
         I agree to the{" "}
         <Link
           to="/privacy-policy"
-          className="text-green-400 hover:underline"
+          className="text-yellow-600 hover:underline"
         >
           Privacy Policy
         </Link>

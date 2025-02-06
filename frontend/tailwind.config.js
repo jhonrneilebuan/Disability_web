@@ -1,4 +1,4 @@
-import daisyui from 'daisyui';
+import daisyui from "daisyui";
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
@@ -44,6 +44,7 @@ export default {
         "applicant-bg-1": "url('Background-1.png')",
         "applicant-bg-2": "url('Background-2.png')",
         "applicant-bg-3": "url('Background-3.png')",
+        "applicant-nbg-1": "url('new-bg-sample.png')",
       },
       textShadow: {
         default: "2px 2px 4px rgba(0, 0, 0, 0.5)",
@@ -57,6 +58,6 @@ export default {
   },
   plugins: [daisyui],
   daisyui: {
-    themes: ["light"], 
+    themes: ["light"],
   },
 };

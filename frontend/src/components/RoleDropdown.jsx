@@ -2,7 +2,7 @@ import React from "react";
 
 const RoleDropdown = ({ role, setRole }) => {
   return (
-    <div className="relative ">
+    <div className="relative mb-3">
       <label
         htmlFor="role"
         className="block text-sm font-medium text-gray-400"
@@ -13,16 +13,16 @@ const RoleDropdown = ({ role, setRole }) => {
         id="role"
         value={role}
         onChange={(e) => setRole(e.target.value)}
-        className="w-full p-2 bg-gray-800 bg-opacity-50 text-green-400 rounded-lg border border-gray-700 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 mb-6"
+        className="w-full p-2 bg-gray-100 rounded-lg border border-gray-400 focus:border-black focus:ring-2 focus:ring-black text-black placeholder-gray-500 transition duration-200"
         required
       >
-        <option value="" disabled className="bg-gray-800 text-green-400">
+        <option value="" disabled className="bg-gray-100 text-black">
           Choose a role
         </option>
-        <option value="Applicant" className="bg-gray-800 text-green-400">
+        <option value="Applicant" className="bg-gray-100 text-black">
           Applicant
         </option>
-        <option value="Employer" className="bg-gray-800 text-green-400">
+        <option value="Employer" className="bg-gray-100 text-black">
           Employer
         </option>
       </select>
