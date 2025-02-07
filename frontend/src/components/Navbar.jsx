@@ -40,10 +40,10 @@ const Navbar = () => {
     <nav className="bg-white shadow-md">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <div className="text-lg font-normal text-black flex items-center ml-5">
-          <div className="w-10 h-10 rounded-full overflow-hidden cursor-pointer">
+          <div className="w-15 h-14 rounded-full overflow-hidden cursor-pointer">
             <Link to="/">
               <img
-                src="/cats.jpg"
+                src="/disabilityLogo.png"
                 alt="Logo"
                 className="w-full h-full object-cover"
               />
