@@ -242,12 +242,13 @@ const JobsPage = () => {
   return (
     <main className="min-h-screen flex flex-col overflow-auto">
       <Navbar />
-      <section className="bg-applicant-bg-3 bg-transparent bg-no-repeat bg-cover bg-center flex-grow flex flex-col items-start justify-start space-y-4 pt-8 h-screen">
-        <h1 className="text-7xl font-semibold self-start font-poppins text-white ml-4 pl-4 pt-10 text-shadow-xl sm:text-5xl md:text-6xl">
-          LET&apos;S GET YOU <br />
-          FIND A JOB
-        </h1>
-        <p className="text-4xl text-left text-md font-medium font-jakarta ml-4 pl-4 pb-14 text-white text-shadow-xl sm:text-xl md:text-2xl">
+      {/* <section className="bg-applicant-bg-3 bg-transparent bg-no-repeat bg-cover bg-center flex-grow flex flex-col items-start justify-start space-y-4 pt-8 h-screen"> */}
+      <section className="bg-applicant-nbg-4 pb-10 p-16  bg-cover bg-center flex-grow flex flex-col">
+
+      {/* <section className="bg-applicant-nbg-4 pb-10 flex-grow flex flex-col p-16"> */}
+        <h1 className="text-7xl font-semibold font-poppins text-white ml-4 mb-4 pl-4 text-shadow-xl sm:text-5xl md:text-6xl text-center">
+          Let&apos;s Get You Find a Job</h1>
+        <p className="text-4xl text-center text-md font-medium font-jakarta ml-4 pl-4 text-white text-shadow-xl sm:text-xl md:text-2xl">
           WE&apos;VE GOT {jobPosts?.length || 0} JOBS TO APPLY!
         </p>
         <div className="flex flex-col items-center mx-auto space-y-6">
@@ -263,12 +264,13 @@ const JobsPage = () => {
             setSearch={setSearch}
           />
 
-          <div className="w-full flex flex-col sm:flex-row justify-start sm:space-x-7 sm:space-y-0 space-y-6 pl-8">
+          <div className="items-center justify-center w-full flex flex-col sm:flex-row sm:space-x-7 sm:space-y-0">
             <div className="relative w-full sm:w-48 ">
               <select
-                className="px-4 py-3 text-black text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
+                className="px-4 py-3 text-browny text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
                 onChange={(e) => setselectedJobType(e.target.value)}
                 value={selectedJobType}
+                
               >
                 {jobTypes.map((type, index) => (
                   <option key={index} value={type}>
@@ -280,7 +282,7 @@ const JobsPage = () => {
 
             <div className="relative w-full sm:w-48 mt-4 sm:mt-0">
               <select
-                className="px-4 py-3 text-black text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
+                className="px-4 py-3 text-browny text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
                 onChange={(e) => setSelectedJobShift(e.target.value)}
                 value={selectedJobShift}
               >

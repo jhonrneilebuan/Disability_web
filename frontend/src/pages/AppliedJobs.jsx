@@ -141,9 +141,11 @@ const AppliedJobs = () => {
   return (
     <main className="min-h-screen flex flex-col">
       <Navbar />
-      <section className="bg-applicant-bg-3 bg-transparent bg-no-repeat bg-cover bg-center flex-grow flex flex-col space-y-4 pt-8 h-screen">
-        <h1 className="text-4xl sm:text-5xl font-extrabold text-center font-poppins text-white pt-36 pb-7 text-shadow-xl">
-          MY JOB APPLICATIONS
+      {/* <section className="bg-applicant-bg-3 bg-transparent bg-no-repeat bg-cover bg-center flex-grow flex flex-col space-y-4 pt-8 h-screen"> */}
+      <section className="bg-applicant-nbg-6 bg-no-repeat bg-cover bg-center flex flex-col items-center justify-start h-[50vh] w-full relative pt-32">
+
+        <h1 className="text-6xl font-semibold text-center font-poppins text-white pb-7 text-shadow-xl">
+          My Job Applications
         </h1>
 
         <div className="flex flex-col items-center mx-auto space-y-6 min-w-full">
@@ -151,7 +153,7 @@ const AppliedJobs = () => {
             <div className="relative">
               <input
                 placeholder="Search by job titles or keywords..."
-                className="px-10 py-2 rounded-md w-full text-black text-opacity-70 placeholder-black placeholder-opacity-50 bg-browny border-none font-poppins focus:outline-none focus:ring-1 focus:ring-darkBrowny"
+                className="px-10 py-2 rounded-md w-full text-browny text-opacity-70 placeholder-black placeholder-opacity-50 bg-lightBrown border-none font-poppins focus:outline-none focus:ring-1 focus:ring-darkBrowny"
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
               />
@@ -161,10 +163,10 @@ const AppliedJobs = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-start w-full max-w-4xl space-x-4 mt-4">
+          <div className="flex items-center justify-center w-full max-w-4xl space-x-4 mt-4">
             <div className="relative w-full sm:w-auto">
               <select
-                className="px-4 py-3 text-black text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
+                className="px-4 py-3 text-browny text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
                 onChange={handleStatusFilter}
                 value={selectedStatus}
               >
@@ -177,7 +179,7 @@ const AppliedJobs = () => {
 
             <div className="relative w-full sm:w-auto">
               <select
-                className="px-4 py-3 text-black text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
+                className="px-4 py-3 text-browny text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
                 onChange={handleDateSort}
                 value={selectedDate}
               >
