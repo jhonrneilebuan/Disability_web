@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import Sidebar from "../components/AdminSideBarNav";
 
@@ -21,7 +20,7 @@ const AdminPanel = () => {
         handleLogout={handleLogout}
       />
       <main className="flex-1 bg-white shadow-md rounded-lg p-6 mx-4 my-4 overflow-auto">
-        <Outlet /> {    }
+        <Outlet /> 
       </main>
     </div>
   );

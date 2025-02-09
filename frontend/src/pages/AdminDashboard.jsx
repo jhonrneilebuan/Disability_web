@@ -1,20 +1,19 @@
-import { useEffect, useState } from "react";
-import { adminStore } from "../stores/adminApi";
-import React from "react";
-import { FaUsers, FaBriefcase, FaUserShield } from "react-icons/fa";
-import { Bar, Pie, Line } from "react-chartjs-2";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
   ArcElement,
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
   LineElement,
   PointElement,
+  Title,
+  Tooltip,
 } from "chart.js";
+import { useEffect, useState } from "react";
+import { Bar, Line, Pie } from "react-chartjs-2";
+import { FaBriefcase, FaUsers, FaClock } from "react-icons/fa";
+import { adminStore } from "../stores/adminApi";
 
 ChartJS.register(
   CategoryScale,
@@ -37,6 +36,10 @@ const AdminDashboard = () => {
     getTotalApplicants,
     totalApplicants,
     isAdminLoading,
+    getEmployerVerificationId,
+    pendingEmployerID,
+    getPWDVerificationId,
+    pendingPwdID,
     error,
   } = adminStore();
 
@@ -82,7 +85,15 @@ const AdminDashboard = () => {
     getTotalUsers();
     getTotalEmployers();
     getTotalApplicants();
-  }, [getTotalUsers, getTotalEmployers, getTotalApplicants]);
+    getEmployerVerificationId();
+    getPWDVerificationId();
+  }, [
+    getTotalUsers,
+    getTotalEmployers,
+    getTotalApplicants,
+    getEmployerVerificationId,
+    getPWDVerificationId,
+  ]);
 
   useEffect(() => {
     setBarData({
@@ -111,7 +122,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="bg-gradient-to-r from-indigo-100 to-blue-200 p-8 rounded-lg shadow-xl">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
         <div className="bg-gradient-to-t from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-md flex items-center gap-4 hover:scale-105 transform transition duration-300">
           <FaUsers size={32} />
           <div>
@@ -126,11 +137,18 @@ const AdminDashboard = () => {
             <p className="text-xl font-bold">{totalEmployers}</p>
           </div>
         </div>
-        <div className="bg-gradient-to-t from-yellow-500 to-yellow-600 text-white p-6 rounded-lg shadow-md flex items-center gap-4 hover:scale-105 transform transition duration-300">
-          <FaUserShield size={32} />
+        <div className="bg-gradient-to-t from-orange-500 to-orange-600 text-white p-6 rounded-lg shadow-md flex items-center gap-4 hover:scale-105 transform transition duration-300">
+          <FaClock size={32} />
           <div>
-            <h3 className="text-lg font-semibold">Total Users</h3>
-            <p className="text-xl font-bold">{totalUsers}</p>
+            <h3 className="text-lg font-semibold">Request Employer</h3>
+            <p className="text-xl font-bold">{pendingEmployerID}</p>
+          </div>
+        </div>
+        <div className="bg-gradient-to-t from-orange-500 to-orange-600 text-white p-6 rounded-lg shadow-md flex items-center gap-4 hover:scale-105 transform transition duration-300">
+          <FaClock size={32} />
+          <div>
+            <h3 className="text-lg font-semibold">Request PWD</h3>
+            <p className="text-xl font-bold">{pendingPwdID}</p>
           </div>
         </div>
       </div>

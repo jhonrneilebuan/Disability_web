@@ -21,7 +21,8 @@ import {
   getTotalApplicant,
   getJobApplicantsCount,
   getJobPreferences,
-  updateJobPreferences
+  updateJobPreferences,
+  clearJobPreferences
 } from "../controllers/application.controller.js";
 
 const router = express.Router();
@@ -52,8 +53,8 @@ router.get("/total-hired", verifyToken, employerOnly, getTotalHired);
 router.get("/total-applicant", verifyToken, employerOnly, getTotalApplicant);
 router.get("/applicant-count", verifyToken, employerOnly, getJobApplicantsCount);
 router.get("/", verifyToken, getJobPreferences);
-router.put("/", verifyToken, updateJobPreferences);
-
+router.put("/", verifyToken, updateJobPreferences)
+router.delete("/clear", verifyToken, clearJobPreferences);
 
 
 

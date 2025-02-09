@@ -11,6 +11,8 @@ export const adminStore = create((set) => ({
   error: null,
   totalUsers: 0,
   totalEmployers: 0,
+  pendingEmployerID: 0,
+  pendingPwdID: 0,
 
   getTotalUsers: async () => {
     set({ isAdminLoading: true, error: null });
@@ -99,6 +101,43 @@ export const adminStore = create((set) => ({
       });
     }
   },
+
+  getEmployerVerificationId: async () => {
+    set({ isAdminLoading: true, error: null });
+    try {
+      const response = await axios.get(`${BASE_URL}/pending-employerID`);
+      const pendingEmployerID = response.data.pendingEmployerVerifications || 0;
+      set({
+        pendingEmployerID: pendingEmployerID,
+        isAdminLoading: false,
+      });
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || "Error fetching pending employer ID";
+      console.error("Error fetching pending employer ID:", errorMessage);
+      toast.error(errorMessage);
+      set({ error: errorMessage, isAdminLoading: false });
+    }
+  },
+  
+  getPWDVerificationId: async () => {
+    set({ isAdminLoading: true, error: null });
+    try {
+      const response = await axios.get(`${BASE_URL}/pending-pwdID`);
+      console.log("API Response:", response.data); 
+      const pendingPwdID = response.data.pendingDisabilityVerifications || 0;
+      console.log("Pending PWD ID:", pendingPwdID); 
+      set({
+        pendingPwdID: pendingPwdID,
+        isAdminLoading: false,
+      });
+    } catch (error) {
+      console.error("Error fetching pending PWD ID:", error);
+      toast.error(error.response?.data?.message || "Error fetching pending PWD ID");
+      set({ error: error.response?.data?.message || "Error fetching pending PWD ID", isAdminLoading: false });
+    }
+  },
+  
 }));
 
 // Retrieve the admin token (assumed to be stored in localStorage after login)

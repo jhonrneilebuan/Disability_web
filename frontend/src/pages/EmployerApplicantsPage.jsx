@@ -173,7 +173,7 @@ const EmployerApplicantsPage = () => {
                     </td>
                   </tr>
                 ) : filteredApplicants && filteredApplicants.length > 0 ? (
-                  filteredApplicants.map((applicant) => (
+                  [...filteredApplicants].reverse().map((applicant) => (
                     <tr key={applicant.id} className="border-b border-gray-300">
                       <td className="px-4 py-2 text-sm text-gray-700 text-center font-poppins">
                         {applicant.jobTitle}

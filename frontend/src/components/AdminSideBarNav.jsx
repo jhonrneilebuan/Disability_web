@@ -27,6 +27,13 @@ const AdminSidebarNav = ({ handleNavigation }) => {
         >
           Users
         </button>
+
+        <button
+          onClick={() => handleNavigation("adminProfile")}
+          className="block w-full py-2 px-4 rounded hover:bg-gray-700"
+        >
+          Profile
+        </button>
       </nav>
       <button
         onClick={handleLogout}

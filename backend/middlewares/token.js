@@ -3,21 +3,30 @@ import jwt from "jsonwebtoken";
 
 export const verifyToken = async (req, res, next) => {
   const token = req.cookies.jwt;
-  if (!token) {
-    return res
-      .status(401)
-      .json({ message: "Unauthorized - No Token Provided" });
-  }
-  try {
-    const decode = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (!decode) {
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized - No Token Provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (!decoded) {
       return res.status(401).json({ message: "Unauthorized - Invalid Token" });
     }
 
-    req.userId = decode.userId;
+    console.log('Decoded userId:', decoded.userId);
+
+    const user = await User.findById(decoded.userId);
     
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized - User Not Found" });
+    }
+    
+    req.userId = decoded.userId; 
+ 
     next();
+
   } catch (error) {
     console.error(`Error in verifyToken middleware: ${error.message}`);
     res.status(500).json({ message: "Internal Server Error" });

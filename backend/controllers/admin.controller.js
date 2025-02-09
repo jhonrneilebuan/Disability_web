@@ -302,3 +302,188 @@ export const getUserPercentage = async (req, res) => {
     res.status(500).json({ message: "An error occurred while fetching percentages." });
   }
 };
+
+
+export const updateAdminProfile = async (req, res) => {
+  try {
+    const adminId = req.userId
+    const { fullName, contact } = req.body; 
+
+    const admin = await User.findById(adminId);
+
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    if (fullName) admin.fullName = fullName;
+    if (contact) admin.contact = contact;
+
+    await admin.save();
+
+    res.status(200).json({
+      message: "Admin profile updated successfully",
+      admin,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+
+export const getAdminProfile = async (req, res) => {
+  try {
+    const adminId = req.userId
+
+    const admin = await User.findById(adminId);
+
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    if (admin.role !== "Admin") {
+      return res.status(403).json({ message: "Unauthorized: Not an admin" });
+    }
+
+    res.status(200).json({
+      message: "Admin profile fetched successfully",
+      admin: {
+        id: admin._id,
+        fullName: admin.fullName,
+        email: admin.email,
+        profilePicture: admin.profilePicture,
+        contact: admin.contact,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+export const getDisabilityVerificationId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId).select("disabilityInformation.verificationId");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      verificationId: user.disabilityInformation?.verificationId || null,
+    });
+  } catch (error) {
+    console.error("Error fetching disability verification ID:", error.stack || error);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+export const updateDisabilityVerificationStatus = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { isVerified } = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.role !== "Applicant") {
+      return res.status(403).json({ message: "Only applicants can be verified" });
+    }
+
+    user.disabilityInformation.isIdVerified = isVerified;
+    await user.save();
+
+    res.status(200).json({
+      message: `Disability ID verification ${isVerified ? "approved" : "rejected"}`,
+      isIdVerified: isVerified,
+    });
+  } catch (error) {
+    console.error("Error updating disability verification status:", error.stack || error);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+
+export const getEmployerVerificationId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId).select("employerInformation.verificationId");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      verificationId: user.employerInformation?.verificationId || null,
+    });
+  } catch (error) {
+    console.error("Error fetching employer verification ID:", error.stack || error);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+
+export const updateEmployerVerificationStatus = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { isVerified } = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.role !== "Employer") {
+      return res.status(403).json({ message: "Only employers can be verified" });
+    }
+
+    user.employerInformation.isIdVerified = isVerified;
+    await user.save();
+
+    res.status(200).json({
+      message: `Employer ID verification ${isVerified ? "approved" : "rejected"}`,
+      isIdVerified: isVerified,
+    });
+  } catch (error) {
+    console.error("Error updating employer verification status:", error.stack || error);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+
+export const getPendingDisabilityVerifications = async (req, res) => {
+  try {
+    const pendingDisabilityCount = await User.countDocuments({
+      "disabilityInformation.isIdVerified": false,
+      "disabilityInformation.verificationId": { $ne: null },
+    });
+
+    res.status(200).json({
+      pendingDisabilityVerifications: pendingDisabilityCount,
+    });
+  } catch (error) {
+    console.error("Error counting pending disability verifications:", error);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+export const getPendingEmployerVerifications = async (req, res) => {
+  try {
+    const pendingEmployerCount = await User.countDocuments({
+      "employerInformation.isIdVerified": false,
+      "employerInformation.verificationId": { $ne: null },
+    });
+
+    res.status(200).json({
+      pendingEmployerVerifications: pendingEmployerCount,
+    });
+  } catch (error) {
+    console.error("Error counting pending employer verifications:", error);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};

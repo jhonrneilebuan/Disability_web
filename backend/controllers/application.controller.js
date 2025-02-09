@@ -661,8 +661,20 @@ export const getJobPreferences = async (req, res) => {
       return res.status(403).json({ message: "Access denied. Only applicants can view job preferences." });
     }
 
+    const jobPreferences = {
+      jobCategory: user.jobPreferences.jobCategory,
+      jobType: user.jobPreferences.jobType,
+      locations: { $in: user.jobPreferences.preferredLocations },
+      jobShift: user.jobPreferences.jobShift,
+      jobLevel: user.jobPreferences.jobLevel,
+      expectedSalary: {
+        "minSalary": { $gte: user.jobPreferences.expectedSalary.minSalary },
+        "maxSalary": { $lte: user.jobPreferences.expectedSalary.maxSalary },
+      },
+    };
+
     return res.status(200).json({
-      jobPreferences: user.jobPreferences,
+      jobPreferences,
     });
   } catch (err) {
     console.error(err);
@@ -672,13 +684,24 @@ export const getJobPreferences = async (req, res) => {
 
 export const updateJobPreferences = async (req, res) => {
   try {
-    const { jobCategory, jobType, preferredLocations, preferredDisability, expectedSalary, jobShift, jobLevel } = req.body;
+    let { jobCategory, jobType, preferredLocations, expectedSalary, jobShift, jobLevel } = req.body;
 
-    if (!jobCategory || !jobType || !preferredLocations || !preferredDisability || !expectedSalary || !jobShift || !jobLevel) {
+    if (!jobCategory || !jobType || !preferredLocations || !expectedSalary || !jobShift || !jobLevel) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const user = await User.findById(req.userId); 
+    if (typeof expectedSalary !== "object" || !expectedSalary.minSalary || !expectedSalary.maxSalary) {
+      return res.status(400).json({ message: "Expected salary must be an object with minSalary and maxSalary" });
+    }
+
+    expectedSalary.minSalary = Number(expectedSalary.minSalary);
+    expectedSalary.maxSalary = Number(expectedSalary.maxSalary);
+
+    if (isNaN(expectedSalary.minSalary) || isNaN(expectedSalary.maxSalary)) {
+      return res.status(400).json({ message: "Expected salary values must be numbers" });
+    }
+
+    const user = await User.findById(req.userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -692,8 +715,7 @@ export const updateJobPreferences = async (req, res) => {
       jobCategory,
       jobType,
       preferredLocations,
-      preferredDisability,
-      expectedSalary,
+      expectedSalary, 
       jobShift,
       jobLevel,
     };
@@ -702,11 +724,51 @@ export const updateJobPreferences = async (req, res) => {
       user.hasCompletedProfile = true;
     }
 
-    await user.save(); 
+    await user.save();
+
+    const jobPreferences = {
+      jobCategory,
+      jobType,
+      locations: { $in: preferredLocations },
+      jobShift,
+      jobLevel,
+      expectedSalary: {
+        "minSalary": { $gte: expectedSalary.minSalary },
+        "maxSalary": { $lte: expectedSalary.maxSalary },
+      },
+    };
 
     return res.status(200).json({
       message: "Job preferences updated successfully",
-      jobPreferences: user.jobPreferences,
+      jobPreferences,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+export const clearJobPreferences = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.role !== "Applicant") {
+      return res.status(403).json({ message: "Access denied. Only applicants can clear job preferences." });
+    }
+
+    user.jobPreferences = {}; 
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Job preferences cleared successfully",
+      jobPreferences: user.jobPreferences, 
     });
   } catch (err) {
     console.error(err);

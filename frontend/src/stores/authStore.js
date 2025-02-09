@@ -240,6 +240,23 @@ export const authStore = create((set, get) => ({
     }
   },
 
+  updateAdminProfile: async (adminData) => {
+    set({ isUpdatingProfileInfo: true, error: null });
+    try {
+      const response = await axios.put(`${API_URL}/admin/update-profile`, adminData); 
+      set({ user: response.data.admin }); 
+      toast.success(response.data.message || "Profile updated successfully!");
+    } catch (error) {
+      console.error("Error updating admin profile:", error);
+      const errorMessage = error.response?.data?.message || "Failed to update profile.";
+      set({ error: errorMessage });
+      toast.error(errorMessage);
+    } finally {
+      set({ isUpdatingProfileInfo: false });
+    }
+  },
+  
+
   connectSocket: () => {
     const { user } = get();
     if (!user || get().socket?.connected) return;

@@ -9,6 +9,7 @@ axios.defaults.withCredentials = true;
 export const jobStore = create((set, get) => ({
   jobDetails: null,
   jobPreferences: null,
+  isjobPreferencesLoading: false,
   jobPosts: [],
   applications: [],
   employerApplicants: [],
@@ -28,10 +29,10 @@ export const jobStore = create((set, get) => ({
   message: null,
 
   getJobPreferences: async () => {
-    set({ isLoading: true, error: null });
+    set({ isjobPreferencesLoading: true, error: null });
     try {
       const response = await axios.get(`${API_URL}/applications/`);
-      set({ jobPreferences: response.data, isLoading: false });
+      set({ jobPreferences: response.data, isjobPreferencesLoading: false });
     } catch (error) {
       console.error("Error fetching job preferences:", error);
       toast.error(
@@ -40,14 +41,20 @@ export const jobStore = create((set, get) => ({
       set({
         error:
           error.response?.data?.message || "Error fetching job preferences",
-        isLoading: false,
+          isjobPreferencesLoading: false,
       });
     }
   },
 
   updateJobPreferences: async (preferences) => {
     set({ isLoading: true, error: null });
+  
     try {
+      preferences.expectedSalary = {
+        minSalary: Number(preferences.expectedSalary.minSalary),
+        maxSalary: Number(preferences.expectedSalary.maxSalary),
+      };
+  
       const response = await axios.put(`${API_URL}/applications/`, preferences);
       set({ jobPreferences: response.data, isLoading: false });
       toast.success("Job preferences updated successfully");
@@ -63,6 +70,7 @@ export const jobStore = create((set, get) => ({
       });
     }
   },
+  
 
   getTotalApplicant: async () => {
     set({ isTotalLoading: true, error: null });
@@ -115,6 +123,25 @@ export const jobStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axios.get(`${API_URL}/jobs/`);
+      set({
+        jobPosts: response.data,
+        isLoading: false,
+      });
+    } catch (error) {
+      console.error("Error fetching job posts:", error);
+      toast.error(error.response?.data?.message || "Error fetching job posts");
+      set({
+        error: error.response?.data?.message || "Error fetching job posts",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  getAllJobs: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.get(`${API_URL}/jobs/all`);
       set({
         jobPosts: response.data,
         isLoading: false,

@@ -238,6 +238,19 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    jobPreferences: {
+      jobCategory: { type: String },
+      jobType: { type: String },
+      preferredLocations: [{ type: String }],
+      preferredDisability: [{ type: String }],
+      expectedSalary: {
+        minSalary: { type: Number },
+        maxSalary: { type: Number },
+      },
+      jobShift: { type: String },
+      jobLevel: { type: String },
+    },
   },
   {
     timestamps: true,

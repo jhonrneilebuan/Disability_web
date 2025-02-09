@@ -104,7 +104,7 @@ const EmployerJobPage = () => {
           <hr />
           <div className="overflow-y-auto max-h-[80vh] pb-5">
             {filteredJobs.length > 0 ? (
-              filteredJobs.map((job) => (
+              [...filteredJobs].reverse().map((job) => (
                 <div
                   key={job._id}
                   className="p-4 bg-white shadow-md m-2 relative"

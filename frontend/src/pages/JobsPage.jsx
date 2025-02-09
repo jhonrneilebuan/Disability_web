@@ -18,6 +18,7 @@ import { jobStore } from "../stores/jobStore";
 
 import Footer from "../components/Footer";
 import FormatTimeDate from "../components/FormatTimeDate";
+import JobPreferencesModal from "../components/JobPreferencesModal ";
 import Modal from "../components/Modal";
 import SearchBar from "../components/Search";
 
@@ -27,11 +28,13 @@ const JobsPage = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [location, setLocation] = useState("");
-  const [search, setSearch] = useState("");
+  //const [search, setSearch] = useState("");
   const [isJobSaved, setIsJobSaved] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("ALL");
   const [selectedJobShift, setSelectedJobShift] = useState("listedAnyTime");
   const [selectedJobType, setselectedJobType] = useState("All work types");
+  const [isModalOpen, setModalOpen] = useState(false);
+
   const [currentPage, setCurrentPage] = useState(1);
   const jobsPerPage = 9;
   const navigate = useNavigate();
@@ -114,6 +117,7 @@ const JobsPage = () => {
     );
   });
 
+  const sortedJobs = [...filteredJobPosts].reverse();
   const categories = [
     "ALL",
     "DESIGN",
@@ -160,27 +164,22 @@ const JobsPage = () => {
     "Internship",
   ];
 
+
   const totalPages = Math.ceil(filteredJobPosts.length / jobsPerPage);
 
   const startIndex = (currentPage - 1) * jobsPerPage;
-  const currentJobs = filteredJobPosts.slice(
-    startIndex,
-    startIndex + jobsPerPage
-  );
-
+  const currentJobs = sortedJobs.slice(startIndex, startIndex + jobsPerPage);
+  
+  
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
     }
   };
 
-  // TODO: Implement search functionality later
-  //* Note: This is unfinished because IDK what functionality I need to add to this button :{
-  /*
   const handleSearch = () => {
-    setSearch(filteredJobPosts);
+    setModalOpen(true);
   };
-  */
 
   const handleSaveJob = async (jobId) => {
     await saveJob(jobId);
@@ -244,10 +243,10 @@ const JobsPage = () => {
       <Navbar />
       {/* <section className="bg-applicant-bg-3 bg-transparent bg-no-repeat bg-cover bg-center flex-grow flex flex-col items-start justify-start space-y-4 pt-8 h-screen"> */}
       <section className="bg-applicant-nbg-4 pb-10 p-16  bg-cover bg-center flex-grow flex flex-col">
-
-      {/* <section className="bg-applicant-nbg-4 pb-10 flex-grow flex flex-col p-16"> */}
+        {/* <section className="bg-applicant-nbg-4 pb-10 flex-grow flex flex-col p-16"> */}
         <h1 className="text-7xl font-semibold font-poppins text-white ml-4 mb-4 pl-4 text-shadow-xl sm:text-5xl md:text-6xl text-center">
-          Let&apos;s Get You Find a Job</h1>
+          Let&apos;s Get You Find a Job
+        </h1>
         <p className="text-4xl text-center text-md font-medium font-jakarta ml-4 pl-4 text-white text-shadow-xl sm:text-xl md:text-2xl">
           WE&apos;VE GOT {jobPosts?.length || 0} JOBS TO APPLY!
         </p>
@@ -260,8 +259,11 @@ const JobsPage = () => {
             location={location}
             setLocation={setLocation}
             categories={categories}
-            onSearch={search}
-            setSearch={setSearch}
+            onSearch={handleSearch}
+          />
+          <JobPreferencesModal
+            isOpen={isModalOpen}
+            onClose={() => setModalOpen(false)}
           />
 
           <div className="items-center justify-center w-full flex flex-col sm:flex-row sm:space-x-7 sm:space-y-0">
@@ -270,7 +272,6 @@ const JobsPage = () => {
                 className="px-4 py-3 text-browny text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
                 onChange={(e) => setselectedJobType(e.target.value)}
                 value={selectedJobType}
-                
               >
                 {jobTypes.map((type, index) => (
                   <option key={index} value={type}>
@@ -316,7 +317,7 @@ const JobsPage = () => {
           <div className="w-full sm:w-2/4 p-4 h-full overflow-y-auto ml-24">
             <div className="space-y-4">
               {filteredJobPosts.length > 0 ? (
-                filteredJobPosts.map((job) => (
+                [...filteredJobPosts].reverse().map((job) => (
                   <div
                     key={job.id || job._id}
                     className="bg-white rounded-lg border-solid border-2 border-browny shadow-md p-4 cursor-pointer font-poppins hover:bg-gray-100"
@@ -584,7 +585,9 @@ const JobsPage = () => {
                       {job.companyName || job.employer.companyName}
                     </p>
                     <p className="text-base text-black font-light font-poppins mb-2 flex-grow">
-                      <span className="text-base text-black font-light font-poppins">Preferred Disability: </span>
+                      <span className="text-base text-black font-light font-poppins">
+                        Preferred Disability:{" "}
+                      </span>
                       {Array.isArray(job.preferredDisabilities) &&
                       job.preferredDisabilities.length > 0
                         ? job.preferredDisabilities.join(", ")

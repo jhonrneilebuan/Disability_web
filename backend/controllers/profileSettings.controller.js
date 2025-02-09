@@ -271,3 +271,79 @@ export const updateEmployerProfile = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+
+export const uploadDisabilityId = async (req, res) => {
+  try {
+    const { verificationId } = req.body;
+    const userId = req.userId;
+
+    if (!verificationId) {
+      return res.status(400).json({ message: "Disability ID is required" });
+    }
+
+    const verificationUrl = await uploadToCloudinary(verificationId);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        "disabilityInformation.verificationId": verificationUrl,
+        "disabilityInformation.isIdVerified": false, 
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "Disability ID uploaded successfully",
+      verificationId: verificationUrl,
+    });
+  } catch (error) {
+    console.error("Error uploading disability ID:", error.stack || error);
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+
+export const uploadEmployerVerificationId = async (req, res) => {
+  try {
+    const { verificationId } = req.body;
+    const userId = req.userId;
+
+    if (!verificationId) {
+      return res.status(400).json({ message: "Employer verification ID is required" });
+    }
+
+    const verificationUrl = await uploadToCloudinary(verificationId);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        "employerInformation.verificationId": verificationUrl,
+        "employerInformation.isIdVerified": false, 
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "Employer verification ID uploaded successfully",
+      verificationId: verificationUrl,
+    });
+  } catch (error) {
+    console.error("Error uploading employer verification ID:", error.stack || error);
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};

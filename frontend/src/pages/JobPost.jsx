@@ -41,40 +41,69 @@ const JobPosts = () => {
 
   const handleCreateJob = async (event) => {
     event.preventDefault();
-
+  
     const formData = new FormData(event.target);
-    const companyName = formData.get("companyName");
-    const jobTitle = formData.get("jobTitle");
-    const jobDescription = formData.get("jobDescription");
+    const companyName = formData.get("companyName")?.trim();
+    const jobTitle = formData.get("jobTitle")?.trim();
+    const jobDescription = formData.get("jobDescription")?.trim();
     const jobCategory = formData.get("jobCategory");
     const applicationDeadline = formData.get("applicationDeadline");
-    const locations = formData
-      .get("locations")
-      ?.split(",")
-      .map((loc) => loc.trim());
-    const preferredLanguage = formData.get("preferredLanguage") || "Any";
     const jobQualifications = formData.get("jobQualifications");
     const jobExperience = formData.get("jobExperience");
     const jobType = formData.get("jobType");
     const jobShift = formData.get("jobShift");
     const jobLevel = formData.get("jobLevel");
-    const applyWithLink = showApplyLink ? formData.get("applyWithLink") : null;
+    const minSalary = parseFloat(formData.get("minSalary"));
+    const maxSalary = parseFloat(formData.get("maxSalary"));
     const jobAttachment = formData.get("jobAttachment");
-
-    const preferredDisabilitiesArray = selectedDisabilities.map(
-      (disability) => disability.value
-    );
-
+  
+    if (!companyName || companyName.length < 3) {
+      return alert("Company name is required and must be at least 3 characters.");
+    }
+    if (!jobTitle || jobTitle.length < 3) {
+      return alert("Job title is required and must be at least 3 characters.");
+    }
+    if (!jobDescription || jobDescription.length < 10) {
+      return alert("Job description must be at least 10 characters.");
+    }
+    if (!jobCategory) {
+      return alert("Please select a job category.");
+    }
+    if (!applicationDeadline) {
+      return alert("Please provide an application deadline.");
+    }
+  
+    const today = new Date();
+    const deadlineDate = new Date(applicationDeadline);
+    if (deadlineDate <= today) {
+      return alert("The application deadline must be a future date.");
+    }
+  
+    if (isNaN(minSalary) || isNaN(maxSalary) || minSalary < 0 || maxSalary < 0) {
+      return alert("Please enter valid positive salary values.");
+    }
+    if (minSalary > maxSalary) {
+      return alert("Min salary cannot be greater than max salary.");
+    }
+  
+    if (jobAttachment) {
+      const allowedExtensions = ["pdf", "doc", "docx"];
+      const fileExtension = jobAttachment.name.split(".").pop().toLowerCase();
+      if (!allowedExtensions.includes(fileExtension)) {
+        return alert("Invalid file type. Only PDF, DOC, and DOCX are allowed.");
+      }
+    }
+  
+    const locations = formData.get("locations")?.split(",").map((loc) => loc.trim());
+    const preferredLanguage = formData.get("preferredLanguage") || "Any";
+    const applyWithLink = showApplyLink ? formData.get("applyWithLink") : null;
+  
+    const preferredDisabilitiesArray = selectedDisabilities.map((disability) => disability.value);
     const finalPreferredDisabilities =
-      preferredDisabilitiesArray.length === 1 &&
-      preferredDisabilitiesArray[0] === "Any"
+      preferredDisabilitiesArray.length === 1 && preferredDisabilitiesArray[0] === "Any"
         ? []
         : preferredDisabilitiesArray;
-
-    const minSalary = formData.get("minSalary");
-    const maxSalary = formData.get("maxSalary");
-    const expectedSalary = { minSalary, maxSalary };
-
+  
     try {
       await createJob({
         companyName,
@@ -91,17 +120,18 @@ const JobPosts = () => {
         jobLevel,
         applyWithLink,
         jobSkills: skills,
-        expectedSalary,
+        expectedSalary: { minSalary, maxSalary },
         jobAttachment,
         preferredDisabilities: finalPreferredDisabilities,
       });
-
+  
       setIsSuccess(true);
     } catch (error) {
       console.error("Error creating job:", error);
       alert("There was an error creating your job. Please try again.");
     }
   };
+  
 
   const disabilityOptions = [
     { value: "Any", label: "Any" },

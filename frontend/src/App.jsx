@@ -2,7 +2,10 @@ import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Loading from "./components/Loading";
+import AdminDashboard from "./pages/AdminDashboard";
 import AdminPanel from "./pages/AdminPanel";
+import AdminProfilePage from "./pages/AdminProfilePage";
+import AdminUserList from "./pages/AdminUserList";
 import ApplicantPage from "./pages/ApplicantPage";
 import AppliedJobs from "./pages/AppliedJobs";
 import EditProfileInfoPage from "./pages/EditProfileInfoPage";
@@ -19,12 +22,12 @@ import MessagingPage from "./pages/MessagingPage";
 import ProfileInfoPage from "./pages/ProfileInfoPage";
 import ResetPassword from "./pages/ResetPassword";
 import SignUpPage from "./pages/SignUpPage";
+import UploadDisabilityIdPage from "./pages/UploadDisabilityIdPage";
+import UploadEmployerIdPage from "./pages/UploadEmployerIdPage";
+import UserBan from "./pages/UserBan";
 import UserData from "./pages/UserData";
 import VideoChatRoom from "./pages/VideoChatRoom";
 import { authStore } from "./stores/authStore";
-import AdminUserList from "./pages/AdminUserList";
-import UserBan from "./pages/UserBan";
-import AdminDashboard from "./pages/AdminDashboard";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();
@@ -228,6 +231,33 @@ function App() {
         />
 
         <Route
+          path="/uploadId"
+          element={
+            <ProtectedRoute>
+              <UploadDisabilityIdPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/uploademployerId"
+          element={
+            <ProtectedRoute>
+              <UploadEmployerIdPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/AdminProfile"
+          element={
+            <ProtectedRoute>
+              <AdminProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/admin"
           element={
             <ProtectedRoute>
@@ -240,14 +270,7 @@ function App() {
           <Route path="AdminUserList" element={<AdminUserList />} />
         </Route>
 
-        <Route
-          path="/ban"
-          element={ 
-              <UserBan />
-          }
-        />
-
-        
+        <Route path="/ban" element={<UserBan />} />
       </Routes>
       <Toaster />
     </div>

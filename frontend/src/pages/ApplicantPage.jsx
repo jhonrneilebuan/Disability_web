@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import FormatTimeDate from "../components/FormatTimeDate";
 import Navbar from "../components/Navbar";
@@ -14,15 +14,15 @@ const ApplicantPage = () => {
   const navigate = useNavigate();
 
   const {
-    getJobPosts,
+    getAllJobs,
     jobPosts,
     //isLoading,
     error,
   } = jobStore();
 
   useEffect(() => {
-    getJobPosts();
-  }, [getJobPosts]);
+    getAllJobs();
+  }, [getAllJobs]);
 
   if (error) {
     return <p className="error">{error}</p>;
@@ -71,8 +71,9 @@ const ApplicantPage = () => {
   ];
 
   const displayedJobPosts = showAllJobs
-    ? filteredJobPosts
-    : filteredJobPosts.slice(0, 6);
+  ? [...filteredJobPosts].reverse() 
+  : [...filteredJobPosts].reverse().slice(0, 6);
+
 
   const handleSearch = () => {
     console.log;
@@ -80,6 +81,16 @@ const ApplicantPage = () => {
 
   const handleJobDetails = (jobId) => {
     navigate(`/job-details/${jobId}`)
+  };
+
+  const handleNavigateProfile = () => {
+    window.scrollTo(0, 0);
+    navigate(`/profile-info`)
+  };
+
+  const handleNavigateJobs = () => {
+    window.scrollTo(0, 0);
+    navigate(`/jobs`)
   };
 
   return (
@@ -177,18 +188,18 @@ const ApplicantPage = () => {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-7 mt-4">
-            <Link
-              to="/profile-info"
+            <button
+              onClick={() => handleNavigateProfile()}
               className="px-12 py-3 sm:px-20 sm:py-3 bg-transparent rounded border-2 border-solid border-BLUE font-poppins text-BLUE font-semibold text-center"
             >
               Profile
-            </Link>
-            <Link
-              to="/jobs"
+            </button>
+            <button
+              onClick={() => handleNavigateJobs()}
               className="px-12 py-3 sm:px-24 sm:py-3 bg-buttonBlue text-white rounded font-poppins font-semibold text-center"
             >
               Find a Job
-            </Link>
+            </button>
           </div>
         </section>
 

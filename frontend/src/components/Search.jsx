@@ -45,6 +45,7 @@ const SearchBar = ({
           Browse
         </button>
       </div>
+      
     </div>
   );
 };
