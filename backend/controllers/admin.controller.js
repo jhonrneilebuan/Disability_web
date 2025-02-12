@@ -359,7 +359,7 @@ export const getUploadedDisabilityVerificationIds = async (req, res) => {
   try {
     const users = await User.find({
       "disabilityInformation.verificationId": { $ne: null } 
-    }).select("fullName disabilityInformation.verificationId");
+    }).select("fullName disabilityInformation.verificationId disabilityInformation.isIdVerified");
 
     if (!users.length) {
       return res.status(404).json({ message: "No users with uploaded verification ID found" });
@@ -369,6 +369,7 @@ export const getUploadedDisabilityVerificationIds = async (req, res) => {
       userId: user._id,
       fullName: user.fullName,
       verificationId: user.disabilityInformation.verificationId,
+      isIdVerified: user.disabilityInformation.isIdVerified
     }));
 
     res.status(200).json(verificationIds);
@@ -432,7 +433,7 @@ export const getUploadedEmployerVerificationIds = async (req, res) => {
   try {
     const users = await User.find({
       "employerInformation.verificationId": { $ne: null }
-    }).select("fullName employerInformation.verificationId");
+    }).select("fullName employerInformation.verificationId employerInformation.isIdVerified");
 
     if (!users.length) {
       return res.status(404).json({ message: "No employers with uploaded verification ID found" });
@@ -442,6 +443,7 @@ export const getUploadedEmployerVerificationIds = async (req, res) => {
       userId: user._id,
       fullName: user.fullName,
       verificationId: user.employerInformation.verificationId,
+      isIdVerified: user.employerInformation.isIdVerified 
     }));
 
     res.status(200).json(verificationIds);
