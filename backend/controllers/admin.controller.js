@@ -163,6 +163,23 @@ export const updateVerificationStatus = async (req, res) => {
   }
 };
 
+const updateUser = async (req, res) => {
+  try {
+    const { password, ...updates } = req.body;
+
+    // Prevent password update unless explicitly changed
+    if (password) {
+      updates.password = await bcrypt.hash(password, 10); // Hash new password
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, updates, { new: true });
+    res.json({ success: true, user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update user" });
+  }
+};
+
+
 export const updateUserById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -355,6 +372,7 @@ export const getAdminProfile = async (req, res) => {
   }
 };
 
+//image
 export const getDisabilityVerificationId = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -374,6 +392,7 @@ export const getDisabilityVerificationId = async (req, res) => {
   }
 };
 
+//accept 
 export const updateDisabilityVerificationStatus = async (req, res) => {
   try {
     const { userId } = req.params;

@@ -21,12 +21,6 @@ const AdminSidebarNav = ({ handleNavigation }) => {
         >
           Dashboard
         </button>
-        <button
-          onClick={() => handleNavigation("AdminUserList")}
-          className="block w-full py-2 px-4 rounded hover:bg-gray-700"
-        >
-          Users
-        </button>
 
         <button
           onClick={() => handleNavigation("adminProfile")}
@@ -34,7 +28,23 @@ const AdminSidebarNav = ({ handleNavigation }) => {
         >
           Profile
         </button>
+
+        <button
+          onClick={() => handleNavigation("EmployerList")}
+          className="block w-full py-2 px-4 rounded hover:bg-gray-700"
+        >
+          Employer Users
+        </button>
+
+        <button
+          onClick={() => handleNavigation("ApplicantList")}
+          className="block w-full py-2 px-4 rounded hover:bg-gray-700"
+        >
+          Applicant Users
+        </button>
       </nav>
+
+
       <button
         onClick={handleLogout}
         className="mt-auto flex items-center justify-center md:justify-start gap-2 py-2 px-4 bg-red-600 rounded hover:bg-red-700"

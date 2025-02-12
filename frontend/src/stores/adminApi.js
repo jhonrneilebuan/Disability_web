@@ -176,10 +176,35 @@ export const unbanUserApi = (userId) => {
 /**
  * Update a user's full name by ID.
  */
-export const updateUserApi = (userId, newFullName) => {
-  return axios.put(
-    `${BASE_URL}/users/${userId}`,
-    { fullName: newFullName },
-    { headers }
-  );
+export const updateEmployer = async (userId, formData) => {
+  try {
+    const response = await axios.put(`${BASE_URL}/users/${userId}`, formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    toast.success("User updated successfully");
+    return response.data;
+  } catch (error) {
+    toast.error("Failed to update user");
+    console.error("Update error:", error);
+    throw error;
+  }
 };
+
+export const updateApplicant = async (userId, formData) => {
+  try {
+    const response = await axios.put(`${BASE_URL}/users/${userId}`, formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    toast.success("User updated successfully");
+    return response.data;
+  } catch (error) {
+    toast.error("Failed to update user");
+    console.error("Update error:", error);
+    throw error;
+  }
+};
+

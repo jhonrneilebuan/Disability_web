@@ -28,6 +28,8 @@ import UserBan from "./pages/UserBan";
 import UserData from "./pages/UserData";
 import VideoChatRoom from "./pages/VideoChatRoom";
 import { authStore } from "./stores/authStore";
+import EmployerList from "./pages/EmployerList";
+import ApplicantList from "./pages/ApplicantList";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();
@@ -267,7 +269,8 @@ function App() {
         >
           <Route index element={<AdminDashboard />} />
           <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="AdminUserList" element={<AdminUserList />} />
+          <Route path="EmployerList" element={<EmployerList />} />
+          <Route path="ApplicantList" element={<ApplicantList />} />
         </Route>
 
         <Route path="/ban" element={<UserBan />} />
