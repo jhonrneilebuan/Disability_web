@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import Sidebar from "../components/Sidebar";
 import { jobStore } from "../stores/jobStore";
+import { validateJobForm } from "../utils/jobPostValidation"; 
+import { disabilityOptions, languageOptions } from "../utils/options";
 
 const JobPosts = () => {
   const navigate = useNavigate();
@@ -13,6 +15,8 @@ const JobPosts = () => {
   const [skills, setSkills] = useState([]);
   const [isSuccess, setIsSuccess] = useState(false);
   const [selectedDisabilities, setSelectedDisabilities] = useState([]);
+  const [selectedLanguage, setSelectedLanguage] = useState(null);
+  const [errors, setErrors] = useState({});
 
   const {
     //isLoading,
@@ -41,90 +45,47 @@ const JobPosts = () => {
 
   const handleCreateJob = async (event) => {
     event.preventDefault();
+    
+    console.log("Submit button clicked");
   
     const formData = new FormData(event.target);
-    const companyName = formData.get("companyName")?.trim();
-    const jobTitle = formData.get("jobTitle")?.trim();
-    const jobDescription = formData.get("jobDescription")?.trim();
-    const jobCategory = formData.get("jobCategory");
-    const applicationDeadline = formData.get("applicationDeadline");
-    const jobQualifications = formData.get("jobQualifications");
-    const jobExperience = formData.get("jobExperience");
-    const jobType = formData.get("jobType");
-    const jobShift = formData.get("jobShift");
-    const jobLevel = formData.get("jobLevel");
-    const minSalary = parseFloat(formData.get("minSalary"));
-    const maxSalary = parseFloat(formData.get("maxSalary"));
-    const jobAttachment = formData.get("jobAttachment");
+    
+    const validationErrors = validateJobForm(formData, selectedLanguage, selectedDisabilities, showApplyLink, skills);
   
-    if (!companyName || companyName.length < 3) {
-      return alert("Company name is required and must be at least 3 characters.");
-    }
-    if (!jobTitle || jobTitle.length < 3) {
-      return alert("Job title is required and must be at least 3 characters.");
-    }
-    if (!jobDescription || jobDescription.length < 10) {
-      return alert("Job description must be at least 10 characters.");
-    }
-    if (!jobCategory) {
-      return alert("Please select a job category.");
-    }
-    if (!applicationDeadline) {
-      return alert("Please provide an application deadline.");
-    }
+    const filteredErrors = Object.fromEntries(
+      Object.entries(validationErrors).filter(([key, value]) => value !== null)
+    );
   
-    const today = new Date();
-    const deadlineDate = new Date(applicationDeadline);
-    if (deadlineDate <= today) {
-      return alert("The application deadline must be a future date.");
+    if (Object.keys(filteredErrors).length > 0) {
+      setErrors(filteredErrors);
+      return;
     }
-  
-    if (isNaN(minSalary) || isNaN(maxSalary) || minSalary < 0 || maxSalary < 0) {
-      return alert("Please enter valid positive salary values.");
-    }
-    if (minSalary > maxSalary) {
-      return alert("Min salary cannot be greater than max salary.");
-    }
-  
-    if (jobAttachment) {
-      const allowedExtensions = ["pdf", "doc", "docx"];
-      const fileExtension = jobAttachment.name.split(".").pop().toLowerCase();
-      if (!allowedExtensions.includes(fileExtension)) {
-        return alert("Invalid file type. Only PDF, DOC, and DOCX are allowed.");
-      }
-    }
-  
-    const locations = formData.get("locations")?.split(",").map((loc) => loc.trim());
-    const preferredLanguage = formData.get("preferredLanguage") || "Any";
-    const applyWithLink = showApplyLink ? formData.get("applyWithLink") : null;
-  
-    const preferredDisabilitiesArray = selectedDisabilities.map((disability) => disability.value);
-    const finalPreferredDisabilities =
-      preferredDisabilitiesArray.length === 1 && preferredDisabilitiesArray[0] === "Any"
-        ? []
-        : preferredDisabilitiesArray;
   
     try {
       await createJob({
-        companyName,
-        jobTitle,
-        jobDescription,
-        jobCategory,
-        applicationDeadline,
-        locations,
-        preferredLanguage,
-        jobQualifications,
-        jobExperience,
-        jobType,
-        jobShift,
-        jobLevel,
-        applyWithLink,
+        companyName: formData.get("companyName")?.trim(),
+        jobTitle: formData.get("jobTitle")?.trim(),
+        jobDescription: formData.get("jobDescription")?.trim(),
+        jobCategory: formData.get("jobCategory"),
+        applicationDeadline: formData.get("applicationDeadline"),
+        locations: formData.get("locations")?.split(",").map((loc) => loc.trim()),
+        preferredLanguage: selectedLanguage ? selectedLanguage.value : "Any",
+        jobQualifications: formData.get("jobQualifications"),
+        jobExperience: formData.get("jobExperience"),
+        jobType: formData.get("jobType"),
+        jobShift: formData.get("jobShift"),
+        jobLevel: formData.get("jobLevel"),
+        applyWithLink: showApplyLink ? formData.get("applyWithLink") : null,
         jobSkills: skills,
-        expectedSalary: { minSalary, maxSalary },
-        jobAttachment,
-        preferredDisabilities: finalPreferredDisabilities,
+        expectedSalary: { 
+          minSalary: parseFloat(formData.get("minSalary")) || 0, 
+          maxSalary: parseFloat(formData.get("maxSalary")) || 0 
+        },
+        jobAttachment: formData.get("jobAttachment"),
+        preferredDisabilities: selectedDisabilities.map((disability) => disability.value),
       });
   
+      console.log("Job created successfully");
       setIsSuccess(true);
     } catch (error) {
       console.error("Error creating job:", error);
@@ -132,66 +93,6 @@ const JobPosts = () => {
     }
   };
   
-
-  const disabilityOptions = [
-    { value: "Any", label: "Any" },
-    { value: "Mobility Impairment", label: "Mobility Impairment" },
-    { value: "Amputation", label: "Amputation" },
-    { value: "Cerebral Palsy", label: "Cerebral Palsy" },
-    { value: "Muscular Dystrophy", label: "Muscular Dystrophy" },
-    { value: "Spinal Cord Injury", label: "Spinal Cord Injury" },
-    { value: "Multiple Sclerosis", label: "Multiple Sclerosis" },
-    { value: "Arthritis", label: "Arthritis" },
-    { value: "Stroke-related Disability", label: "Stroke-related Disability" },
-    { value: "Visual Impairment", label: "Visual Impairment" },
-    { value: "Blindness", label: "Blindness" },
-    { value: "Hearing Impairment", label: "Hearing Impairment" },
-    { value: "Deafness", label: "Deafness" },
-    { value: "Deafblindness", label: "Deafblindness" },
-    { value: "Down Syndrome", label: "Down Syndrome" },
-    {
-      value: "Autism Spectrum Disorder (ASD)",
-      label: "Autism Spectrum Disorder (ASD)",
-    },
-    { value: "Intellectual Disability", label: "Intellectual Disability" },
-    {
-      value: "Learning Disability",
-      label: "Learning Disability (Dyslexia, Dyscalculia, Dysgraphia)",
-    },
-    { value: "ADHD", label: "ADHD (Attention Deficit Hyperactivity Disorder)" },
-    { value: "Dyslexia", label: "Dyslexia" },
-    { value: "Dyspraxia", label: "Dyspraxia" },
-    { value: "Tourette Syndrome", label: "Tourette Syndrome" },
-    { value: "Anxiety Disorder", label: "Anxiety Disorder" },
-    { value: "Depression", label: "Depression" },
-    { value: "Bipolar Disorder", label: "Bipolar Disorder" },
-    { value: "Schizophrenia", label: "Schizophrenia" },
-    { value: "PTSD", label: "Post-Traumatic Stress Disorder (PTSD)" },
-    { value: "OCD", label: "Obsessive-Compulsive Disorder (OCD)" },
-    { value: "Epilepsy", label: "Epilepsy" },
-    { value: "CFS", label: "Chronic Fatigue Syndrome (CFS)" },
-    { value: "Fibromyalgia", label: "Fibromyalgia" },
-    { value: "Lupus", label: "Lupus" },
-    {
-      value: "Diabetes-related Disability",
-      label: "Diabetes-related Disability",
-    },
-    { value: "Chronic Pain", label: "Chronic Pain" },
-    {
-      value: "Speech Impairment",
-      label: "Speech Impairment (Stuttering, Apraxia)",
-    },
-    {
-      value: "Nonverbal Communication Disabilities",
-      label: "Nonverbal Communication Disabilities",
-    },
-    { value: "Rare Genetic Disorders", label: "Rare Genetic Disorders" },
-    {
-      value: "Autoimmune Disorders",
-      label: "Autoimmune Disorders affecting mobility or cognition",
-    },
-    { value: "Traumatic Brain Injury", label: "Traumatic Brain Injury (TBI)" },
-  ];
 
   if (isSuccess) {
     return (
@@ -263,6 +164,7 @@ const JobPosts = () => {
                   className="w-full border rounded-lg p-2"
                   placeholder="Enter company name"
                 />
+                {errors.companyName && <p className="text-red-500 text-sm">{errors.companyName}</p>}
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
@@ -275,6 +177,7 @@ const JobPosts = () => {
                   className="w-full border rounded-lg p-2"
                   placeholder="Enter job title"
                 />
+                {errors.jobTitle && <p className="text-red-500 text-sm">{errors.jobTitle}</p>}
               </div>
             </div>
             <div>
@@ -288,6 +191,7 @@ const JobPosts = () => {
                 rows="4"
                 placeholder="Enter job description"
               ></textarea>
+              {errors.jobDescription && <p className="text-red-500 text-sm">{errors.jobDescription}</p>}
             </div>
             <div className="flex gap-4">
               <div className="flex-1">
@@ -304,18 +208,21 @@ const JobPosts = () => {
                   <option value="DEVELOPMENT">Development</option>
                   <option value="MARKETING">Marketing</option>
                 </select>
+                {errors.jobCategory && <p className="text-red-500 text-sm">{errors.jobCategory}</p>}
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
                   Preferred Disabilities
                 </label>
                 <Select
+                  id="preferredDisability"
                   options={disabilityOptions}
                   isMulti
                   className="w-full"
                   value={selectedDisabilities}
                   onChange={(options) => setSelectedDisabilities(options)}
                 />
+                {errors.preferredDisability && <p className="text-red-500 text-sm">{errors.preferredDisability}</p>}
               </div>
             </div>
             <div className="flex gap-4">
@@ -329,18 +236,22 @@ const JobPosts = () => {
                   type="date"
                   className="w-full border rounded-lg p-2"
                 />
+                {errors.applicationDeadline && <p className="text-red-500 text-sm">{errors.applicationDeadline}</p>}
+
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
                   Preferred Language
                 </label>
-                <input
-                  type="text"
+                <Select
                   id="preferredLanguage"
-                  name="preferredLanguage"
-                  className="w-full border rounded-lg p-2"
-                  placeholder="Enter preferred language"
+                  options={languageOptions}
+                  value={selectedLanguage}
+                  onChange={setSelectedLanguage}
+                  isClearable
+                  className="w-full"
                 />
+                {errors.preferredLanguage && <p className="text-red-500 text-sm">{errors.preferredLanguage}</p>}
               </div>
             </div>
             <div className="flex gap-4">
@@ -360,6 +271,7 @@ const JobPosts = () => {
                   <option value="Contract">Contract</option>
                   <option value="Internship">Internship</option>
                 </select>
+                {errors.jobType && <p className="text-red-500 text-sm">{errors.jobType}</p>}
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
@@ -377,6 +289,7 @@ const JobPosts = () => {
                   <option value="Night-Shift">Night-Shift</option>
                   <option value="Day-Shift">Day-Shift</option>
                 </select>
+                {errors.jobShift && <p className="text-red-500 text-sm">{errors.jobShift}</p>}
               </div>
             </div>
 
@@ -399,6 +312,7 @@ const JobPosts = () => {
                   </option>
                   <option value="Technical Training">Technical Training</option>
                 </select>
+                {errors.jobQualifications && <p className="text-red-500 text-sm">{errors.jobQualifications}</p>}
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
@@ -414,6 +328,7 @@ const JobPosts = () => {
                   <option value="Mid">Mid</option>
                   <option value="Senior">Senior</option>
                 </select>
+                {errors.jobLevel && <p className="text-red-500 text-sm">{errors.jobLevel}</p>}
               </div>
             </div>
             <div className="flex gap-4">
@@ -428,6 +343,7 @@ const JobPosts = () => {
                   className="w-full border rounded-lg p-2"
                   placeholder="Enter min salary"
                 />
+                {errors.salary && <p className="text-red-500 text-sm">{errors.salary}</p>}
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
@@ -440,6 +356,7 @@ const JobPosts = () => {
                   className="w-full border rounded-lg p-2"
                   placeholder="Enter max salary"
                 />
+                {errors.salary && <p className="text-red-500 text-sm">{errors.salary}</p>}
               </div>
             </div>
             <div>
@@ -453,6 +370,7 @@ const JobPosts = () => {
                 className="w-full border rounded-lg p-2"
                 placeholder="Enter location(s)"
               />
+              {errors.location && <p className="text-red-500 text-sm">{errors.location}</p>}
             </div>
 
             <div>
@@ -461,6 +379,7 @@ const JobPosts = () => {
               </label>
               <div className="w-full border rounded-lg p-2">
                 <input
+                  id="jobSkills"
                   type="text"
                   value={skillInput}
                   onChange={handleSkillInputChange}
@@ -469,6 +388,7 @@ const JobPosts = () => {
                   placeholder="Enter skills (press ',' or 'Enter' to add)"
                 />
               </div>
+              {errors.jobSkills && <p className="text-red-500 text-sm">{errors.jobSkills}</p>}
               <div className="flex flex-wrap gap-2 mt-2">
                 {skills.map((skill, index) => (
                   <div
@@ -503,6 +423,7 @@ const JobPosts = () => {
                   required
                   className="block w-full mt-1 text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 focus:outline-none"
                 />
+                {errors.jobAttachment && <p className="text-red-500 text-sm">{errors.jobAttachment}</p>}
               </div>
 
               <div className="flex-1">
