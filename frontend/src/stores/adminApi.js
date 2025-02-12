@@ -121,7 +121,6 @@ export const adminStore = create((set) => ({
       });
     }
   },
-   
 
   //get user list
   getDisabilityVerificationId: async () => {
@@ -143,6 +142,11 @@ export const adminStore = create((set) => ({
   updateDisabilityVerificationStatus: async (userId, isVerified) => {
     try {
       const response = await axios.put(`${BASE_URL}/disability-verify/${userId}`, { isVerified });
+      set((state) => ({
+        totaluploaddisability: state.totaluploaddisability.map(user =>
+          user.userId === userId ? { ...user, isIdVerified: isVerified } : user
+        ),
+      }));
       toast.success(`Verification ${isVerified ? "approved" : "rejected"}`);
       return response.data;
     } catch (error) {
@@ -151,7 +155,7 @@ export const adminStore = create((set) => ({
         error.response?.data?.message || "Error updating verification status"
       );
     }
-  },
+  }
   
 }));
 
@@ -160,17 +164,6 @@ export const adminStore = create((set) => ({
 // Retrieve the admin token (assumed to be stored in localStorage after login)
 const token = localStorage.getItem("token");
 const headers = { Authorization: `Bearer ${token}` };
-
-
-// export const getDisabilityVerificationId = async (userId) => {
-//   const response = await axios.get(`${BASE_URL}/disability-id/:userId${userId}`);
-//   return response.data;
-// };
-
-// export const updateDisabilityVerificationStatus = async (userId, isVerified) => {
-//   const response = await axios.put(`${BASE_URL}/disability-verify/:userId${userId}`, { isVerified });
-//   return response.data;
-// };
 
 /**
  * Fetch users data from the backend.
