@@ -163,28 +163,6 @@ export const updateVerificationStatus = async (req, res) => {
   }
 };
 
-export const getUploadedDisabilityVerificationIds = async (req, res) => {
-  try {
-    const users = await User.find({
-      "disabilityInformation.verificationId": { $ne: null } 
-    }).select("disabilityInformation.verificationId");
-
-    if (!users.length) {
-      return res.status(404).json({ message: "No users with uploaded verification ID found" });
-    }
-
-    const verificationIds = users.map(user => ({
-      userId: user._id,
-      verificationId: user.disabilityInformation.verificationId,
-    }));
-
-    res.status(200).json(verificationIds);
-  } catch (error) {
-    console.error("Error fetching disability verification IDs:", error.stack || error);
-    res.status(500).json({ message: "Internal Server Error", error: error.message });
-  }
-};
-
 export const updateUserById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -228,7 +206,6 @@ export const updateUserById = async (req, res) => {
     res.status(500).json({ message: "An error occurred while updating the user." });
   }
 };
-
 
 
 export const getTotalUsers = async (req, res) => {
@@ -378,6 +355,30 @@ export const getAdminProfile = async (req, res) => {
 };
 
 
+export const getUploadedDisabilityVerificationIds = async (req, res) => {
+  try {
+    const users = await User.find({
+      "disabilityInformation.verificationId": { $ne: null } 
+    }).select("disabilityInformation.verificationId");
+
+    if (!users.length) {
+      return res.status(404).json({ message: "No users with uploaded verification ID found" });
+    }
+
+    const verificationIds = users.map(user => ({
+      userId: user._id,
+      fullName: user.fullName,
+      verificationId: user.disabilityInformation.verificationId,
+    }));
+
+    res.status(200).json(verificationIds);
+  } catch (error) {
+    console.error("Error fetching uploaded disability verification IDs:", error.stack || error);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+
 export const getDisabilityVerificationId = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -397,7 +398,6 @@ export const getDisabilityVerificationId = async (req, res) => {
   }
 };
 
- 
 export const updateDisabilityVerificationStatus = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -422,6 +422,30 @@ export const updateDisabilityVerificationStatus = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating disability verification status:", error.stack || error);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+
+export const getUploadedEmployerVerificationIds = async (req, res) => {
+  try {
+    const users = await User.find({
+      "employerInformation.verificationId": { $ne: null }
+    }).select(" fullName employerInformation.verificationId");
+
+    if (!users.length) {
+      return res.status(404).json({ message: "No employers with uploaded verification ID found" });
+    }
+
+    const verificationIds = users.map(user => ({
+      userId: user._id,
+      fullName: user.fullName,
+      verificationId: user.employerInformation.verificationId,
+    }));
+
+    res.status(200).json(verificationIds);
+  } catch (error) {
+    console.error("Error fetching uploaded employer verification IDs:", error.stack || error);
     res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };

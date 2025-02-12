@@ -20,7 +20,8 @@ import {
   getEmployerVerificationId,
   getPendingEmployerVerifications,
   getPendingDisabilityVerifications,
-  getUploadedDisabilityVerificationIds
+  getUploadedDisabilityVerificationIds,
+  getUploadedEmployerVerificationIds
 } from "../controllers/admin.controller.js";
 import { admin, verifyToken } from "../middlewares/token.js";
 
@@ -48,6 +49,8 @@ router.get("/profile", verifyToken, admin, getAdminProfile);
 
 
 router.get("/disability-id/all", getUploadedDisabilityVerificationIds); 
+router.get("/disability-id/all-employer", getUploadedEmployerVerificationIds); 
+
 router.get("/disability-id/:userId", getDisabilityVerificationId); 
 router.put("/disability-verify/:userId", updateDisabilityVerificationStatus); 
 
