@@ -178,11 +178,6 @@ export const updateUserById = async (req, res) => {
     if (updateData.fullName) user.fullName = updateData.fullName;
     if (updateData.contact) user.contact = updateData.contact;
 
-    if (updateData.password) {
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(updateData.password, salt);
-    }
-
     if (updateData.role && ["Applicant", "Employer", "Admin"].includes(updateData.role)) {
       user.role = updateData.role;
     }
@@ -193,7 +188,7 @@ export const updateUserById = async (req, res) => {
         ...updateData.employerInformation,
       };
     }
-    
+
     if (user.role === "Applicant") {
       if (updateData.address) user.address = updateData.address;
       if (updateData.disabilityInformation) {
@@ -211,6 +206,7 @@ export const updateUserById = async (req, res) => {
     res.status(500).json({ message: "An error occurred while updating the user." });
   }
 };
+
 
 
 export const getTotalUsers = async (req, res) => {
