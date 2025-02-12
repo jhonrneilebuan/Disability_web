@@ -71,14 +71,14 @@ const DisabilityVerification = () => {
                                 : "text-red-600"
                             }`}
                           >
-                            {user.isIdVerified ? "Approved" : "Rejected"}
+                            {user.isIdVerified ? "Verified" : "Not Verified"}
                           </span>
                         ) : (
                           <span className="text-gray-500">Pending</span>
                         )}
                       </td>
                       <td className="py-3 px-4 border-b">
-                        {user.isIdVerified === undefined && (
+                        {user.isIdVerified === false && (
                           <div className="flex gap-2">
                             <button
                               onClick={() =>
