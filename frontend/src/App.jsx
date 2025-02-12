@@ -30,8 +30,9 @@ import VideoChatRoom from "./pages/VideoChatRoom";
 import { authStore } from "./stores/authStore";
 import EmployerList from "./pages/AdminEmployerList";
 import ApplicantList from "./pages/AdminApplicantList";
-import { AdminEmployerVerifyId } from "./pages/AdminEmployerVerifyId";
-import DisabilityVerification from "./pages/DisabilityVerification";
+
+import DisabilityVerification from "./pages/AdminDisabilityVerification";
+import AdminEmployerVerifyId from "./pages/AdminEmployerVerifyId";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();

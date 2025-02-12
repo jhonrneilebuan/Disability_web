@@ -13,7 +13,8 @@ export const adminStore = create((set) => ({
   totalEmployers: 0,
   pendingEmployerID: 0,
   pendingPwdID: 0,
-  totaluploaddisability :[],
+  totaluploaddisability: [],
+  totaluploademployer: [],
 
   getTotalUsers: async () => {
     set({ isAdminLoading: true, error: null });
@@ -99,6 +100,47 @@ export const adminStore = create((set) => ({
     }
   },
 
+  getEmployerVerificationList: async () => {
+    set({ isAdminLoading: true, error: null });
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/disability-id/all-employer`
+      );
+      set({ isAdminLoading: false, totaluploademployer: response.data });
+    } catch (error) {
+      console.error("Error fetching employer verification ID:", error);
+      toast.error(
+        error.response?.data?.message || "Error fetching verification ID"
+      );
+      set({
+        error:
+          error.response?.data?.message || "Error fetching verification ID",
+        isAdminLoading: false,
+      });
+    }
+  },
+
+  updateEmployerVerificationStatus: async (userId, isVerified) => {
+    try {
+      const response = await axios.put(
+        `${BASE_URL}/employer-verify/${userId}`,
+        { isVerified }
+      );
+      set((state) => ({
+        totaluploaddisability: state.totaluploaddisability.map((user) =>
+          user.userId === userId ? { ...user, isIdVerified: isVerified } : user
+        ),
+      }));
+      toast.success(`Verification ${isVerified ? "approved" : "rejected"}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating verification status:", error);
+      toast.error(
+        error.response?.data?.message || "Error updating verification status"
+      );
+    }
+  },
+
   getPWDVerificationId: async () => {
     set({ isAdminLoading: true, error: null });
     try {
@@ -122,6 +164,7 @@ export const adminStore = create((set) => ({
     }
   },
 
+
   //get user list
   getDisabilityVerificationId: async () => {
     set({ isAdminLoading: true, error: null });
@@ -133,10 +176,13 @@ export const adminStore = create((set) => ({
       toast.error(
         error.response?.data?.message || "Error fetching verification ID"
       );
-      set({ error: error.response?.data?.message || "Error fetching verification ID", isAdminLoading: false });
+      set({
+        error:
+          error.response?.data?.message || "Error fetching verification ID",
+        isAdminLoading: false,
+      });
     }
   },
-  
 
   //update approved and reject
   updateDisabilityVerificationStatus: async (userId, isVerified) => {
@@ -158,8 +204,6 @@ export const adminStore = create((set) => ({
   }
   
 }));
-
-
 
 // Retrieve the admin token (assumed to be stored in localStorage after login)
 const token = localStorage.getItem("token");
@@ -228,4 +272,3 @@ export const updateApplicant = async (userId, formData) => {
     throw error;
   }
 };
-

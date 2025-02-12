@@ -1,41 +1,41 @@
 import { useEffect } from "react";
 import { adminStore } from "../stores/adminApi";
 
-const AdminEmployerVerifyId = () => {
+const DisabilityVerification = () => {
   const {
-    getEmployerVerificationList,
-    updateEmployerVerificationStatus,
-    totaluploademployer,
+    getDisabilityVerificationId,
+    updateDisabilityVerificationStatus,
+    totaluploaddisability,
     isAdminLoading,
   } = adminStore();
 
   useEffect(() => {
-    getEmployerVerificationList();
-  }, [getEmployerVerificationList]);
+    getDisabilityVerificationId();
+  }, [getDisabilityVerificationId]);
 
   const handleVerificationUpdate = async (userId, isVerified) => {
-    await updateEmployerVerificationStatus(userId, isVerified);
-    getEmployerVerificationList(); // Refresh the list after update
+    await updateDisabilityVerificationStatus(userId, isVerified);
+    getDisabilityVerificationId();
   };
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-center">
-        Employer Verification
+        Disability Verification
       </h2>
 
       {isAdminLoading ? (
         <p className="text-gray-500 text-center">Loading...</p>
       ) : (
         <>
-          {Array.isArray(totaluploademployer) &&
-          totaluploademployer.length > 0 ? (
+          {Array.isArray(totaluploaddisability) &&
+          totaluploaddisability.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="min-w-full bg-white border border-gray-200">
                 <thead>
                   <tr className="bg-gray-100">
                     <th className="py-3 px-4 border-b text-left">User ID</th>
-                    <th className="py-3 px-4 border-b text-left">Employer Name</th>
+                    <th className="py-3 px-4 border-b text-left">Full Name</th>
                     <th className="py-3 px-4 border-b text-left">
                       Verification ID
                     </th>
@@ -44,16 +44,17 @@ const AdminEmployerVerifyId = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {[...totaluploademployer].reverse().map((employer) => (
+                  {[...totaluploaddisability].reverse().map((user) => (
+                    
                     <tr
-                      key={employer.userId}
+                      key={user.userId}
                       className="hover:bg-gray-50 transition"
                     >
-                      <td className="py-3 px-4 border-b">{employer.userId}</td>
-                      <td className="py-3 px-4 border-b">{employer.fullName}</td>
+                      <td className="py-3 px-4 border-b">{user.userId}</td>
+                      <td className="py-3 px-4 border-b">{user.fullName}</td>
                       <td className="py-3 px-4 border-b">
                         <a
-                          href={employer.verificationId}
+                          href={user.verificationId}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-500 underline"
@@ -62,26 +63,26 @@ const AdminEmployerVerifyId = () => {
                         </a>
                       </td>
                       <td className="py-3 px-4 border-b">
-                        {employer.isIdVerified !== undefined ? (
+                        {user.isIdVerified !== undefined ? (
                           <span
                             className={`font-semibold ${
-                              employer.isIdVerified
+                              user.isIdVerified
                                 ? "text-green-600"
                                 : "text-red-600"
                             }`}
                           >
-                            {employer.isIdVerified ? "Verified" : "Not verified"}
+                            {user.isIdVerified ? "Approved" : "Rejected"}
                           </span>
                         ) : (
                           <span className="text-gray-500">Pending</span>
                         )}
                       </td>
                       <td className="py-3 px-4 border-b">
-                        {employer.isIdVerified === false && (
+                        {user.isIdVerified === undefined && (
                           <div className="flex gap-2">
                             <button
                               onClick={() =>
-                                handleVerificationUpdate(employer.userId, true)
+                                handleVerificationUpdate(user.userId, true)
                               }
                               className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
                             >
@@ -89,7 +90,7 @@ const AdminEmployerVerifyId = () => {
                             </button>
                             <button
                               onClick={() =>
-                                handleVerificationUpdate(employer.userId, false)
+                                handleVerificationUpdate(user.userId, false)
                               }
                               className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
                             >
@@ -105,7 +106,7 @@ const AdminEmployerVerifyId = () => {
             </div>
           ) : (
             <p className="text-gray-700 text-center">
-              No pending employer verifications.
+              No pending disability verifications.
             </p>
           )}
         </>
@@ -114,4 +115,4 @@ const AdminEmployerVerifyId = () => {
   );
 };
 
-export default AdminEmployerVerifyId;
+export default DisabilityVerification;
