@@ -13,6 +13,7 @@ export const adminStore = create((set) => ({
   totalEmployers: 0,
   pendingEmployerID: 0,
   pendingPwdID: 0,
+  totaluploaddisability :[],
 
   getTotalUsers: async () => {
     set({ isAdminLoading: true, error: null });
@@ -23,7 +24,7 @@ export const adminStore = create((set) => ({
         totalUsers: totalUsers,
         isAdminLoading: false,
       });
-      console.log("Total Users:", response.data); // Log the response
+      console.log("Total Users:", response.data);
     } catch (error) {
       console.error("Error fetching total users:", error);
       toast.error(
@@ -35,28 +36,6 @@ export const adminStore = create((set) => ({
       });
     }
   },
-
-  // getTotalEmployers: async () => {
-  //   set({ isAdminLoading: true, error: null });
-  //   try {
-  //     const response = await axios.get(`${BASE_URL}/users/employers/total`);
-  //     const totalEmployers = response.data.totalEmployers || 0
-  //     set({
-  //       totalEmployers: totalEmployers,
-  //       isAdminLoading: false,
-  //     });
-  //     console.log("Total Employers:", response.data); // Log the response
-  //   } catch (error) {
-  //     console.error("Error fetching total Employers:", error);
-  //     toast.error(
-  //       error.response?.data?.message || "Error fetching total employers"
-  //     );
-  //     set({
-  //       error: error.response?.data?.message || "Error fetching total employers",
-  //       isAdminLoading: false,
-  //     });
-  //   }
-  // },
 
   getTotalEmployers: async () => {
     set({ isAdminLoading: true, error: null });
@@ -119,30 +98,79 @@ export const adminStore = create((set) => ({
       set({ error: errorMessage, isAdminLoading: false });
     }
   },
-  
+
   getPWDVerificationId: async () => {
     set({ isAdminLoading: true, error: null });
     try {
       const response = await axios.get(`${BASE_URL}/pending-pwdID`);
-      console.log("API Response:", response.data); 
+      console.log("API Response:", response.data);
       const pendingPwdID = response.data.pendingDisabilityVerifications || 0;
-      console.log("Pending PWD ID:", pendingPwdID); 
+      console.log("Pending PWD ID:", pendingPwdID);
       set({
         pendingPwdID: pendingPwdID,
         isAdminLoading: false,
       });
     } catch (error) {
       console.error("Error fetching pending PWD ID:", error);
-      toast.error(error.response?.data?.message || "Error fetching pending PWD ID");
-      set({ error: error.response?.data?.message || "Error fetching pending PWD ID", isAdminLoading: false });
+      toast.error(
+        error.response?.data?.message || "Error fetching pending PWD ID"
+      );
+      set({
+        error: error.response?.data?.message || "Error fetching pending PWD ID",
+        isAdminLoading: false,
+      });
+    }
+  },
+   
+
+  //get user list
+  getDisabilityVerificationId: async () => {
+    set({ isAdminLoading: true, error: null });
+    try {
+      const response = await axios.get(`${BASE_URL}/disability-id/all`);
+      set({ isAdminLoading: false, totaluploaddisability: response.data });
+    } catch (error) {
+      console.error("Error fetching disability verification ID:", error);
+      toast.error(
+        error.response?.data?.message || "Error fetching verification ID"
+      );
+      set({ error: error.response?.data?.message || "Error fetching verification ID", isAdminLoading: false });
+    }
+  },
+  
+
+  //update approved and reject
+  updateDisabilityVerificationStatus: async (userId, isVerified) => {
+    try {
+      const response = await axios.put(`${BASE_URL}/disability-verify/${userId}`, { isVerified });
+      toast.success(`Verification ${isVerified ? "approved" : "rejected"}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating verification status:", error);
+      toast.error(
+        error.response?.data?.message || "Error updating verification status"
+      );
     }
   },
   
 }));
 
+
+
 // Retrieve the admin token (assumed to be stored in localStorage after login)
 const token = localStorage.getItem("token");
 const headers = { Authorization: `Bearer ${token}` };
+
+
+// export const getDisabilityVerificationId = async (userId) => {
+//   const response = await axios.get(`${BASE_URL}/disability-id/:userId${userId}`);
+//   return response.data;
+// };
+
+// export const updateDisabilityVerificationStatus = async (userId, isVerified) => {
+//   const response = await axios.put(`${BASE_URL}/disability-verify/:userId${userId}`, { isVerified });
+//   return response.data;
+// };
 
 /**
  * Fetch users data from the backend.

@@ -31,6 +31,7 @@ import { authStore } from "./stores/authStore";
 import EmployerList from "./pages/AdminEmployerList";
 import ApplicantList from "./pages/AdminApplicantList";
 import { AdminEmployerVerifyId } from "./pages/AdminEmployerVerifyId";
+import DisabilityVerification from "./pages/DisabilityVerification";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();
@@ -252,15 +253,6 @@ function App() {
         />
 
         <Route
-          path="/AdminProfile"
-          element={
-            <ProtectedRoute>
-              <AdminProfilePage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
           path="/admin"
           element={
             <ProtectedRoute>
@@ -273,6 +265,9 @@ function App() {
           <Route path="EmployerList" element={<EmployerList />} />
           <Route path="ApplicantList" element={<ApplicantList />} />
           <Route path="AdminEmployerVerifyId" element={<AdminEmployerVerifyId />} />
+          <Route path="AdminProfile" element={<AdminProfilePage />} />
+          <Route path="disabilityVerification" element={<DisabilityVerification />} />
+
         </Route>
 
         <Route path="/ban" element={<UserBan />} />

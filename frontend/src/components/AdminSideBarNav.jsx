@@ -4,12 +4,13 @@ import { authStore } from "../stores/authStore";
 const AdminSidebarNav = ({ handleNavigation }) => {
   const { logout } = authStore();
 
+
   const handleLogout = () => {
     logout();
   };
 
   return (
-    <aside className="w-full md:w-64 bg-gray-900 text-white flex flex-col p-5 ">
+    <aside className="w-full md:w-64 bg-gray-900 text-white flex flex-col p-5">
       <h1 className="text-xl font-bold text-center md:text-left">
         Admin Panel
       </h1>
@@ -47,6 +48,13 @@ const AdminSidebarNav = ({ handleNavigation }) => {
           className="block w-full py-2 px-4 rounded hover:bg-gray-700"
         >
           Employer Verification ID
+        </button>
+
+        <button
+          onClick={() => handleNavigation("disabilityVerification")}
+          className="block w-full py-2 px-4 rounded hover:bg-gray-700"
+        >
+          PWD Verification ID
         </button>
       </nav>
 

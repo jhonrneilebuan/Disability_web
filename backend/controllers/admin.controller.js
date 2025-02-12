@@ -354,7 +354,7 @@ export const getAdminProfile = async (req, res) => {
   }
 };
 
-
+//id 
 export const getUploadedDisabilityVerificationIds = async (req, res) => {
   try {
     const users = await User.find({
@@ -378,7 +378,7 @@ export const getUploadedDisabilityVerificationIds = async (req, res) => {
   }
 };
 
-
+//user list id
 export const getDisabilityVerificationId = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -398,6 +398,7 @@ export const getDisabilityVerificationId = async (req, res) => {
   }
 };
 
+//approved and  reject
 export const updateDisabilityVerificationStatus = async (req, res) => {
   try {
     const { userId } = req.params;
