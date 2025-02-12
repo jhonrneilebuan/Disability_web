@@ -42,6 +42,12 @@ const AdminSidebarNav = ({ handleNavigation }) => {
         >
           Applicant Users
         </button>
+        <button
+          onClick={() => handleNavigation("AdminEmployerVerifyId")}
+          className="block w-full py-2 px-4 rounded hover:bg-gray-700"
+        >
+          Employer Verification ID
+        </button>
       </nav>
 
 

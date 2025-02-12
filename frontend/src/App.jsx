@@ -28,8 +28,9 @@ import UserBan from "./pages/UserBan";
 import UserData from "./pages/UserData";
 import VideoChatRoom from "./pages/VideoChatRoom";
 import { authStore } from "./stores/authStore";
-import EmployerList from "./pages/EmployerList";
-import ApplicantList from "./pages/ApplicantList";
+import EmployerList from "./pages/AdminEmployerList";
+import ApplicantList from "./pages/AdminApplicantList";
+import { AdminEmployerVerifyId } from "./pages/AdminEmployerVerifyId";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();
@@ -271,6 +272,7 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="EmployerList" element={<EmployerList />} />
           <Route path="ApplicantList" element={<ApplicantList />} />
+          <Route path="AdminEmployerVerifyId" element={<AdminEmployerVerifyId />} />
         </Route>
 
         <Route path="/ban" element={<UserBan />} />
