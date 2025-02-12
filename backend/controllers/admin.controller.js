@@ -359,7 +359,7 @@ export const getUploadedDisabilityVerificationIds = async (req, res) => {
   try {
     const users = await User.find({
       "disabilityInformation.verificationId": { $ne: null } 
-    }).select("disabilityInformation.verificationId");
+    }).select("fullName disabilityInformation.verificationId");
 
     if (!users.length) {
       return res.status(404).json({ message: "No users with uploaded verification ID found" });
@@ -432,7 +432,7 @@ export const getUploadedEmployerVerificationIds = async (req, res) => {
   try {
     const users = await User.find({
       "employerInformation.verificationId": { $ne: null }
-    }).select(" fullName employerInformation.verificationId");
+    }).select("fullName employerInformation.verificationId");
 
     if (!users.length) {
       return res.status(404).json({ message: "No employers with uploaded verification ID found" });

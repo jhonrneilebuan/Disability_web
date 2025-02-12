@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import  { useEffect } from "react";
 import { adminStore } from "../stores/adminApi";
 
 const DisabilityVerification = () => {
@@ -35,15 +35,30 @@ const DisabilityVerification = () => {
                 <p className="text-gray-700 mb-2 font-medium">
                   User ID: {user.userId}
                 </p>
-                <p className="text-gray-700 mb-2">
-                  Verification ID: {user.verificationId || "Not available"}
+                <p className="text-gray-700 mb-2 font-medium">
+                  Full Name: {user.fullName}
                 </p>
-                {user.imageData && (
+                <p className="text-gray-700 mb-2">
+                  Verification ID:
+                  <a
+                    href={user.verificationId}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 underline ml-1"
+                  >
+                    View Image
+                  </a>
+                </p>
+                {user.verificationId && (
                   <div className="mb-3">
                     <img
-                      src={`data:image/jpeg;base64,${user.imageData}`}
+                      src={user.verificationId}
                       alt="Verification ID"
                       className="w-full h-auto rounded-md"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "https://via.placeholder.com/150"; 
+                      }}
                     />
                   </div>
                 )}
