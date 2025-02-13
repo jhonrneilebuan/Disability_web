@@ -104,7 +104,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     setBarData({
-      labels: ["Applicants", "Employers", "Users"],
+      labels: ["Applicants", "Employers", "Total of Users"],
       datasets: [
         {
           label: "Total Count",
