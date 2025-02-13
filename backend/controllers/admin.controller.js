@@ -1,6 +1,6 @@
 import User from "../models/user.model.js";
-import bcrypt from "bcryptjs";
-
+import Notification from "../models/notification.model.js";
+import { io, getReceiverSocketId } from "../db/socket.js";
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find({});
@@ -418,6 +418,22 @@ export const updateDisabilityVerificationStatus = async (req, res) => {
     user.disabilityInformation.isIdVerified = isVerified;
     await user.save();
 
+    const notification = await Notification.create({
+      user: user._id,
+      message: `Your disability verification has been ${isVerified ? "approved" : "rejected"}.`,
+      type: "verification",
+      isRead: false,
+      createdAt: new Date(),
+    });
+
+    const applicantSocketId = getReceiverSocketId(user._id.toString());
+    if (applicantSocketId) {
+      io.to(applicantSocketId).emit("verificationUpdate", {
+        message: notification.message,
+        userId: user._id,
+      });
+    }
+
     res.status(200).json({
       message: `Disability ID verification ${isVerified ? "approved" : "rejected"}`,
       isIdVerified: isVerified,
@@ -427,6 +443,7 @@ export const updateDisabilityVerificationStatus = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
+
 
 
 export const getUploadedEmployerVerificationIds = async (req, res) => {
@@ -491,6 +508,22 @@ export const updateEmployerVerificationStatus = async (req, res) => {
 
     user.employerInformation.isIdVerified = isVerified;
     await user.save();
+
+    const notification = await Notification.create({
+      user: user._id,
+      message: `Your employer ID verification has been ${isVerified ? "approved" : "rejected"}.`,
+      type: "verification",
+      isRead: false,
+      createdAt: new Date(),
+    });
+
+    const employerSocketId = getReceiverSocketId(user._id.toString());
+    if (employerSocketId) {
+      io.to(employerSocketId).emit("verificationUpdate", {
+        message: notification.message,
+        userId: user._id,
+      });
+    }
 
     res.status(200).json({
       message: `Employer ID verification ${isVerified ? "approved" : "rejected"}`,

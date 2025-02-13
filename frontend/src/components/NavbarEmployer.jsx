@@ -12,8 +12,8 @@ const NavbarEmployer = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+    fetchNotifications([...notifications].reverse());
+  }, [fetchNotifications, notifications]);
 
   const handleSearch = () => {
     if (query.trim()) {

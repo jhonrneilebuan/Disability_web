@@ -317,6 +317,7 @@ export const authStore = create((set, get) => ({
     newSocket.off("applicationShortlisted"); 
     newSocket.off("applicationRejected"); 
     newSocket.off("newJobApplication");  
+    newSocket.off("verificationUpdate");
 
     newSocket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
@@ -362,6 +363,13 @@ export const authStore = create((set, get) => ({
       }));
     });
 
+    newSocket.on("verificationUpdate", (data) => {
+      toast.success(data.message);
+      set((state) => ({
+        notifications: [...state.notifications, data.message],
+      }));
+    });
+
     newSocket.on("disconnect", () => {
       console.log("Socket disconnected");
     });
@@ -378,6 +386,7 @@ export const authStore = create((set, get) => ({
       socket.off("applicationShortlisted"); 
       socket.off("applicationRejected"); 
       socket.off("newJobApplication");  
+      socket.off("verificationUpdate"); 
       socket.disconnect();
     }
   },

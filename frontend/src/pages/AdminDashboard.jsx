@@ -149,7 +149,7 @@ const AdminDashboard = () => {
             <div className="p-3 text-gray-700 font-semibold">Notifications</div>
             {notifications.length > 0 ? (
               <ul className="max-h-48 overflow-y-auto">
-                {notifications.map((notif, index) => (
+                {[...notifications].reverse().map((notif, index) => (
                   <li
                     key={notif._id || index}
                     className="px-4 py-2 text-sm border-b hover:bg-gray-100 font-poppins"
