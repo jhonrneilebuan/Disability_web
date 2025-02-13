@@ -72,12 +72,14 @@ const AdminDashboard = () => {
     ],
   };
 
+  const totalUserCounts = [0, totalApplicants + totalEmployers];
+
   const lineData = {
     labels: ["Jan", "Feb", "Mar", "Apr", "May"],
     datasets: [
       {
-        label: "Users",
-        data: [30, 40, 45, 60, 70],
+        label: "Total Users",
+        data: totalUserCounts,
         borderColor: "#4e79a7",
         backgroundColor: "rgba(78, 121, 167, 0.2)",
         fill: true,
@@ -272,6 +274,13 @@ const AdminDashboard = () => {
                   label: (context) =>
                     `${context.dataset.label}: ${context.raw}`,
                 },
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: maxValue,
+                ticks: { stepSize: 1 },
               },
             },
           }}

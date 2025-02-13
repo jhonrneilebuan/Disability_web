@@ -1,4 +1,11 @@
-import { MdLogout, MdDashboard, MdPerson, MdPeople, MdVerifiedUser, MdAssignment } from "react-icons/md";
+import {
+  MdLogout,
+  MdDashboard,
+  MdPerson,
+  MdPeople,
+  MdVerifiedUser,
+  MdAssignment,
+} from "react-icons/md";
 import { authStore } from "../stores/authStore";
 import { useState } from "react";
 
@@ -17,27 +24,62 @@ const AdminSidebarNav = ({ handleNavigation }) => {
 
   return (
     <aside className="w-full md:w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col p-6 shadow-xl">
-      <h1 className="text-2xl font-semibold text-center md:text-left mb-8 text-gray-100">
-        Admin Panel
-      </h1>
+      <div className="flex flex-col items-center mb-6">
+        <img
+          src="/sample-logo.png"
+          alt="Admin Logo"
+          className="w-20 h-20 mb-2"
+        />
+        <h1 className="text-2xl font-semibold text-center text-gray-100">
+          Admin Panel
+        </h1>
+      </div>
 
       <nav className="flex-1 space-y-2">
         {[
-          { id: "dashboard", label: "Dashboard", icon: <MdDashboard className="w-6 h-6" /> },
-          { id: "adminProfile", label: "Profile", icon: <MdPerson className="w-6 h-6" /> },
-          { id: "EmployerList", label: "Employer Users", icon: <MdPeople className="w-6 h-6" /> },
-          { id: "ApplicantList", label: "Applicant Users", icon: <MdPeople className="w-6 h-6" /> },
-          { id: "AdminEmployerVerifyId", label: "Employer Verification ID", icon: <MdVerifiedUser className="w-6 h-6" /> },
-          { id: "disabilityVerification", label: "PWD Verification ID", icon: <MdAssignment className="w-6 h-6" /> },
+          {
+            id: "dashboard",
+            label: "Dashboard",
+            icon: <MdDashboard className="w-6 h-6" />,
+          },
+          {
+            id: "adminProfile",
+            label: "Profile",
+            icon: <MdPerson className="w-6 h-6" />,
+          },
+          {
+            id: "EmployerList",
+            label: "Employer Users",
+            icon: <MdPeople className="w-6 h-6" />,
+          },
+          {
+            id: "ApplicantList",
+            label: "Applicant Users",
+            icon: <MdPeople className="w-6 h-6" />,
+          },
+          {
+            id: "AdminEmployerVerifyId",
+            label: "Employer Verification ID",
+            icon: <MdVerifiedUser className="w-6 h-6" />,
+          },
+          {
+            id: "disabilityVerification",
+            label: "PWD Verification ID",
+            icon: <MdVerifiedUser className="w-6 h-6" />,
+          },
         ].map((item) => (
           <button
             key={item.id}
             onClick={() => handleNavClick(item.id)}
             className={`flex items-center w-full py-3 px-4 rounded-lg hover:bg-gray-700 transition-all duration-300 ${
-              activeNav === item.id ? "bg-gray-700 text-white font-medium" : "text-gray-300"
+              activeNav === item.id
+                ? "bg-gray-700 text-white font-medium"
+                : "text-gray-300"
             }`}
           >
-            <span className="mr-3 hover:text-white transition-all duration-300">{item.icon}</span>
+            <span className="mr-3 hover:text-white transition-all duration-300">
+              {item.icon}
+            </span>
             <span>{item.label}</span>
           </button>
         ))}
