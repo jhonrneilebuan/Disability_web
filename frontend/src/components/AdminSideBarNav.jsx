@@ -4,7 +4,6 @@ import {
   MdPerson,
   MdPeople,
   MdVerifiedUser,
-  MdAssignment,
 } from "react-icons/md";
 import { authStore } from "../stores/authStore";
 import { useState } from "react";

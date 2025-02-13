@@ -252,10 +252,10 @@ const Navbar = () => {
       )}
 
 {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg overflow-hidden z-50">
+        <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg overflow-hidden z-50 mr-2">
           <div className="p-3 text-gray-700 font-semibold">Notifications</div>
           {notifications.length > 0 ? (
-            <ul className="max-h-48 overflow-y-auto">
+            <ul className="max-h-48 overflow-y-scroll no-scrollbar">
               {[...notifications].reverse().map((notif, index) => (
                 <li
                   key={notif._id || index}

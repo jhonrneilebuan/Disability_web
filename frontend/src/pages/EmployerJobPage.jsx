@@ -5,6 +5,7 @@ import FormatTimeDate from "../components/FormatTimeDate";
 import Modal from "../components/Modal";
 import NavbarEmployer from "../components/NavbarEmployer";
 import Sidebar from "../components/Sidebar";
+import { authStore } from "../stores/authStore";
 import { jobStore } from "../stores/jobStore";
 
 const EmployerJobPage = () => {
@@ -12,7 +13,7 @@ const EmployerJobPage = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchSubmitted, setIsSearchSubmitted] = useState(false);
-
+  const { user } = authStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(null);
   const dropdownRef = useRef(null);
 
@@ -94,12 +95,21 @@ const EmployerJobPage = () => {
               </button>
             </div>
             <Link
-              to="/employer/job-post"
-              className="text-white bg-[#1da1f2] hover:bg-[#1da1f2]/90 focus:ring-4 focus:outline-none focus:ring-[#1da1f2]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#1da1f2]/55 me-2 mb-2"
+              to={
+                user.employerInformation.isIdVerified
+                  ? "/employer/job-post"
+                  : "#"
+              }
+              className={`${
+                user.employerInformation.isIdVerified
+                  ? "text-white bg-[#1da1f2] hover:bg-[#1da1f2]/90 focus:ring-4 focus:outline-none focus:ring-[#1da1f2]/50 dark:focus:ring-[#1da1f2]/55"
+                  : "bg-gray-400 text-gray-200 cursor-not-allowed pointer-events-none"
+              } font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 mb-2`}
             >
               <BriefcaseBusiness className="w-4 h-4 me-2" />
-              Post a job
-            </Link>
+              {user.employerInformation.isIdVerified
+                      ? "Post a Job"
+                      : "Upload ID First"}            </Link>
           </div>
           <hr />
           <div className="overflow-y-auto max-h-[80vh] pb-5">

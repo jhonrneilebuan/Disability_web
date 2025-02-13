@@ -65,7 +65,7 @@ const EmailVerificationPage = () => {
       handleSubmit(new Event("submit"));
     }
   }, [code]);
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center relative overflow-hidden">
       <div className="max-w-md w-full bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden">

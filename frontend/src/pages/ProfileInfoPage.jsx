@@ -1,14 +1,16 @@
+import { Calendar, Camera, CheckCircle, Home, Phone, User } from "lucide-react";
 import { useState } from "react";
 import Navbar from "../components/Navbar";
-import { authStore } from "../stores/authStore";
-import { Camera, Phone, Calendar, Home, User, CheckCircle } from "lucide-react";
 import { formatDate } from "../lib/utils";
+import { authStore } from "../stores/authStore";
+import { useNavigate } from "react-router-dom";
 
 const ProfileInfoPage = () => {
   const { user, updateProfile, updateCoverPhoto } = authStore();
   const [selectedImg, setSelectedImg] = useState(null);
   const [selectedCoverImg, setSelectedCoverImg] = useState(null);
   const birthdayDate = user.birthday ? formatDate(user.birthday) : "N/A";
+  const navigate = useNavigate();
 
   const handleImageUpload = async (e, isCoverPhoto = false) => {
     const file = e.target.files[0];
@@ -45,6 +47,10 @@ const ProfileInfoPage = () => {
       }
     };
   };
+
+  const handleVerification = () => {
+    navigate("/uploadId")
+  }
 
   return (
     <>
@@ -98,7 +104,17 @@ const ProfileInfoPage = () => {
                 <h1 className="text-3xl font-bold font-poppins text-gray-800">
                   {user.fullName || "N/A"}
                 </h1>
-                <CheckCircle className="text-green-500 w-6 h-6 ml-2" />
+                {user.disabilityInformation.isIdVerified ? (
+                  <div className=" flex items-center gap-2 text-green-600 font-medium ml-5">
+                    <CheckCircle className="w-6 h-6" />
+                    <span>Verified</span>
+                  </div>
+                ) : (
+                  <button className="bg-blue-600 text-white text-xs font-medium px-4 py-2 ml-5 rounded-lg hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-400 font-poppins"
+                  onClick={handleVerification}>
+                    Get Verified
+                  </button>
+                )}
               </div>
               <p className="text-gray-600 mt-2 font-poppins">
                 {user.email || "N/A"}

@@ -9,6 +9,7 @@ import {
   sendResetSuccessEmail,
 } from "../mailtrap/gmail.js";
 import { io } from "../db/socket.js";
+import Notification from "../models/notification.model.js"
 
 export const signup = async (req, res) => {
   try {
@@ -58,14 +59,27 @@ export const signup = async (req, res) => {
 
       await sendVerificationEmail(newUser.email, verificationToken);
 
-      io.emit("newUser", {
+      const admins = await User.find({ role: "Admin" });
+
+      const notifications = admins.map((admin) => ({
+        user: admin._id,
         message: `New user registered: ${fullName} (${email})`,
-        user: {
-          fullName,
-          email,
-          role,
-        },
-      })
+        type: "newUserRegistration",
+        isRead: false,
+      }));
+
+      await Notification.insertMany(notifications);
+
+      admins.forEach((admin) => {
+        io.to(admin._id.toString()).emit("newUser", {
+          message: `New user registered: ${fullName} (${email})`,
+          user: {
+            fullName,
+            email,
+            role,
+          },
+        });
+      });
 
       res.status(201).json({
         success: true,

@@ -1,15 +1,13 @@
 import { Bell, Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { authStore } from "../stores/authStore";
 import { userStore } from "../stores/userStore";
 
 const NavbarEmployer = () => {
   const [query, setQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { notifications, clearNotifications, user, fetchNotifications } =
-    authStore();
-
+  const { notifications, clearNotifications, user, fetchNotifications } = authStore();
   const { searchUsers, users, isLoading, error } = userStore();
   const navigate = useNavigate();
 
@@ -31,10 +29,14 @@ const NavbarEmployer = () => {
     setIsDropdownOpen((prev) => !prev);
   };
 
+  const handleViewProfile = () => {
+    navigate("/employer-profile")
+  }
+
   return (
     <div className="bg-gray-800 text-white p-4 shadow-md relative">
       <div className="flex justify-between items-center">
-        <div className="text-2xl font-bold">Employer Panel</div>
+        <Link to="/employer" className="text-2xl font-bold">Employer Panel</Link>
         <div className="relative w-full max-w-screen-md mx-auto">
           <input
             type="text"
@@ -69,11 +71,11 @@ const NavbarEmployer = () => {
                     className="flex items-center px-4 py-2 hover:bg-gray-600 cursor-pointer rounded"
                     onClick={() => handleUserClick(user._id)}
                   >
-                    <img
-                      src={user.profilePicture || "/avatar.png"}
-                      alt={user.fullName}
-                      className="w-8 h-8 rounded-full mr-3"
-                    />
+                      <img
+                        src={user.profilePicture || "/avatar.png"}
+                        alt={user.fullName}
+                        className="w-8 h-8 rounded-full mr-3"
+                      />
                     <span>{user.fullName}</span>
                   </div>
                 ))}
@@ -95,11 +97,13 @@ const NavbarEmployer = () => {
           )}
         </button>
         <div className="w-8 h-8 rounded-md overflow-hidden cursor-pointer">
+          <button onClick={handleViewProfile}>
           <img
             src={user.profilePicture || "avatar.png"}
             alt="Profile"
             className="w-full h-full object-cover"
           />
+          </button>
         </div>
       </div>
 
@@ -115,12 +119,12 @@ const NavbarEmployer = () => {
             {notifications.length > 0 ? (
               notifications.map((notif, index) => (
                 <div
-                  key={notif._id || index} 
+                  key={notif._id || index}
                   className="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   <div className="w-full ps-3">
-                    <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
-                    {notif?.message || notif} 
+                    <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400 font-poppins">
+                      {notif?.message || notif}
                     </div>
                   </div>
                 </div>

@@ -1,12 +1,15 @@
+import { CheckCircle, XCircle } from "lucide-react";
 import { useState } from "react";
 import { FaCamera } from "react-icons/fa";
 import NavbarEmployer from "../components/NavbarEmployer";
 import { authStore } from "../stores/authStore";
+import { useNavigate } from "react-router-dom";
 
 const EmployerProfilePage = () => {
   const { user } = authStore();
   const [selectedImg, setSelectedImg] = useState(null);
   const [selectedCoverImg, setSelectedCoverImg] = useState(null);
+  const navigate = useNavigate();
 
   const handleImageUpload = async (e, isCoverPhoto = false) => {
     const file = e.target.files[0];
@@ -29,10 +32,14 @@ const EmployerProfilePage = () => {
     };
   };
 
+  const handleVerification = () => {
+    navigate("/uploademployerId")
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen font-[Poppins]">
       <NavbarEmployer />
-      <main className="flex items-center justify-center p-6 ">
+      <main className="flex items-center justify-center p-6 mt-5">
         <div className="w-full max-w-4xl bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 pb-10 ">
           <div className="relative h-64 bg-gray-200 ">
             <img
@@ -77,6 +84,15 @@ const EmployerProfilePage = () => {
               </label>
             </div>
 
+            {!user.employerInformation?.isIdVerified && (
+              <button
+                className="bg-blue-600 text-white text-xs font-medium px-4 py-2 mt-4 rounded-lg hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-400 font-poppins"
+                onClick={handleVerification}
+              >
+                Get Verified
+              </button>
+            )}
+
             <div className="grid grid-cols-2 gap-6 w-full mt-6 px-8 items-start h-full">
               <div className="text-left flex flex-col h-full">
                 <p className="text-lg text-gray-700 mt-2">
@@ -111,19 +127,17 @@ const EmployerProfilePage = () => {
                   {user.role || "N/A"}
                 </p>
 
-                <div className="mt-auto">
-                  <span
-                    className={`inline-block px-3 py-1 text-lg font-semibold rounded-full ${
-                      user.employerInformation?.isIdVerified
-                        ? "bg-green-500 text-white"
-                        : "bg-red-500 text-white"
-                    }`}
-                  >
-                    {user.employerInformation?.isIdVerified
-                      ? "Verified"
-                      : "Not Verified"}
-                  </span>
-                </div>
+                {user.employerInformation?.isIdVerified ? (
+                  <div className="flex items-center gap-2 text-green-600 font-medium mt-3">
+                    <CheckCircle className="w-6 h-6" />
+                    <span>Verified</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-red-600 font-medium mt-3">
+                    <XCircle className="w-6 h-6" />
+                    <span>Not Verified</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
