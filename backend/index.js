@@ -19,7 +19,7 @@ import profileSettingsRoutes from "./routes/profileSettings.route.js";
 import SavedJobRoutes from "./routes/savedJob.js";
 import userRoutes from "./routes/user.route.js";
 import emailRoutes from "./routes/email.route.js"
-
+import notificationRoutes from "./routes/notification.route.js"
 dotenv.config();
 app.use(cors(corsOptions));
 
@@ -37,6 +37,7 @@ app.use("/api/savedJobs", SavedJobRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/email", emailRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 const PORT = process.env.PORT;
 

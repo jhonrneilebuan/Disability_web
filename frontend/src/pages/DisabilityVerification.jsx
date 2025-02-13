@@ -78,7 +78,7 @@ const DisabilityVerification = () => {
                         )}
                       </td>
                       <td className="py-3 px-4 border-b">
-                        {user.isIdVerified === false && (
+                        {user.isIdVerified === true && (
                           <div className="flex gap-2">
                             <button
                               onClick={() =>

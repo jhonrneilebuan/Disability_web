@@ -1,5 +1,6 @@
 import { uploadToCloudinary } from "../db/cloudinary.js";
 import User from "../models/user.model.js";
+import { getReceiverSocketId, io } from "../db/socket.js";
 
 export const updateProfile = async (req, res) => {
   try {
@@ -203,8 +204,7 @@ export const userProfileInfo = async (req, res) => {
 
 export const updateEmployerProfile = async (req, res) => {
   try {
-    const { contact, employerInformation } = req.body;
-
+    const { fullName, contact, age, employerInformation } = req.body;
     const userId = req.userId;
 
     const user = await User.findById(userId);
@@ -213,64 +213,31 @@ export const updateEmployerProfile = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const updateFields = {};
+    if (fullName) user.fullName = fullName;
+    if (contact) user.contact = contact;
+    if (age) user.age = age;
 
     if (employerInformation) {
-      const updatedEmployerInfo = { ...user.employerInformation };
-
-      if (employerInformation.companyName) {
-        updatedEmployerInfo.companyName = employerInformation.companyName;
-      }
-
-      if (employerInformation.companyAddress) {
-        updatedEmployerInfo.companyAddress = employerInformation.companyAddress;
-      }
-
-      if (employerInformation.verificationId) {
-        try {
-          const secureUrl = await uploadToCloudinary(
-            employerInformation.verificationId
-          );
-          updatedEmployerInfo.verificationId = secureUrl;
-        } catch (uploadError) {
-          console.error("Error uploading to Cloudinary:", uploadError.message);
-          return res
-            .status(500)
-            .json({ message: "Cloudinary upload failed for employer info" });
-        }
-      }
-
-      if (employerInformation.isIdVerified !== undefined) {
-        updatedEmployerInfo.isIdVerified = employerInformation.isIdVerified;
-      }
-
-      updateFields.employerInformation = updatedEmployerInfo;
+      user.employerInformation = {
+        ...user.employerInformation,
+        ...(employerInformation.companyName && { companyName: employerInformation.companyName }),
+        ...(employerInformation.companyAddress && { companyAddress: employerInformation.companyAddress }),
+      };
     }
-
-    if (contact) {
-      updateFields.contact = contact;
-    }
-
-    Object.keys(updateFields).forEach((key) => {
-      if (updateFields[key] !== undefined) {
-        user[key] = updateFields[key];
-      }
-    });
 
     await user.save();
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Employer profile updated successfully",
-        user,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Employer profile updated successfully",
+      user,
+    });
   } catch (error) {
     console.error(`Error updating employer profile: ${error.message}`);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 
 export const uploadDisabilityId = async (req, res) => {
@@ -296,6 +263,18 @@ export const uploadDisabilityId = async (req, res) => {
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
+
+    const admins = await User.find({ role: "Admin" });
+
+    admins.forEach((admin) => {
+      const adminSocketId = getReceiverSocketId(admin._id.toString());
+      if (adminSocketId) {
+        io.to(adminSocketId).emit("newDisabilityId", {
+          message: `User ${updatedUser.fullName} uploaded a Disability ID.`,
+          userId: updatedUser._id,
+        });
+      }
+    });
 
     res.status(200).json({
       message: "Disability ID uploaded successfully",
@@ -334,6 +313,18 @@ export const uploadEmployerVerificationId = async (req, res) => {
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
+
+    const admins = await User.find({ role: "Admin" });
+
+    admins.forEach((admin) => {
+      const adminSocketId = getReceiverSocketId(admin._id.toString());
+      if (adminSocketId) {
+        io.to(adminSocketId).emit("newDisabilityId", {
+          message: `User ${updatedUser.fullName} uploaded a Employer ID.`,
+          userId: updatedUser._id,
+        });
+      }
+    });
 
     res.status(200).json({
       message: "Employer verification ID uploaded successfully",

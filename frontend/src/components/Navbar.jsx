@@ -1,24 +1,29 @@
-import { useState } from "react";
-import { authStore } from "../stores/authStore";
-import { Link, useLocation } from "react-router-dom";
 import {
   ChevronDown,
-  Settings,
-  User,
   Edit,
   LogOut,
   Menu,
+  Settings,
+  User,
   X,
 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { FaBell } from "react-icons/fa";
+import { Link, useLocation } from "react-router-dom";
+import { authStore } from "../stores/authStore";
 
 const Navbar = () => {
-  const { user, logout } = authStore();
+  const { user, logout, notifications, clearNotifications, fetchNotifications  } = authStore();
   const location = useLocation();
-
+  const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isMenuOpen, setMenuOpen] = useState(false);
 
   const isActive = (path) => location.pathname === path;
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications])
 
   const toggleDropdown = () => {
     setDropdownOpen(!isDropdownOpen);
@@ -92,16 +97,17 @@ const Navbar = () => {
           >
             Messaging
           </Link>
-          <Link
-            to="/notifications"
-            className={`${
-              isActive("/notifications")
-                ? "text-browny font-normal"
-                : "text-BLUE font-normal"
-            } text-base hover:text-browny font-poppins`}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="relative p-2 text-gray-700 hover:text-gray-900 focus:outline-none"
           >
-            Notifications
-          </Link>
+            <FaBell className="w-6 h-6" />
+            {notifications.length > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                {notifications.length}
+              </span>
+            )}
+          </button>
 
           <div className="h-10 border-l-2 border-BLUE mx-4"></div>
 
@@ -242,6 +248,38 @@ const Navbar = () => {
           >
             Logout
           </p>
+        </div>
+      )}
+
+{isOpen && (
+        <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg overflow-hidden z-50">
+          <div className="p-3 text-gray-700 font-semibold">Notifications</div>
+          {notifications.length > 0 ? (
+            <ul className="max-h-48 overflow-y-auto">
+              {[...notifications].reverse().map((notif, index) => (
+                <li
+                  key={notif._id || index}
+                  className="px-4 py-2 text-sm border-b hover:bg-gray-100"
+                >
+                  {notif?.message || notif}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="p-4 text-sm text-gray-500">No new notifications</div>
+          )}
+
+          {notifications.length > 0 && (
+            <button
+              onClick={() => {
+                clearNotifications();
+                setIsOpen(false);
+              }}
+              className="w-full py-2 text-center text-red-600 hover:bg-gray-100"
+            >
+              Clear All
+            </button>
+          )}
         </div>
       )}
     </nav>

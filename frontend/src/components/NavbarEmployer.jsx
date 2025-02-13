@@ -1,13 +1,21 @@
-import  { useState } from "react";
-import { Bell, Search, CircleUser, Eye } from "lucide-react";
-import { userStore } from "../stores/userStore";
+import { Bell, Search } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { authStore } from "../stores/authStore";
+import { userStore } from "../stores/userStore";
 
 const NavbarEmployer = () => {
   const [query, setQuery] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); 
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { notifications, clearNotifications, user, fetchNotifications } =
+    authStore();
+
   const { searchUsers, users, isLoading, error } = userStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const handleSearch = () => {
     if (query.trim()) {
@@ -75,12 +83,24 @@ const NavbarEmployer = () => {
             </div>
           )}
         </div>
-        <Bell
-          size={20}
-          className="cursor-pointer mr-5"
+        <button
           onClick={toggleDropdown}
-        />
-        <CircleUser size={22} className="mr-5" />
+          className="relative cursor-pointer mr-5"
+        >
+          <Bell className="w-6 h-6" />
+          {notifications.length > 0 && (
+            <span className="absolute -top-2 -right-2 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 text-xs text-white px-1">
+              {notifications.length}
+            </span>
+          )}
+        </button>
+        <div className="w-8 h-8 rounded-md overflow-hidden cursor-pointer">
+          <img
+            src={user.profilePicture || "avatar.png"}
+            alt="Profile"
+            className="w-full h-full object-cover"
+          />
+        </div>
       </div>
 
       {isDropdownOpen && (
@@ -91,42 +111,38 @@ const NavbarEmployer = () => {
           <div className="block px-4 py-2 font-medium text-center text-gray-700 rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
             Notifications
           </div>
-          <div className="divide-y divide-gray-100 dark:divide-gray-700">
-            <a
-              href="#"
-              className="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <div className="flex-shrink-0">
-                <img
-                  className="rounded-full w-11 h-11"
-                  src="avatar.png"
-                  alt="Jese image"
-                />
-              </div>
-              <div className="w-full ps-3">
-                <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
-                  New message from{" "}
-                  <span className="font-semibold text-gray-900 dark:text-white">
-                    Mark Tristan Raroque
-                  </span>
-                  : &quot;Good Morning&quot;
+          <div className="divide-y divide-gray-100 dark:divide-gray-700 overflow-y-auto max-h-60">
+            {notifications.length > 0 ? (
+              notifications.map((notif, index) => (
+                <div
+                  key={notif._id || index} 
+                  className="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <div className="w-full ps-3">
+                    <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
+                    {notif?.message || notif} 
+                    </div>
+                  </div>
                 </div>
-                <div className="text-xs text-blue-600 dark:text-blue-500">
-                  a few moments ago
-                </div>
+              ))
+            ) : (
+              <div className="p-4 text-sm text-gray-500 text-center">
+                No new notifications
               </div>
-            </a>
+            )}
           </div>
 
-          <div className="flex justify-center items-center px-4 py-2 text-center">
-            <a
-              href="/notifications"
-              className="flex items-center text-white hover:underline"
+          {notifications.length > 0 && (
+            <button
+              onClick={() => {
+                clearNotifications();
+                setIsDropdownOpen(false);
+              }}
+              className="w-full py-2 text-center text-red-600 hover:bg-gray-100"
             >
-              <Eye className="w-4 h-4 mr-2" />
-              View All
-            </a>
-          </div>
+              Clear All
+            </button>
+          )}
         </div>
       )}
     </div>

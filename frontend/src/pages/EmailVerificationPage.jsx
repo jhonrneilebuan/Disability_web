@@ -50,7 +50,7 @@ const EmailVerificationPage = () => {
       const { user } = authStore.getState();
       if (user?.role) {
         if (user.role === "Applicant") {
-          navigate("/applicant");
+          navigate("/user-profiling");
         } else if (user.role === "Employer") {
           navigate("/employer");
         }

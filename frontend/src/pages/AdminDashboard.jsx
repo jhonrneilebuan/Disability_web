@@ -12,8 +12,9 @@ import {
 } from "chart.js";
 import { useEffect, useState } from "react";
 import { Bar, Line, Pie } from "react-chartjs-2";
-import { FaBriefcase, FaUsers, FaClock } from "react-icons/fa";
+import { FaBell, FaBriefcase, FaClock, FaUsers } from "react-icons/fa";
 import { adminStore } from "../stores/adminApi";
+import { authStore } from "../stores/authStore";
 
 ChartJS.register(
   CategoryScale,
@@ -28,6 +29,8 @@ ChartJS.register(
 );
 
 const AdminDashboard = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
   const {
     totalUsers,
     getTotalUsers,
@@ -42,6 +45,8 @@ const AdminDashboard = () => {
     pendingPwdID,
     error,
   } = adminStore();
+
+  const { notifications, clearNotifications } = authStore();
 
   const [barData, setBarData] = useState({
     labels: ["Applicants", "Employers", "Users"],
@@ -122,6 +127,54 @@ const AdminDashboard = () => {
 
   return (
     <div className="bg-gradient-to-r from-indigo-100 to-blue-200 p-8 rounded-lg shadow-xl">
+      <div className="relative">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="relative p-2 text-gray-700 hover:text-gray-900 focus:outline-none"
+        >
+          <FaBell className="w-6 h-6" />
+          {notifications.length > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+              {notifications.length}
+            </span>
+          )}
+        </button>
+
+        {isOpen && (
+          <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg overflow-hidden z-50">
+            <div className="p-3 text-gray-700 font-semibold">Notifications</div>
+            {notifications.length > 0 ? (
+              <ul className="max-h-48 overflow-y-auto">
+                {notifications.map((notif, index) => (
+                  <li
+                    key={index}
+                    className="px-4 py-2 text-sm border-b hover:bg-gray-100"
+                  >
+                    {notif}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="p-4 text-sm text-gray-500">
+                No new notifications
+              </div>
+            )}
+
+            {notifications.length > 0 && (
+              <button
+                onClick={() => {
+                  clearNotifications();
+                  setIsOpen(false);
+                }}
+                className="w-full py-2 text-center text-red-600 hover:bg-gray-100"
+              >
+                Clear All
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
         <div className="bg-gradient-to-t from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-md flex items-center gap-4 hover:scale-105 transform transition duration-300">
           <FaUsers size={32} />

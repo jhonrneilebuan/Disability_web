@@ -2,6 +2,8 @@ import { sendConfirmationEmail } from "../mailtrap/gmail.js";
 import Application from "../models/application.model.js";
 import Job from "../models/job.model.js";
 import User from "../models/user.model.js";
+import Notification from "../models/notification.model.js";
+import { io, getReceiverSocketId } from "../db/socket.js";
 
 export const applyJobs = async (req, res) => {
   try {
@@ -18,10 +20,11 @@ export const applyJobs = async (req, res) => {
       return res.status(400).json({ error: "Resume is required." });
     }
 
-    const job = await Job.findById(jobId);
+    const job = await Job.findById(jobId).populate("employer"); 
     if (!job) {
       return res.status(404).json({ error: "Job not found." });
     }
+    const employerId = job.employer._id; 
 
     const applicant = await User.findById(applicantId);
     if (!applicant) {
@@ -73,6 +76,26 @@ export const applyJobs = async (req, res) => {
 
     await application.save();
     await sendConfirmationEmail(applicantId, jobId);
+
+    const notification = new Notification({
+      user: employerId,
+      message: `A new applicant has applied for your job post: ${job.jobTitle}.`,
+      type: "newJobApplication",
+      isRead: false,
+    });
+    await notification.save(); 
+
+    const employerSocketId = getReceiverSocketId(employerId.toString());
+    console.log(`Employer Socket ID:`, employerSocketId);
+    if (employerSocketId) {
+      io.to(employerSocketId).emit("newJobApplication", {
+        message: notification.message,
+        jobId: job._id,
+        applicantId,
+      });
+    } else {
+      console.log(`Employer ${employerId} is offline. Notification saved.`);
+    }
 
     res.status(200).json({ message: "Application submitted successfully." });
   } catch (error) {
@@ -269,12 +292,35 @@ export const shortlistApplication = async (req, res) => {
     }
 
     const application = await Application.findById(applicationId);
+    
     if (!application) {
       return res.status(404).json({ error: "Application not found." });
     }
 
+    const applicantId = application.applicantId; 
+
     application.status = "Shortlisted";
     await application.save();
+
+    const notification = new Notification({
+      user: applicantId,
+      message: `Your job application has been shortlisted!`,
+      type: "applicationShortlisted",
+      isRead: false,
+    });
+    await notification.save();
+
+    const applicantSocketId = getReceiverSocketId(applicantId.toString());
+
+    if (applicantSocketId) {
+      io.to(applicantSocketId).emit("applicationShortlisted", {
+        message: notification.message,
+        applicationId: application._id,
+        status: "Shortlisted",
+      });
+    } else {
+      console.log(`Applicant ${applicantId} is offline. Notification saved.`);
+    }
 
     res.status(200).json({
       message: "Application successfully shortlisted.",
@@ -282,11 +328,13 @@ export const shortlistApplication = async (req, res) => {
     });
   } catch (error) {
     console.error("Error shortlisting application:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while shortlisting the application." });
+    res.status(500).json({
+      error: "An error occurred while shortlisting the application.",
+    });
   }
 };
+
+
 
 export const interviewApplication = async (req, res) => {
   try {
@@ -385,8 +433,30 @@ export const rejectApplication = async (req, res) => {
       return res.status(404).json({ error: "Application not found." });
     }
 
+    const applicantId = application.applicantId; 
+
     application.status = "Rejected";
     await application.save();
+
+    const notification = new Notification({
+      user: applicantId,
+      message: `Your job application has been rejected.`,
+      type: "applicationRejected",
+      isRead: false,
+    });
+    await notification.save();
+    
+    const applicantSocketId = getReceiverSocketId(applicantId.toString());
+    
+    if (applicantSocketId) {
+      io.to(applicantSocketId).emit("applicationRejected", {
+        message: notification.message,
+        applicationId: application._id,
+        status: "Rejected",
+      });
+    } else {
+      console.log(`Applicant ${applicantId} is offline. Notification saved.`);
+    }    
 
     res.status(200).json({
       message: "Application successfully rejected.",
@@ -651,7 +721,7 @@ export const getJobApplicantsCount = async (req, res) => {
 
 export const getJobPreferences = async (req, res) => {
   try {
-    const user = await User.findById(req.userId); 
+    const user = await User.findById(req.userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -662,20 +732,19 @@ export const getJobPreferences = async (req, res) => {
     }
 
     const jobPreferences = {
-      jobCategory: user.jobPreferences.jobCategory,
-      jobType: user.jobPreferences.jobType,
-      locations: { $in: user.jobPreferences.preferredLocations },
-      jobShift: user.jobPreferences.jobShift,
+      jobCategories: user.jobPreferences.jobCategories,
+      jobTypes: user.jobPreferences.jobTypes,
+      preferredLocations: user.jobPreferences.preferredLocations,
+      preferredDisability: user.jobPreferences.preferredDisability || [],
+      jobQualifications: user.jobPreferences.jobQualifications,
       jobLevel: user.jobPreferences.jobLevel,
       expectedSalary: {
-        "minSalary": { $gte: user.jobPreferences.expectedSalary.minSalary },
-        "maxSalary": { $lte: user.jobPreferences.expectedSalary.maxSalary },
+        minSalary: user.jobPreferences.expectedSalary?.minSalary || 0,
+        maxSalary: user.jobPreferences.expectedSalary?.maxSalary || 0,
       },
     };
 
-    return res.status(200).json({
-      jobPreferences,
-    });
+    return res.status(200).json({ jobPreferences });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
@@ -684,10 +753,18 @@ export const getJobPreferences = async (req, res) => {
 
 export const updateJobPreferences = async (req, res) => {
   try {
-    let { jobCategory, jobType, preferredLocations, expectedSalary, jobShift, jobLevel } = req.body;
+    let { jobCategories, jobTypes, preferredLocations, preferredDisability, expectedSalary, jobQualifications, jobLevel } = req.body;
 
-    if (!jobCategory || !jobType || !preferredLocations || !expectedSalary || !jobShift || !jobLevel) {
+    if (!jobCategories || !jobTypes || !preferredLocations || !expectedSalary || !jobQualifications || !jobLevel) {
       return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if (!Array.isArray(jobCategories) || jobCategories.length === 0 || jobCategories.length > 3) {
+      return res.status(400).json({ message: "You must select 1 to 3 job categories" });
+    }
+
+    if (!Array.isArray(jobTypes) || jobTypes.length === 0 || jobTypes.length > 3) {
+      return res.status(400).json({ message: "You must select 1 to 3 job types" });
     }
 
     if (typeof expectedSalary !== "object" || !expectedSalary.minSalary || !expectedSalary.maxSalary) {
@@ -712,11 +789,12 @@ export const updateJobPreferences = async (req, res) => {
     }
 
     user.jobPreferences = {
-      jobCategory,
-      jobType,
+      jobCategories,
+      jobTypes,
       preferredLocations,
-      expectedSalary, 
-      jobShift,
+      preferredDisability,
+      expectedSalary,
+      jobQualifications,
       jobLevel,
     };
 
@@ -727,14 +805,15 @@ export const updateJobPreferences = async (req, res) => {
     await user.save();
 
     const jobPreferences = {
-      jobCategory,
-      jobType,
+      jobCategories: { $in: jobCategories },
+      jobTypes: { $in: jobTypes },
       locations: { $in: preferredLocations },
-      jobShift,
+      preferredDisability: { $in: preferredDisability },
+      jobQualifications,
       jobLevel,
       expectedSalary: {
-        "minSalary": { $gte: expectedSalary.minSalary },
-        "maxSalary": { $lte: expectedSalary.maxSalary },
+        minSalary: { $gte: expectedSalary.minSalary },
+        maxSalary: { $lte: expectedSalary.maxSalary },
       },
     };
 
@@ -747,6 +826,7 @@ export const updateJobPreferences = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 

@@ -8,6 +8,7 @@ import {
   sendPasswordResetEmail,
   sendResetSuccessEmail,
 } from "../mailtrap/gmail.js";
+import { io } from "../db/socket.js";
 
 export const signup = async (req, res) => {
   try {
@@ -56,6 +57,15 @@ export const signup = async (req, res) => {
       await newUser.save();
 
       await sendVerificationEmail(newUser.email, verificationToken);
+
+      io.emit("newUser", {
+        message: `New user registered: ${fullName} (${email})`,
+        user: {
+          fullName,
+          email,
+          role,
+        },
+      })
 
       res.status(201).json({
         success: true,

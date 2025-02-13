@@ -55,21 +55,36 @@ export const jobStore = create((set, get) => ({
         maxSalary: Number(preferences.expectedSalary.maxSalary),
       };
   
+      if (!Array.isArray(preferences.jobCategories) || preferences.jobCategories.length > 3) {
+        throw new Error("You must select up to 3 job categories.");
+      }
+  
+      if (!Array.isArray(preferences.jobTypes) || preferences.jobTypes.length > 3) {
+        throw new Error("You must select up to 3 job types.");
+      }
+  
+      if (!preferences.jobQualifications) {
+        throw new Error("Job qualifications are required.");
+      }
+  
       const response = await axios.put(`${API_URL}/applications/`, preferences);
+  
       set({ jobPreferences: response.data, isLoading: false });
       toast.success("Job preferences updated successfully");
     } catch (error) {
       console.error("Error updating job preferences:", error);
+  
       toast.error(
         error.response?.data?.message || "Error updating job preferences"
       );
+  
       set({
-        error:
-          error.response?.data?.message || "Error updating job preferences",
+        error: error.response?.data?.message || "Error updating job preferences",
         isLoading: false,
       });
     }
   },
+  
   
 
   getTotalApplicant: async () => {

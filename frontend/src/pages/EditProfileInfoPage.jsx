@@ -277,7 +277,7 @@ const EditProfileInfoPage = () => {
               >
                 <option value="">Select Disability Type</option>
                 <option value="Visual Impairment">Visual Impairment</option>
-                <option value="Hearing Impairment">Hearing Impairment</option>
+                <option value="Mobility Impairment">Mobility Impairment</option>
                 <option value="Physical Disability">Physical Disability</option>
                 <option value="Intellectual Disability">
                   Intellectual Disability

@@ -13,14 +13,14 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import { jobStore } from "../stores/jobStore";
-
 import Footer from "../components/Footer";
 import FormatTimeDate from "../components/FormatTimeDate";
 import JobPreferencesModal from "../components/JobPreferencesModal ";
 import Modal from "../components/Modal";
+import Navbar from "../components/Navbar";
 import SearchBar from "../components/Search";
+import { authStore } from "../stores/authStore";
+import { jobStore } from "../stores/jobStore";
 
 const JobsPage = () => {
   const [open, setOpen] = useState(false);
@@ -34,7 +34,7 @@ const JobsPage = () => {
   const [selectedJobShift, setSelectedJobShift] = useState("listedAnyTime");
   const [selectedJobType, setselectedJobType] = useState("All work types");
   const [isModalOpen, setModalOpen] = useState(false);
-
+  const { user } = authStore();
   const [currentPage, setCurrentPage] = useState(1);
   const jobsPerPage = 9;
   const navigate = useNavigate();
@@ -164,13 +164,11 @@ const JobsPage = () => {
     "Internship",
   ];
 
-
   const totalPages = Math.ceil(filteredJobPosts.length / jobsPerPage);
 
   const startIndex = (currentPage - 1) * jobsPerPage;
   const currentJobs = sortedJobs.slice(startIndex, startIndex + jobsPerPage);
-  
-  
+
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
@@ -412,13 +410,23 @@ const JobsPage = () => {
 
                 <div className="flex space-x-7 mt-6">
                   <button
-                    className="px-24 py-3 bg-buttonBlue text-white rounded font-poppins font-semibold"
+                    className={`px-24 py-3 rounded font-poppins font-semibold transition-all ${
+                      user.disabilityInformation.isIdVerified
+                        ? "bg-buttonBlue text-white hover:bg-blue-700"
+                        : "bg-gray-400 text-gray-200 cursor-not-allowed"
+                    }`}
                     onClick={() => {
-                      setOpen(true);
+                      if (user.disabilityInformation.isIdVerified) {
+                        setOpen(true);
+                      }
                     }}
+                    disabled={!user.disabilityInformation.isIdVerified}
                   >
-                    Apply
+                    {user.disabilityInformation.isIdVerified
+                      ? "Apply"
+                      : "Upload ID First"}
                   </button>
+
                   <button
                     className={`px-20 py-3 rounded border-2 font-poppins font-semibold transition-all ${
                       isJobSaved

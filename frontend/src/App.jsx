@@ -2,17 +2,22 @@ import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Loading from "./components/Loading";
+import ApplicantList from "./pages/AdminApplicantList";
 import AdminDashboard from "./pages/AdminDashboard";
+import DisabilityVerification from "./pages/AdminDisabilityVerification";
+import EmployerList from "./pages/AdminEmployerList";
+import AdminEmployerVerifyId from "./pages/AdminEmployerVerifyId";
 import AdminPanel from "./pages/AdminPanel";
 import AdminProfilePage from "./pages/AdminProfilePage";
-import AdminUserList from "./pages/AdminUserList";
 import ApplicantPage from "./pages/ApplicantPage";
 import AppliedJobs from "./pages/AppliedJobs";
+import EditEmployerPage from "./pages/EditEmployerPage";
 import EditProfileInfoPage from "./pages/EditProfileInfoPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
 import EmployerApplicantsPage from "./pages/EmployerApplicantsPage";
 import EmployerJobPage from "./pages/EmployerJobPage";
 import EmployerPage from "./pages/EmployerPage";
+import EmployerProfilePage from "./pages/EmployerProfilePage";
 import ForgotPassword from "./pages/ForgotPassword";
 import JobDetailsPage from "./pages/JobDetailsPage";
 import JobPost from "./pages/JobPost";
@@ -26,13 +31,9 @@ import UploadDisabilityIdPage from "./pages/UploadDisabilityIdPage";
 import UploadEmployerIdPage from "./pages/UploadEmployerIdPage";
 import UserBan from "./pages/UserBan";
 import UserData from "./pages/UserData";
+import UserProfilingPage from "./pages/UserProfilingPage";
 import VideoChatRoom from "./pages/VideoChatRoom";
 import { authStore } from "./stores/authStore";
-import EmployerList from "./pages/AdminEmployerList";
-import ApplicantList from "./pages/AdminApplicantList";
-
-import DisabilityVerification from "./pages/AdminDisabilityVerification";
-import AdminEmployerVerifyId from "./pages/AdminEmployerVerifyId";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();
@@ -254,6 +255,33 @@ function App() {
         />
 
         <Route
+          path="/employer-profile"
+          element={
+            <ProtectedRoute>
+              <EmployerProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/edit-employerProfile"
+          element={
+            <ProtectedRoute>
+              <EditEmployerPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/user-profiling"
+          element={
+            <ProtectedRoute>
+              <UserProfilingPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/admin"
           element={
             <ProtectedRoute>
@@ -265,10 +293,15 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="EmployerList" element={<EmployerList />} />
           <Route path="ApplicantList" element={<ApplicantList />} />
-          <Route path="AdminEmployerVerifyId" element={<AdminEmployerVerifyId />} />
+          <Route
+            path="AdminEmployerVerifyId"
+            element={<AdminEmployerVerifyId />}
+          />
           <Route path="AdminProfile" element={<AdminProfilePage />} />
-          <Route path="disabilityVerification" element={<DisabilityVerification />} />
-
+          <Route
+            path="disabilityVerification"
+            element={<DisabilityVerification />}
+          />
         </Route>
 
         <Route path="/ban" element={<UserBan />} />

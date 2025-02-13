@@ -1,5 +1,5 @@
-import Job from "../models/job.model.js";
 import Application from "../models/application.model.js";
+import Job from "../models/job.model.js";
 import User from "../models/user.model.js";
 
 export const createJob = async (req, res) => {
@@ -82,7 +82,7 @@ export const AllJobs = async (req, res) => {
     );
 
     const updatedJobs = jobs.map((job) => {
-      const jobData = job.toObject(); 
+      const jobData = job.toObject();
       if (jobData.jobAttachment) {
         jobData.jobAttachment = `${jobData.jobAttachment}`;
       }
@@ -97,46 +97,69 @@ export const AllJobs = async (req, res) => {
 
 export const getAllJobs = async (req, res) => {
   try {
-    const userPreferences = await User.findById(req.userId).select('jobPreferences');
-    
-    if (!userPreferences) {
+    const user = await User.findById(req.userId).select("jobPreferences");
+
+    if (!user || !user.jobPreferences) {
       return res.status(404).json({ message: "User preferences not found" });
     }
 
-    console.log("User Preferences:", userPreferences);
+    console.log("User Preferences:", user.jobPreferences);
 
     let filterCriteria = {};
 
-    if (userPreferences.jobPreferences) {
-      if (userPreferences.jobPreferences.jobCategory && userPreferences.jobPreferences.jobCategory !== "ALL") {
-        filterCriteria.jobCategory = userPreferences.jobPreferences.jobCategory;
-      }
-    
-      if (userPreferences.jobPreferences.jobType) {
-        filterCriteria.jobType = userPreferences.jobPreferences.jobType;
-      }
-    
-      if (userPreferences.jobPreferences.preferredLocations && userPreferences.jobPreferences.preferredLocations.length > 0) {
-        filterCriteria.locations = { $in: userPreferences.jobPreferences.preferredLocations.map(location => new RegExp(location, 'i')) }; 
-      }
-    
-      if (userPreferences.jobPreferences.expectedSalary) {
-        if (userPreferences.jobPreferences.expectedSalary.minSalary > 0) {
-          filterCriteria["expectedSalary.minSalary"] = { $gte: Number(userPreferences.jobPreferences.expectedSalary.minSalary) };
-        }
-        if (userPreferences.jobPreferences.expectedSalary.maxSalary > 0) {
-          filterCriteria["expectedSalary.maxSalary"] = { $lte: Number(userPreferences.jobPreferences.expectedSalary.maxSalary) };
-        }
-      }
-    
-      if (userPreferences.jobPreferences.jobShift) {
-        filterCriteria.jobShift = userPreferences.jobPreferences.jobShift;
-      }
-    
-      if (userPreferences.jobPreferences.jobLevel) {
-        filterCriteria.jobLevel = userPreferences.jobPreferences.jobLevel;
-      }
+    if (user.jobPreferences.jobCategories?.length > 0) {
+      filterCriteria.jobCategory = {
+        $in: user.jobPreferences.jobCategories.map((cat) =>
+          new RegExp(cat.trim(), "i")
+        ),
+      };
     }
+
+    if (user.jobPreferences.jobTypes?.length > 0) {
+      filterCriteria.jobType = {
+        $in: user.jobPreferences.jobTypes.map((type) =>
+          new RegExp(type.trim(), "i")
+        ),
+      };
+    }
+
+    if (user.jobPreferences.preferredLocations?.length > 0) {
+      filterCriteria.locations = {
+        $in: user.jobPreferences.preferredLocations.map((loc) =>
+          new RegExp(loc.trim(), "i")
+        ),
+      };
+    }
+
+    if (user.jobPreferences.preferredDisability?.length > 0) {
+      filterCriteria.preferredDisabilities = {
+        $in: user.jobPreferences.preferredDisability.map((dis) =>
+          new RegExp(dis.trim(), "i")
+        ),
+      };
+    }
+
+    if (user.jobPreferences.jobQualifications) {
+      filterCriteria.jobQualifications = new RegExp(
+        user.jobPreferences.jobQualifications.trim(),
+        "i"
+      );
+    }
+
+    if (user.jobPreferences.jobLevel) {
+      filterCriteria.jobLevel = user.jobPreferences.jobLevel;
+    }
+
+    if (user.jobPreferences.expectedSalary) {
+      const userMin = Number(user.jobPreferences.expectedSalary.minSalary) || 0;
+      const userMax = Number(user.jobPreferences.expectedSalary.maxSalary) || Infinity;
+
+      filterCriteria.$or = [
+        { "expectedSalary.minSalary": { $lte: userMax } }, 
+        { "expectedSalary.maxSalary": { $gte: userMin } },
+      ];
+    }
+
     console.log("Filter Criteria:", filterCriteria);
 
     const jobs = await Job.find(filterCriteria).populate(
@@ -146,17 +169,16 @@ export const getAllJobs = async (req, res) => {
 
     console.log("Jobs Found:", jobs);
 
-    if (jobs.length === 0) {
+    if (!jobs || jobs.length === 0) {
       return res.status(404).json({ message: "No jobs found matching the preferences" });
     }
 
-    res.status(200).json(jobs);
-  } catch (error) {
-    console.error("Error fetching jobs:", error);
-    res.status(400).json({ message: error.message });
+    return res.status(200).json(jobs);
+  } catch (err) {
+    console.error("Error fetching jobs:", err);
+    return res.status(500).json({ message: "Server error" });
   }
 };
-
 
 export const getEmployerJobs = async (req, res) => {
   try {
@@ -168,13 +190,17 @@ export const getEmployerJobs = async (req, res) => {
     );
 
     if (jobs.length === 0) {
-      return res.status(404).json({ message: "No jobs found for this employer." });
+      return res
+        .status(404)
+        .json({ message: "No jobs found for this employer." });
     }
 
     const jobsWithApplicants = await Promise.all(
       jobs.map(async (job) => {
-        const totalApplicants = await Application.countDocuments({ jobId: job._id });
-        return { ...job._doc, totalApplicants }; 
+        const totalApplicants = await Application.countDocuments({
+          jobId: job._id,
+        });
+        return { ...job._doc, totalApplicants };
       })
     );
 
@@ -194,7 +220,7 @@ export const getJobById = async (req, res) => {
       return res.status(404).json({ message: "Job not found" });
     }
 
-    const jobData = job.toObject(); 
+    const jobData = job.toObject();
     if (jobData.jobAttachment) {
       jobData.jobAttachment = `${jobData.jobAttachment}`;
     }

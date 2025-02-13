@@ -21,7 +21,17 @@ export const authStore = create((set, get) => ({
   isUpdatingResume: false,
   message: null,
   onlineUsers: [],
+  notifications: [],
   socket: null,
+
+  fetchNotifications: async () => {
+    try {
+      const response = await axios.get(`${API_URL}/notifications/notify`);
+      set({ notifications: response.data }); 
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  },
 
   signup: async (email, password, fullName, role, privacyAgreement) => {
     set({ isLoading: true, error: null });
@@ -226,13 +236,43 @@ export const authStore = create((set, get) => ({
   userProfileInfo: async (profileData) => {
     set({ isUpdatingProfileInfo: true, error: null });
     try {
-      const response = await axios.put(`${API_URL}/profilesettings/user/profile`, profileData);
+      const response = await axios.put(
+        `${API_URL}/profilesettings/user/profile`,
+        profileData
+      );
       set({ user: response.data.user });
       toast.success(response.data.message || "Profile updated successfully!");
     } catch (error) {
       console.error("Error updating user profile:", error);
 
-      const errorMessage = error.response?.data?.message || "Failed to update profile.";
+      const errorMessage =
+        error.response?.data?.message || "Failed to update profile.";
+      set({ error: errorMessage });
+      toast.error(errorMessage);
+    } finally {
+      set({ isUpdatingProfileInfo: false });
+    }
+  },
+
+  updateEmployerProfile: async (employerData) => {
+    set({ isUpdatingProfileInfo: true, error: null });
+    try {
+      const response = await axios.put(
+        `${API_URL}/profilesettings/user/employer-profile`,
+        employerData
+      );
+      if (response.data?.user) {
+        set({ user: response.data.user });
+      }
+      toast.success(response.data.message || "Profile updated successfully!");
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+      let errorMessage = "Failed to update profile.";
+      if (error.response) {
+        errorMessage = error.response.data?.message || errorMessage;
+      } else if (error.request) {
+        errorMessage = "Network error. Please check your connection.";
+      }
       set({ error: errorMessage });
       toast.error(errorMessage);
     } finally {
@@ -243,38 +283,103 @@ export const authStore = create((set, get) => ({
   updateAdminProfile: async (adminData) => {
     set({ isUpdatingProfileInfo: true, error: null });
     try {
-      const response = await axios.put(`${API_URL}/admin/update-profile`, adminData); 
-      set({ user: response.data.admin }); 
+      const response = await axios.put(
+        `${API_URL}/admin/update-profile`,
+        adminData
+      );
+      set({ user: response.data.admin });
       toast.success(response.data.message || "Profile updated successfully!");
     } catch (error) {
       console.error("Error updating admin profile:", error);
-      const errorMessage = error.response?.data?.message || "Failed to update profile.";
+      const errorMessage =
+        error.response?.data?.message || "Failed to update profile.";
       set({ error: errorMessage });
       toast.error(errorMessage);
     } finally {
       set({ isUpdatingProfileInfo: false });
     }
   },
-  
 
   connectSocket: () => {
-    const { user } = get();
-    if (!user || get().socket?.connected) return;
+    const { user, socket } = get();
+    if (!user || (socket && socket.connected)) return;
 
-    const socket = io(BASE_URL, {
-      query: {
-        userId: user._id,
-      },
+    const newSocket = io(BASE_URL, {
+      query: { userId: user._id }, 
     });
-    socket.connect();
 
-    set({ socket: socket });
+    newSocket.connect();
+    set({ socket: newSocket });
 
-    socket.on("getOnlineUsers", (userIds) => {
+    newSocket.off("newUser");
+    newSocket.off("newDisabilityId");
+    newSocket.off("receiveMessage");
+    newSocket.off("applicationShortlisted"); 
+    newSocket.off("applicationRejected"); 
+    newSocket.off("newJobApplication");  
+
+    newSocket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
     });
+
+    newSocket.on("newUser", (data) => {
+      toast.success(data.message);
+      set((state) => ({
+        notifications: [...state.notifications, data.message],
+      }));
+    });
+
+    newSocket.on("newDisabilityId", (data) => {
+      toast.success(data.message);
+      set((state) => ({
+        notifications: [...state.notifications, data.message],
+      }));
+    });
+
+    newSocket.on("receiveMessage", (message) => {
+      console.log("New message received:", message);
+    });
+
+    newSocket.on("applicationShortlisted", (data) => {
+      toast.success(data.message);
+      set((state) => ({
+        notifications: [...state.notifications, data.message],
+      }));
+    });
+
+    newSocket.on("applicationRejected", (data) => {
+      toast.success(data.message);
+      set((state) => ({
+        notifications: [...state.notifications, data.message],
+      }));
+    });
+
+    newSocket.on("newJobApplication", (data) => {
+      console.log("📩 New job application notification received:", data);
+      toast.success(`New applicant for your job post!`);
+      set((state) => ({
+        notifications: [...state.notifications, data.message],
+      }));
+    });
+
+    newSocket.on("disconnect", () => {
+      console.log("Socket disconnected");
+    });
   },
+
+  clearNotifications: () => set({ notifications: [] }),
+
   disconnectSocket: () => {
-    if (get().socket?.connected) get().socket.disconnect();
+    const { socket } = get();
+    if (socket?.connected) {
+      socket.off("newUser");
+      socket.off("newDisabilityId");
+      socket.off("receiveMessage");
+      socket.off("applicationShortlisted"); 
+      socket.off("applicationRejected"); 
+      socket.off("newJobApplication");  
+      socket.disconnect();
+    }
   },
+
 }));

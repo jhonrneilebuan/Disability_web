@@ -1,5 +1,5 @@
 import {
-  Accessibility ,
+  Accessibility,
   Banknote,
   Clock3,
   Download,
@@ -15,12 +15,14 @@ import FormatTimeDate from "../components/FormatTimeDate";
 import Modal from "../components/Modal";
 import Navbar from "../components/Navbar";
 import { jobStore } from "../stores/jobStore";
+import { authStore } from "../stores/authStore";
 
 const JobDetailsPage = () => {
   const { jobId } = useParams();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { getJobById, jobDetails, applyJobs, isLoading, error } = jobStore();
+  const {user} = authStore();
 
   useEffect(() => {
     if (jobId) {
@@ -97,7 +99,9 @@ const JobDetailsPage = () => {
         Go Back
       </button>
       <section className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-4xl font-extrabold font-poppins">{jobDetails?.jobTitle}</h2>
+        <h2 className="text-4xl font-extrabold font-poppins">
+          {jobDetails?.jobTitle}
+        </h2>
         <p className="text-2xl font-normal mt-2 font-poppins">
           {jobDetails?.employer?.fullName || "Employer Name"}/
           {jobDetails?.companyName ||
@@ -116,12 +120,16 @@ const JobDetailsPage = () => {
 
         <div className="flex items-center space-x-2 mt-4">
           <Clock3 className="h-5 w-5 text-gray-500" />
-          <p className="text-xl font-normal font-poppins">{jobDetails?.jobType}</p>
+          <p className="text-xl font-normal font-poppins">
+            {jobDetails?.jobType}
+          </p>
         </div>
 
         <div className="flex items-center space-x-2 mt-4">
           <Accessibility className="h-5 w-5 text-gray-500" />
-          <p className="text-xl font-normal font-poppins">{jobDetails?.preferredDisabilities}</p>
+          <p className="text-xl font-normal font-poppins">
+            {jobDetails?.preferredDisabilities}
+          </p>
         </div>
 
         {jobDetails?.expectedSalary?.minSalary &&
@@ -149,10 +157,21 @@ const JobDetailsPage = () => {
 
         <div className="flex space-x-7 mt-6">
           <button
-            className="px-24 py-3 bg-buttonBlue text-white rounded font-poppins font-semibold"
-            onClick={handleApplyModal}
+            className={`px-24 py-3 rounded font-poppins font-semibold transition-all ${
+              user.disabilityInformation.isIdVerified
+                ? "bg-buttonBlue text-white hover:bg-blue-700"
+                : "bg-gray-400 text-gray-200 cursor-not-allowed"
+            }`}
+            onClick={() => {
+              if (user.disabilityInformation.isIdVerified) {
+                handleApplyModal();
+              }
+            }}
+            disabled={!user.disabilityInformation.isIdVerified}
           >
-            Apply
+            {user.disabilityInformation.isIdVerified
+              ? "Apply"
+              : "Upload ID First"}
           </button>
         </div>
 
