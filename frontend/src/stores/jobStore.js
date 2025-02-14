@@ -156,7 +156,7 @@ export const jobStore = create((set, get) => ({
   getAllJobs: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.get(`${API_URL}/jobs/all`);
+      const response = await axios.get(`${API_URL}/jobs/`);
       set({
         jobPosts: response.data,
         isLoading: false,

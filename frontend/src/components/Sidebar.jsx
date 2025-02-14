@@ -63,8 +63,16 @@ const Sidebar = () => {
             <h1 className="text-2xl text-blue-gray-700 font-bold"></h1>
           )}
         </div>
+        <div className="ml-20">
+          
+        <img
+          src="/sample-logo.png"
+          alt="Admin Logo"
+          className="w-20 h-20"
+        />
+        </div>
 
-        <ul className="pt-12 space-y-2">
+        <ul className="pt-4 space-y-2">
           {" "}
           <li
             className={`flex items-center gap-4 p-2 rounded-lg hover:bg-blue-gray-100 ${

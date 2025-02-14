@@ -16,6 +16,7 @@ const ApplicantPage = () => {
   const {
     getAllJobs,
     jobPosts,
+    //error
     //isLoading,
     error,
   } = jobStore();
@@ -98,7 +99,7 @@ const ApplicantPage = () => {
       <Navbar />
 
       <main className="flex-grow flex flex-col">
-      <section className="bg-applicant-nbg-3 bg-no-repeat bg-cover bg-center flex flex-col items-center justify-start h-[50vh] w-full relative pt-32">
+      <section className="bg-applicant-nbg-3 bg-no-repeat bg-cover bg-center flex flex-col items-center justify-start h-[70vh] w-full relative pt-32">
         <h1 className="text-7xl font-bold text-center font-poppins text-white ">
             Disability Careers
           </h1>

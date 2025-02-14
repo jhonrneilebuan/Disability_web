@@ -136,7 +136,7 @@ const ApplicantList = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredApplicants.map((user) => (
+            {[...filteredApplicants].reverse().map((user) => (
               <tr key={user._id} className="text-center border">
                 <td className="p-2 border">{user.fullName}</td>
                 <td className="p-2 border">{user.email}</td>

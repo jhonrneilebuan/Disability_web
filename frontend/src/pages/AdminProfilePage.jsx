@@ -52,8 +52,8 @@ const AdminProfilePage = () => {
   };
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-gray-100 p-6">
-      <div className="flex flex-col w-full max-w-4xl bg-white rounded-xl shadow-lg overflow-hidden">
+    <main className="flex items-center justify-center h-[80vh] bg-white p-6">
+      <div className="flex flex-col w-full max-w-4xl bg-white rounded-xl shadow-lg overflow-hidden pb-10">
         
         <div className="relative h-64">
           <img
@@ -118,17 +118,17 @@ const AdminProfilePage = () => {
                 placeholder="Contact"
                 required
               />
-              <div className="flex space-x-2">
+              <div className="flex space-x-10 items-center justify-between">
                 <button
                   type="submit"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-500 transition duration-300"
+                  className="bg-blue-600 text-white px-16 py-2 rounded-lg shadow-md hover:bg-blue-500 transition duration-300"
                 >
                   Save
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="bg-gray-400 text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-500 transition duration-300"
+                  className="bg-gray-400 text-white px-16 py-2 rounded-lg shadow-md hover:bg-gray-500 transition duration-300"
                 >
                   Cancel
                 </button>
@@ -141,7 +141,7 @@ const AdminProfilePage = () => {
               <p className="text-gray-600 text-lg font-poppins">{user.contact}</p>
 
               <button
-                className="mt-4 bg-blue-600 text-white px-6 py-2 mb-10 rounded-lg shadow-md hover:bg-blue-500 transition duration-300"
+                className="mt-4 bg-blue-600 text-white px-6 py-2 mb-10 rounded-lg shadow-md hover:bg-blue-500 transition duration-300 "
                 onClick={() => setIsEditing(true)}
               >
                 Edit Profile
