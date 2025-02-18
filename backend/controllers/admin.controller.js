@@ -354,7 +354,36 @@ export const getAdminProfile = async (req, res) => {
   }
 };
 
-//id 
+//disability bar chart
+export const getAllDisabilityCounts = async (req, res) => {
+  try {
+    const applicants = await User.find(
+      {
+        role: "Applicant",
+        "disabilityInformation.disabilityType": { $exists: true },
+      },
+      { "disabilityInformation.disabilityType": 1, _id: 0 }
+    );
+
+    const disabilityCounts = {};
+
+    applicants.forEach((applicant) => {
+      const type = applicant.disabilityInformation?.disabilityType; 
+      if (type) {
+        disabilityCounts[type] = (disabilityCounts[type] || 0) + 1;
+      }
+    });
+
+    res.status(200).json(disabilityCounts);
+  } catch (error) {
+    console.error("Error fetching disability counts:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching disability counts." });
+  }
+};
+
+//id
 export const getUploadedDisabilityVerificationIds = async (req, res) => {
   try {
     const users = await User.find({

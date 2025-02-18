@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { adminStore } from "../stores/adminApi";
 
 const AdminEmployerVerifyId = () => {
@@ -9,13 +9,15 @@ const AdminEmployerVerifyId = () => {
     isAdminLoading,
   } = adminStore();
 
+  const [selectedImage, setSelectedImage] = useState(null);
+
   useEffect(() => {
     getEmployerVerificationList();
   }, [getEmployerVerificationList]);
 
   const handleVerificationUpdate = async (userId, isVerified) => {
     await updateEmployerVerificationStatus(userId, isVerified);
-    getEmployerVerificationList(); // Refresh the list after update
+    getEmployerVerificationList();
   };
 
   return (
@@ -52,14 +54,12 @@ const AdminEmployerVerifyId = () => {
                       <td className="py-3 px-4 border-b">{employer.userId}</td>
                       <td className="py-3 px-4 border-b">{employer.fullName}</td>
                       <td className="py-3 px-4 border-b">
-                        <a
-                          href={employer.verificationId}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => setSelectedImage(employer.verificationId)}
                           className="text-blue-500 underline"
                         >
                           View Image
-                        </a>
+                        </button>
                       </td>
                       <td className="py-3 px-4 border-b">
                         {employer.isIdVerified !== undefined ? (
@@ -109,6 +109,24 @@ const AdminEmployerVerifyId = () => {
             </p>
           )}
         </>
+      )}
+
+      {selectedImage && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="relative bg-white p-4 rounded-lg shadow-lg max-w-lg w-full">
+            <button
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+            >
+              ×
+            </button>
+            <img
+              src={selectedImage}
+              alt="Verification ID"
+              className="w-full h-auto rounded-lg"
+            />
+          </div>
+        </div>
       )}
     </div>
   );

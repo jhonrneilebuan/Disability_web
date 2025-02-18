@@ -164,6 +164,27 @@ export const adminStore = create((set) => ({
     }
   },
 
+  //bar chart of pwd
+  getDisabilityCounts: async () => {
+    set({ isAdminLoading: true, error: null });
+    try {
+      const response = await axios.get(`${BASE_URL}/disability-counts`);
+      set({
+        totalDisabilityCounts: response.data,
+        isAdminLoading: false,
+      });
+    } catch (error) {
+      console.error("Error fetching disability counts:", error);
+      toast.error(
+        error.response?.data?.message || "Error fetching disability counts"
+      );
+      set({
+        error:
+          error.response?.data?.message || "Error fetching disability counts",
+        isAdminLoading: false,
+      });
+    }
+  },
 
   //get user list
   getDisabilityVerificationId: async () => {

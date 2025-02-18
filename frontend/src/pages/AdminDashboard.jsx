@@ -88,6 +88,24 @@ const AdminDashboard = () => {
     ],
   };
 
+  const { totalDisabilityCounts, getDisabilityCounts } = adminStore();
+  const [disabilityChartData, setDisabilityChartData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: "Disability Type Count",
+        data: [],
+        backgroundColor: [
+          "#4e79a7",
+          "#f28e2c",
+          "#e15759",
+          "#76b7b2",
+          "#59a14f",
+        ],
+      },
+    ],
+  });
+
   useEffect(() => {
     getTotalUsers();
     getTotalEmployers();
@@ -95,6 +113,7 @@ const AdminDashboard = () => {
     getEmployerVerificationId();
     getPWDVerificationId();
     fetchNotifications();
+    getDisabilityCounts();
   }, [
     getTotalUsers,
     getTotalEmployers,
@@ -102,6 +121,7 @@ const AdminDashboard = () => {
     getEmployerVerificationId,
     getPWDVerificationId,
     fetchNotifications,
+    getDisabilityCounts,
   ]);
 
   useEffect(() => {
@@ -116,6 +136,21 @@ const AdminDashboard = () => {
       ],
     });
   }, [totalUsers, totalEmployers, totalApplicants]);
+
+  useEffect(() => {
+    if (totalDisabilityCounts) {
+      setDisabilityChartData({
+        labels: Object.keys(totalDisabilityCounts),
+        datasets: [
+          {
+            label: "Disability Type Count",
+            data: Object.values(totalDisabilityCounts),
+            backgroundColor: ["#4e79a7", "#f28e2c", "#e15759", "#76b7b2", "#59a14f"],
+          },
+        ],
+      });
+    }
+  }, [totalDisabilityCounts]);
 
   const maxValue = Math.max(totalUsers, totalEmployers, totalApplicants) + 2;
 
@@ -243,34 +278,19 @@ const AdminDashboard = () => {
       </div>
 
       <h3 className="text-2xl font-semibold mb-6 text-center">
-        User Distribution (Pie Chart)
+        Disability Statistics Overview (Bar Chart)
       </h3>
       <div className="flex justify-center items-center w-full h-64 md:h-96 bg-white p-6 rounded-lg shadow-lg overflow-auto mb-8">
-        <Pie
-          data={pieData}
+        <Bar
+          data={disabilityChartData}
           options={{
+            maintainAspectRatio: false,
             responsive: true,
             plugins: {
-              tooltip: {
-                callbacks: {
-                  label: (context) => `${context.label}: ${context.raw}`,
-                },
+              title: {
+                display: true,
+                text: "Disability Statistics Overview",
               },
-            },
-          }}
-        />
-      </div>
-
-      <h3 className="text-2xl font-semibold mb-6 text-center">
-        User Trends Over Time (Line Graph)
-      </h3>
-      <div className="flex justify-center items-center w-full h-64 md:h-96 bg-white p-6 rounded-lg shadow-lg overflow-auto">
-        <Line
-          data={lineData}
-          options={{
-            responsive: true,
-            plugins: {
-              title: { display: true, text: "User Trends Over Time" },
               tooltip: {
                 callbacks: {
                   label: (context) =>
@@ -281,12 +301,70 @@ const AdminDashboard = () => {
             scales: {
               y: {
                 beginAtZero: true,
-                max: maxValue,
+                max: Math.max(...(Object.values(totalDisabilityCounts || {}) || [0]), 0) + 1,
                 ticks: { stepSize: 1 },
               },
             },
           }}
         />
+      </div>
+
+      <div className="flex justify-between gap-8 mb-8">
+        <div
+          className="flex-1 bg-white p-6 rounded-lg shadow-lg overflow-auto"
+          style={{ maxWidth: "550px", height: "400px" }}
+        >
+          <div className="flex justify-center mb-6">
+            <h3 className="text-2xl font-semibold text-center">
+              User Distribution (Pie Chart)
+            </h3>
+          </div>
+          <div className="flex justify-center">
+            <div style={{ width: "295px", height: "295px" }}>
+              <Pie
+                data={pieData}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    tooltip: {
+                      callbacks: {
+                        label: (context) => `${context.label}: ${context.raw}`,
+                      },
+                    },
+                  },
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 bg-white p-6 rounded-lg shadow-lg overflow-auto">
+          <h3 className="text-2xl font-semibold mb-6 text-center">
+            User Trends Over Time (Line Graph)
+          </h3>
+          <Line
+            data={lineData}
+            options={{
+              responsive: true,
+              plugins: {
+                title: { display: true, text: "User Trends Over Time" },
+                tooltip: {
+                  callbacks: {
+                    label: (context) =>
+                      `${context.dataset.label}: ${context.raw}`,
+                  },
+                },
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  max: maxValue,
+                  ticks: { stepSize: 1 },
+                },
+              },
+            }}
+          />
+        </div>
       </div>
     </div>
   );

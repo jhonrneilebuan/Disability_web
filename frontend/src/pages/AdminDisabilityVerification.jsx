@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { adminStore } from "../stores/adminApi";
 
 const DisabilityVerification = () => {
@@ -8,6 +8,8 @@ const DisabilityVerification = () => {
     totaluploaddisability,
     isAdminLoading,
   } = adminStore();
+
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     getDisabilityVerificationId();
@@ -45,7 +47,6 @@ const DisabilityVerification = () => {
                 </thead>
                 <tbody>
                   {[...totaluploaddisability].reverse().map((user) => (
-                    
                     <tr
                       key={user.userId}
                       className="hover:bg-gray-50 transition"
@@ -53,14 +54,12 @@ const DisabilityVerification = () => {
                       <td className="py-3 px-4 border-b">{user.userId}</td>
                       <td className="py-3 px-4 border-b">{user.fullName}</td>
                       <td className="py-3 px-4 border-b">
-                        <a
-                          href={user.verificationId}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => setSelectedImage(user.verificationId)}
                           className="text-blue-500 underline"
                         >
                           View Image
-                        </a>
+                        </button>
                       </td>
                       <td className="py-3 px-4 border-b">
                         {user.isIdVerified !== undefined ? (
@@ -110,6 +109,24 @@ const DisabilityVerification = () => {
             </p>
           )}
         </>
+      )}
+
+      {selectedImage && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="relative bg-white p-4 rounded-lg shadow-lg max-w-lg w-full">
+            <button
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+            >
+              ×
+            </button>
+            <img
+              src={selectedImage}
+              alt="Verification ID"
+              className="w-full h-auto rounded-lg"
+            />
+          </div>
+        </div>
       )}
     </div>
   );

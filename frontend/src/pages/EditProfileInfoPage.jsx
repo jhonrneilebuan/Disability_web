@@ -1,5 +1,5 @@
 import { Loader, LogOut } from "lucide-react";
-import { useEffect, useState, } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { authStore } from "../stores/authStore";
@@ -276,13 +276,73 @@ const EditProfileInfoPage = () => {
                 className="w-full border border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
               >
                 <option value="">Select Disability Type</option>
-                <option value="Visual Impairment">Visual Impairment</option>
                 <option value="Mobility Impairment">Mobility Impairment</option>
-                <option value="Physical Disability">Physical Disability</option>
+                <option value="Amputation">Amputation</option>
+                <option value="Cerebral Palsy">Cerebral Palsy</option>
+                <option value="Muscular Dystrophy">Muscular Dystrophy</option>
+                <option value="Spinal Cord Injury">Spinal Cord Injury</option>
+                <option value="Multiple Sclerosis">Multiple Sclerosis</option>
+                <option value="Arthritis">Arthritis</option>
+                <option value="Stroke-related Disability">
+                  Stroke-related Disability
+                </option>
+                <option value="Visual Impairment">Visual Impairment</option>
+                <option value="Blindness">Blindness</option>
+                <option value="Hearing Impairment">Hearing Impairment</option>
+                <option value="Deafness">Deafness</option>
+                <option value="Deafblindness">Deafblindness</option>
+                <option value="Down Syndrome">Down Syndrome</option>
+                <option value="Autism Spectrum Disorder (ASD)">
+                  Autism Spectrum Disorder (ASD)
+                </option>
                 <option value="Intellectual Disability">
                   Intellectual Disability
                 </option>
-                <option value="Other">Other</option>
+                <option value="Learning Disability (Dyslexia, Dyscalculia, Dysgraphia)">
+                  Learning Disability (Dyslexia, Dyscalculia, Dysgraphia)
+                </option>
+                <option value="ADHD (Attention Deficit Hyperactivity Disorder)">
+                  ADHD (Attention Deficit Hyperactivity Disorder)
+                </option>
+                <option value="Dyslexia">Dyslexia</option>
+                <option value="Dyspraxia">Dyspraxia</option>
+                <option value="Tourette Syndrome">Tourette Syndrome</option>
+                <option value="Anxiety Disorder">Anxiety Disorder</option>
+                <option value="Depression">Depression</option>
+                <option value="Bipolar Disorder">Bipolar Disorder</option>
+                <option value="Schizophrenia">Schizophrenia</option>
+                <option value="Post-Traumatic Stress Disorder (PTSD)">
+                  Post-Traumatic Stress Disorder (PTSD)
+                </option>
+                <option value="Obsessive-Compulsive Disorder (OCD)">
+                  Obsessive-Compulsive Disorder (OCD)
+                </option>
+                <option value="Epilepsy">Epilepsy</option>
+                <option value="Chronic Fatigue Syndrome (CFS)">
+                  Chronic Fatigue Syndrome (CFS)
+                </option>
+                <option value="Fibromyalgia">Fibromyalgia</option>
+                <option value="Lupus">Lupus</option>
+                <option value="Diabetes-related Disability">
+                  Diabetes-related Disability
+                </option>
+                <option value="Chronic Pain">Chronic Pain</option>
+                <option value="Speech Impairment (Stuttering, Apraxia)">
+                  Speech Impairment (Stuttering, Apraxia)
+                </option>
+                <option value="Nonverbal Communication Disabilities">
+                  Nonverbal Communication Disabilities
+                </option>
+                <option value="Rare Genetic Disorders">
+                  Rare Genetic Disorders
+                </option>
+                <option value="Autoimmune Disorders affecting mobility or cognition">
+                  Autoimmune Disorders affecting mobility or cognition
+                </option>
+                <option value="Traumatic Brain Injury (TBI)">
+                  Traumatic Brain Injury (TBI)
+                </option>
+                <option value="Physical Disability">Physical Disability</option>
               </select>
             </div>
             <div>
@@ -347,7 +407,10 @@ const EditProfileInfoPage = () => {
             </ul>
           </div>
           <div className="mt-auto flex items-center space-x-2">
-            <button className="flex items-center justify-center px-4 py-2 text-white font-poppins font-medium rounded-lg shadow-sm" onClick={() => navigate(-1)}>
+            <button
+              className="flex items-center justify-center px-4 py-2 text-white font-poppins font-medium rounded-lg shadow-sm"
+              onClick={() => navigate(-1)}
+            >
               <LogOut className="w-5 h-5 mr-2" />
               Exit
             </button>

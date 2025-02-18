@@ -21,7 +21,8 @@ import {
   getPendingEmployerVerifications,
   getPendingDisabilityVerifications,
   getUploadedDisabilityVerificationIds,
-  getUploadedEmployerVerificationIds
+  getUploadedEmployerVerificationIds,
+  getAllDisabilityCounts
 } from "../controllers/admin.controller.js";
 import { admin, verifyToken } from "../middlewares/token.js";
 
@@ -47,7 +48,6 @@ router.get("/user-percentage", verifyToken, admin, getUserPercentage);
 router.put("/update-profile", verifyToken, admin, updateAdminProfile);
 router.get("/profile", verifyToken, admin, getAdminProfile);
 
-
 router.get("/disability-id/all", getUploadedDisabilityVerificationIds); 
 router.get("/disability-id/all-employer", getUploadedEmployerVerificationIds); 
 
@@ -59,6 +59,6 @@ router.put("/employer-verify/:userId", updateEmployerVerificationStatus);
 router.get("/pending-pwdID", verifyToken, admin, getPendingDisabilityVerifications);
 router.get("/pending-employerID", verifyToken, admin, getPendingEmployerVerifications);
 
-
+router.get("/disability-counts", getAllDisabilityCounts);
 
 export default router;
