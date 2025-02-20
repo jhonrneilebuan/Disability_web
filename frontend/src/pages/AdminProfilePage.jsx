@@ -1,9 +1,11 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { authStore } from "../stores/authStore";
 import { FaCamera } from "react-icons/fa";
+import AdminProfileSkeletonLoader from "../components/AdminProfileSkeletonLoader";
 
 const AdminProfilePage = () => {
   const { user, updateAdminProfile } = authStore();
+  const [loading, setLoading] = useState(true); // Start with loading true
   const [selectedImg, setSelectedImg] = useState(null);
   const [selectedCoverImg, setSelectedCoverImg] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -43,7 +45,10 @@ const AdminProfilePage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await updateAdminProfile({ fullName: formData.fullName, contact: formData.contact });
+      await updateAdminProfile({
+        fullName: formData.fullName,
+        contact: formData.contact,
+      });
       setIsEditing(false);
     } catch (error) {
       console.error("Failed to update profile:", error);
@@ -51,10 +56,27 @@ const AdminProfilePage = () => {
     }
   };
 
+  // Delay logic: ensure skeleton is shown for at least 2 seconds.
+  useEffect(() => {
+    const startTime = Date.now();
+    const delay = 2000;
+    const elapsed = Date.now() - startTime;
+    const remaining = delay - elapsed;
+    if (remaining > 0) {
+      const timer = setTimeout(() => setLoading(false), remaining);
+      return () => clearTimeout(timer);
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  if (loading) {
+    return <AdminProfileSkeletonLoader />;
+  }
+
   return (
     <main className="flex items-center justify-center h-[80vh] bg-white p-6">
       <div className="flex flex-col w-full max-w-4xl bg-white rounded-xl shadow-lg overflow-hidden pb-10">
-        
         <div className="relative h-64">
           <img
             src={selectedCoverImg || user.coverPhoto || "/default-cover.jpg"}
@@ -99,7 +121,10 @@ const AdminProfilePage = () => {
           </div>
 
           {isEditing ? (
-            <form className="mt-4 text-center space-y-4 w-full max-w-sm" onSubmit={handleSubmit}>
+            <form
+              className="mt-4 text-center space-y-4 w-full max-w-sm"
+              onSubmit={handleSubmit}
+            >
               <input
                 type="text"
                 name="fullName"
@@ -136,12 +161,16 @@ const AdminProfilePage = () => {
             </form>
           ) : (
             <div className="mt-4 text-center">
-              <h2 className="text-2xl font-bold text-gray-800 font-poppins">{user.fullName || "Admin"}</h2>
+              <h2 className="text-2xl font-bold text-gray-800 font-poppins">
+                {user.fullName || "Admin"}
+              </h2>
               <p className="text-gray-600 text-lg font-poppins">{user.email}</p>
-              <p className="text-gray-600 text-lg font-poppins">{user.contact}</p>
+              <p className="text-gray-600 text-lg font-poppins">
+                {user.contact}
+              </p>
 
               <button
-                className="mt-4 bg-blue-600 text-white px-6 py-2 mb-10 rounded-lg shadow-md hover:bg-blue-500 transition duration-300 "
+                className="mt-4 bg-blue-600 text-white px-6 py-2 mb-10 rounded-lg shadow-md hover:bg-blue-500 transition duration-300"
                 onClick={() => setIsEditing(true)}
               >
                 Edit Profile

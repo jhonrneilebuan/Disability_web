@@ -15,6 +15,7 @@ import { Bar, Line, Pie } from "react-chartjs-2";
 import { FaBell, FaBriefcase, FaClock, FaUsers } from "react-icons/fa";
 import { adminStore } from "../stores/adminApi";
 import { authStore } from "../stores/authStore";
+import AdminDashboardSkeletonLoader from "../components/AdminDashboardSkeletonLoader";
 
 ChartJS.register(
   CategoryScale,
@@ -145,7 +146,13 @@ const AdminDashboard = () => {
           {
             label: "Disability Type Count",
             data: Object.values(totalDisabilityCounts),
-            backgroundColor: ["#4e79a7", "#f28e2c", "#e15759", "#76b7b2", "#59a14f"],
+            backgroundColor: [
+              "#4e79a7",
+              "#f28e2c",
+              "#e15759",
+              "#76b7b2",
+              "#59a14f",
+            ],
           },
         ],
       });
@@ -154,8 +161,18 @@ const AdminDashboard = () => {
 
   const maxValue = Math.max(totalUsers, totalEmployers, totalApplicants) + 2;
 
-  if (isAdminLoading) {
-    return <div className="text-center text-xl font-semibold">Loading...</div>;
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(delay);
+  }, [isAdminLoading]);
+
+  if (loading) {
+    return <AdminDashboardSkeletonLoader />;
   }
 
   if (error) {
@@ -301,7 +318,11 @@ const AdminDashboard = () => {
             scales: {
               y: {
                 beginAtZero: true,
-                max: Math.max(...(Object.values(totalDisabilityCounts || {}) || [0]), 0) + 1,
+                max:
+                  Math.max(
+                    ...(Object.values(totalDisabilityCounts || {}) || [0]),
+                    0
+                  ) + 1,
                 ticks: { stepSize: 1 },
               },
             },

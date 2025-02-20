@@ -6,10 +6,11 @@ import {
   unbanUserApi,
   updateEmployer,
 } from "../stores/adminApi";
+import AdminListSkeletonLoader from "../components/AdminListSkeletonLoader";
 
 const EmployerList = () => {
   const [employers, setEmployers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start with loading true
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBanned, setFilterBanned] = useState("All");
@@ -34,13 +35,20 @@ const EmployerList = () => {
 
   const fetchEmployers = async () => {
     setLoading(true);
+    const startTime = Date.now();
     try {
       const response = await fetchUsersApi();
       setEmployers(response.data.employers);
     } catch (err) {
       setError("Failed to fetch employers.");
     } finally {
-      setLoading(false);
+      const elapsed = Date.now() - startTime;
+      const remainingDelay = 2000 - elapsed;
+      if (remainingDelay > 0) {
+        setTimeout(() => setLoading(false), remainingDelay);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
@@ -71,7 +79,6 @@ const EmployerList = () => {
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     if (!selectedUser) return;
-
     try {
       await updateEmployer(selectedUser._id, formData);
       fetchEmployers();
@@ -90,12 +97,13 @@ const EmployerList = () => {
       (user) => filterBanned === "All" || String(user.banned) === filterBanned
     );
 
+  if (loading) {
+    return <AdminListSkeletonLoader />;
+  }
+
   return (
     <div className="p-6 bg--100 min-h-screen">
       <h1 className="text-2xl font-bold mb-4">EMPLOYER LIST</h1>
-      {loading && (
-        <p className="text-center text-gray-500">Loading employers...</p>
-      )}
       {error && <p className="text-center text-red-500">{error}</p>}
 
       <div className="flex space-x-4 mb-6">
@@ -138,10 +146,7 @@ const EmployerList = () => {
                     className="bg-blue-500 text-white p-1 rounded"
                     onClick={() => {
                       setSelectedUser(user);
-                      setFormData({
-                        ...user,
-                        password: "", // Reset password for security
-                      });
+                      setFormData({ ...user, password: "" });
                       setIsModalOpen(true);
                     }}
                   >
@@ -196,7 +201,6 @@ const EmployerList = () => {
                     className="border p-2 w-full rounded"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <label>Contact:</label>
                   <input
@@ -230,7 +234,7 @@ const EmployerList = () => {
                         ...formData,
                         isVerified: e.target.value === "true",
                       })
-                    } 
+                    }
                     className="border p-2 w-full rounded"
                   >
                     <option value="true">Yes</option>

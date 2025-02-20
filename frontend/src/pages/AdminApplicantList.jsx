@@ -6,10 +6,11 @@ import {
   unbanUserApi,
   updateApplicant,
 } from "../stores/adminApi";
+import AdminListSkeletonLoader from "../components/AdminListSkeletonLoader";
 
 const ApplicantList = () => {
   const [applicants, setApplicants] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Initialize as true
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBanned, setFilterBanned] = useState("All");
@@ -34,13 +35,22 @@ const ApplicantList = () => {
 
   const fetchApplicants = async () => {
     setLoading(true);
+    const startTime = Date.now();
     try {
       const response = await fetchUsersApi();
       setApplicants(response.data.applicants);
     } catch (err) {
       setError("Failed to fetch applicants.");
     } finally {
-      setLoading(false);
+      const elapsed = Date.now() - startTime;
+      const remainingDelay = 2000 - elapsed;
+      if (remainingDelay > 0) {
+        setTimeout(() => {
+          setLoading(false);
+        }, remainingDelay);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
@@ -71,10 +81,9 @@ const ApplicantList = () => {
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     if (!selectedUser) return;
-
     try {
       await updateApplicant(selectedUser._id, formData);
-      fetchApplicants(); 
+      fetchApplicants();
       setIsModalOpen(false);
       setSelectedUser(null);
     } catch (error) {
@@ -98,12 +107,13 @@ const ApplicantList = () => {
     "Other",
   ];
 
+  if (loading) {
+    return <AdminListSkeletonLoader />;
+  }
+
   return (
     <div className="p-6 bg--100 min-h-screen">
       <h1 className="text-2xl font-bold mb-4">APPLICANT LIST</h1>
-      {loading && (
-        <p className="text-center text-gray-500">Loading applicants...</p>
-      )}
       {error && <p className="text-center text-red-500">{error}</p>}
 
       <div className="flex space-x-4 mb-6">
@@ -146,10 +156,7 @@ const ApplicantList = () => {
                     className="bg-blue-500 text-white p-1 rounded"
                     onClick={() => {
                       setSelectedUser(user);
-                      setFormData({
-                        ...user,
-                        password: "", // Reset password for security
-                      });
+                      setFormData({ ...user, password: "" });
                       setIsModalOpen(true);
                     }}
                   >
@@ -204,7 +211,6 @@ const ApplicantList = () => {
                     className="border p-2 w-full rounded"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <label>Contact:</label>
                   <input
@@ -249,7 +255,7 @@ const ApplicantList = () => {
                         ...formData,
                         isVerified: e.target.value === "true",
                       })
-                    } 
+                    }
                     className="border p-2 w-full rounded"
                   >
                     <option value="true">Yes</option>
