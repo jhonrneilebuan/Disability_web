@@ -6,7 +6,8 @@ import {
   getEmployerJobs,
   getJobById,
   getTotalJobs,
-  AllJobs
+  AllJobs, 
+  updateJob
 } from "../controllers/job.controller.js";
 import { verifyToken, employerOnly } from "../middlewares/token.js";
 import { uploadFiles } from "../middlewares/file_upload.js";
@@ -30,5 +31,8 @@ router.get("/post-job", verifyToken, employerOnly, getEmployerJobs);
 router.get("/:id", getJobById);
 
 router.delete("/:id", verifyToken, deleteJobById)
+
+router.put("/update/:jobId", verifyToken, employerOnly, updateJob);
+
 
 export default router;
