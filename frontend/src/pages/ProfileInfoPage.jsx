@@ -10,17 +10,41 @@ const ProfileInfoPage = () => {
   const { user, updateProfile, updateCoverPhoto } = authStore();
   const [selectedImg, setSelectedImg] = useState(null);
   const [selectedCoverImg, setSelectedCoverImg] = useState(null);
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
-    }, 2000); // Simulating API fetch delay
+    }, 2000);
   }, []);
 
-  const handleVerification = () => {
-    navigate("/uploadId");
+  // Handle profile photo upload
+  const handleProfilePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedImg(imageUrl);
+
+      // Upload function
+      const formData = new FormData();
+      formData.append("profilePicture", file);
+      updateProfile(formData);
+    }
+  };
+
+  // Handle cover photo upload
+  const handleCoverPhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedCoverImg(imageUrl);
+
+      // Upload function
+      const formData = new FormData();
+      formData.append("coverPhoto", file);
+      updateCoverPhoto(formData);
+    }
   };
 
   return (
@@ -34,11 +58,23 @@ const ProfileInfoPage = () => {
               <SkeletonLoader className="w-full h-full rounded-t-xl" />
             ) : (
               <img
-                src={selectedCoverImg || user.coverPhoto || "/default-cover.jpg"}
+                src={
+                  selectedCoverImg || user.coverPhoto || "/default-cover.jpg"
+                }
                 alt="Cover"
                 className="w-full h-full object-cover rounded-t-xl"
               />
             )}
+            {/* Cover photo upload button */}
+            <label className="absolute bottom-4 right-4 bg-black bg-opacity-50 p-2 rounded-full cursor-pointer">
+              <Camera className="w-6 h-6 text-white" />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleCoverPhotoUpload}
+              />
+            </label>
           </div>
 
           {/* Profile Picture & Basic Info */}
@@ -53,6 +89,16 @@ const ProfileInfoPage = () => {
                   className="w-full h-full object-cover rounded-full border-4 border-blue-500 shadow-lg"
                 />
               )}
+              {/* Profile photo upload button */}
+              <label className="absolute bottom-2 right-2 bg-black bg-opacity-50 p-2 rounded-full cursor-pointer">
+                <Camera className="w-5 h-5 text-white" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleProfilePhotoUpload}
+                />
+              </label>
             </div>
             <div className="text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start">
@@ -67,7 +113,9 @@ const ProfileInfoPage = () => {
               {loading ? (
                 <SkeletonLoader className="w-40 h-4 mt-2 rounded-md" />
               ) : (
-                <p className="text-gray-600 mt-2 font-poppins">{user.email || "N/A"}</p>
+                <p className="text-gray-600 mt-2 font-poppins">
+                  {user.email || "N/A"}
+                </p>
               )}
             </div>
           </div>
@@ -75,11 +123,15 @@ const ProfileInfoPage = () => {
           {/* Bio Section */}
           <div className="flex flex-col gap-6 px-8 py-4">
             <div className="bg-gradient-to-r from-gray-50 to-white rounded-lg p-6 shadow-md">
-              <h1 className="font-poppins font-bold text-xl text-gray-800">Bio</h1>
+              <h1 className="font-poppins font-bold text-xl text-gray-800">
+                Bio
+              </h1>
               {loading ? (
                 <SkeletonLoader className="w-full h-6 mt-2 rounded-md" />
               ) : (
-                <p className="text-sm font-poppins text-gray-600 mt-2">{user.bio || "N/A"}</p>
+                <p className="text-sm font-poppins text-gray-600 mt-2">
+                  {user.bio || "N/A"}
+                </p>
               )}
             </div>
           </div>
@@ -122,12 +174,29 @@ const ProfileInfoPage = () => {
             </h2>
             <div className="space-y-6 font-poppins">
               {[
-                { label: "Field of Work", value: user.careerInformation?.fieldOfWork || "N/A" },
-                { label: "Education", value: user.careerInformation?.education || "N/A" },
-                { label: "Work Experience", value: user.careerInformation?.workExperience || "N/A" },
+                {
+                  label: "Field of Work",
+                  value: user.careerInformation?.fieldOfWork || "N/A",
+                },
+                {
+                  label: "Education",
+                  value: user.careerInformation?.education || "N/A",
+                },
+                {
+                  label: "Work Experience",
+                  value: user.careerInformation?.workExperience || "N/A",
+                },
+                {
+                  label: "Skills",
+                  value: user.careerInformation?.skills?.length
+                    ? user.careerInformation.skills.join(", ")
+                    : "N/A",
+                },
               ].map((info, index) => (
                 <div key={index} className="flex">
-                  <span className="font-medium w-48 text-gray-700">{info.label}</span>
+                  <span className="font-medium w-48 text-gray-700">
+                    {info.label}
+                  </span>
                   {loading ? (
                     <SkeletonLoader className="w-40 h-5 ml-2 rounded-md" />
                   ) : (
@@ -147,7 +216,9 @@ const ProfileInfoPage = () => {
               {[
                 {
                   label: "Status",
-                  value: user.disabilityInformation?.isIdVerified ? "Verified" : "Not Verified",
+                  value: user.disabilityInformation?.isIdVerified
+                    ? "Verified"
+                    : "Not Verified",
                 },
                 {
                   label: "Disability Type",
@@ -155,11 +226,14 @@ const ProfileInfoPage = () => {
                 },
                 {
                   label: "Accessibility Needs",
-                  value: user.disabilityInformation?.accessibilityNeeds || "N/A",
+                  value:
+                    user.disabilityInformation?.accessibilityNeeds || "N/A",
                 },
               ].map((info, index) => (
                 <div key={index} className="flex">
-                  <span className="font-medium w-48 text-gray-700">{info.label}</span>
+                  <span className="font-medium w-48 text-gray-700">
+                    {info.label}
+                  </span>
                   {loading ? (
                     <SkeletonLoader className="w-40 h-5 ml-2 rounded-md" />
                   ) : (
