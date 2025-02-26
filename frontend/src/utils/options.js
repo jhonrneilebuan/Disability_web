@@ -1,5 +1,4 @@
 export const disabilityOptions = [
-  // { value: "Any", label: "Any" },
   { value: "Mobility Impairment", label: "Mobility Impairment" },
   { value: "Amputation", label: "Amputation" },
   { value: "Cerebral Palsy", label: "Cerebral Palsy" },
@@ -14,16 +13,10 @@ export const disabilityOptions = [
   { value: "Deafness", label: "Deafness" },
   { value: "Deafblindness", label: "Deafblindness" },
   { value: "Down Syndrome", label: "Down Syndrome" },
-  {
-    value: "Autism Spectrum Disorder (ASD)",
-    label: "Autism Spectrum Disorder (ASD)",
-  },
+  { value: "Autism Spectrum Disorder (ASD)", label: "Autism Spectrum Disorder (ASD)" },
   { value: "Intellectual Disability", label: "Intellectual Disability" },
-  {
-    value: "Learning Disability",
-    label: "Learning Disability (Dyslexia, Dyscalculia, Dysgraphia)",
-  },
-  { value: "ADHD", label: "ADHD (Attention Deficit Hyperactivity Disorder)" },
+  { value: "Learning Disability (Dyslexia, Dyscalculia, Dysgraphia)", label: "Learning Disability (Dyslexia, Dyscalculia, Dysgraphia)" },
+  { value: "ADHD (Attention Deficit Hyperactivity Disorder)", label: "ADHD (Attention Deficit Hyperactivity Disorder)" },
   { value: "Dyslexia", label: "Dyslexia" },
   { value: "Dyspraxia", label: "Dyspraxia" },
   { value: "Tourette Syndrome", label: "Tourette Syndrome" },
@@ -31,31 +24,19 @@ export const disabilityOptions = [
   { value: "Depression", label: "Depression" },
   { value: "Bipolar Disorder", label: "Bipolar Disorder" },
   { value: "Schizophrenia", label: "Schizophrenia" },
-  { value: "PTSD", label: "Post-Traumatic Stress Disorder (PTSD)" },
-  { value: "OCD", label: "Obsessive-Compulsive Disorder (OCD)" },
+  { value: "Post-Traumatic Stress Disorder (PTSD)", label: "Post-Traumatic Stress Disorder (PTSD)" },
+  { value: "Obsessive-Compulsive Disorder (OCD)", label: "Obsessive-Compulsive Disorder (OCD)" },
   { value: "Epilepsy", label: "Epilepsy" },
-  { value: "CFS", label: "Chronic Fatigue Syndrome (CFS)" },
+  { value: "Chronic Fatigue Syndrome (CFS)", label: "Chronic Fatigue Syndrome (CFS)" },
   { value: "Fibromyalgia", label: "Fibromyalgia" },
   { value: "Lupus", label: "Lupus" },
-  {
-    value: "Diabetes-related Disability",
-    label: "Diabetes-related Disability",
-  },
+  { value: "Diabetes-related Disability", label: "Diabetes-related Disability" },
   { value: "Chronic Pain", label: "Chronic Pain" },
-  {
-    value: "Speech Impairment",
-    label: "Speech Impairment (Stuttering, Apraxia)",
-  },
-  {
-    value: "Nonverbal Communication Disabilities",
-    label: "Nonverbal Communication Disabilities",
-  },
+  { value: "Speech Impairment (Stuttering, Apraxia)", label: "Speech Impairment (Stuttering, Apraxia)" },
+  { value: "Nonverbal Communication Disabilities", label: "Nonverbal Communication Disabilities" },
   { value: "Rare Genetic Disorders", label: "Rare Genetic Disorders" },
-  {
-    value: "Autoimmune Disorders",
-    label: "Autoimmune Disorders affecting mobility or cognition",
-  },
-  { value: "Traumatic Brain Injury", label: "Traumatic Brain Injury (TBI)" },
+  { value: "Autoimmune Disorders affecting mobility or cognition", label: "Autoimmune Disorders affecting mobility or cognition" },
+  { value: "Traumatic Brain Injury (TBI)", label: "Traumatic Brain Injury (TBI)" },
 ];
 
 export const languageOptions = [
