@@ -113,7 +113,7 @@ const JobDetailsPage = () => {
           <div className="flex items-center space-x-2 mt-4">
             <MapPinned className="h-5 w-5 text-gray-500" />
             <p className="text-xl font-normal font-poppins">
-              {jobDetails?.locations.join(", ")}
+              {jobDetails.locations.join(", ").replace(/[\[\]"]+/g, "")} 
             </p>
           </div>
         )}
@@ -208,14 +208,14 @@ const JobDetailsPage = () => {
               </div>
             </li>
 
-            <li className="border-b pb-4">
+            {/* <li className="border-b pb-4">
               <div className="flex justify-between items-center">
                 <p className="text-lg font-medium">Job Experience:</p>
                 <span className="text-lg">
-                  {jobDetails?.jobExperience || "Not specified"}
+                  {jobDetails?.jobExperience?.replace(/[\[\]"]+/g, "") || "Not specified"}
                 </span>
               </div>
-            </li>
+            </li> */}
 
             <li className="border-b pb-4">
               <div className="flex justify-between items-center">
@@ -231,12 +231,12 @@ const JobDetailsPage = () => {
                 <p className="text-lg font-medium mb-2">Job Skills:</p>
                 <ul className="flex flex-wrap gap-4">
                   {jobDetails?.jobSkills?.length > 0 ? (
-                    jobDetails?.jobSkills.map((skill, index) => (
+                    jobDetails.jobSkills.map((skill, index) => (
                       <li
                         key={index}
                         className="text-lg text-black bg-gray-200 px-4 py-2 rounded-full"
                       >
-                        {skill}
+                        {skill.replace(/[\[\]"]+/g, "")} 
                       </li>
                     ))
                   ) : (

@@ -371,7 +371,7 @@ const JobsPage = () => {
                   <div className="flex items-center space-x-2">
                     <MapPinned className="h-5 w-5 text-gray-500" />
                     <p className="text-xl font-normal">
-                      {selectedJob.locations.join(", ")}
+                      {selectedJob.locations.join(", ").replace(/[\[\]"]+/g, "")}
                     </p>
                   </div>
                 )}
@@ -473,14 +473,14 @@ const JobsPage = () => {
                         </span>
                       </div>
                     </li>
-                    <li className="border-b pb-4">
+                    {/* <li className="border-b pb-4">
                       <div className="flex justify-between items-center">
                         <p className="text-base font-medium">Job Experience:</p>
                         <span className="text-base">
                           {selectedJob.jobExperience || "Not specified"}
                         </span>
                       </div>
-                    </li>
+                    </li> */}
                     <li className="border-b pb-4">
                       <div className="flex justify-between items-center">
                         <p className="text-base font-medium">
@@ -504,7 +504,7 @@ const JobsPage = () => {
                                 key={index}
                                 className="text-base text-black bg-gray-200 px-4 py-2 rounded-full"
                               >
-                                {skill}
+                                {skill.replace(/[\[\]"]+/g, "")}
                               </li>
                             ))
                           ) : (
