@@ -602,7 +602,6 @@ export const jobStore = create((set, get) => ({
     locations,
     preferredLanguage,
     jobQualifications,
-    jobExperience,
     jobType,
     jobShift,
     jobLevel,
@@ -623,7 +622,6 @@ export const jobStore = create((set, get) => ({
       formData.append("jobCategory", jobCategory);
       formData.append("preferredLanguage", preferredLanguage);
       formData.append("jobQualifications", jobQualifications);
-      formData.append("jobExperience", jobExperience);
       formData.append("jobType", jobType);
       formData.append("jobShift", jobShift);
       formData.append("jobLevel", jobLevel);
@@ -668,4 +666,34 @@ export const jobStore = create((set, get) => ({
       throw error;
     }
   },
+  updateJob: async (jobId, updatedData) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.put(`${API_URL}/jobs/update/${jobId}`, updatedData, {
+        
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      }
+    
+    );
+      set({
+        jobPosts: get().jobPosts.map(job => job._id === jobId ? response.data : job),
+        isLoading: false,
+      });
+      toast.success(response.data.message || "Job updated successfully.");
+      return response.data;
+
+    } catch (error) {
+      console.error("Error updating job:", error);
+      toast.error(error.response?.data?.message || "Error updating job");
+      set({
+        error: error.response?.data?.message || "Error updating job",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
 }));

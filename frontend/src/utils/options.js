@@ -1,5 +1,5 @@
 export const disabilityOptions = [
-  { value: "Any", label: "Any" },
+  // { value: "Any", label: "Any" },
   { value: "Mobility Impairment", label: "Mobility Impairment" },
   { value: "Amputation", label: "Amputation" },
   { value: "Cerebral Palsy", label: "Cerebral Palsy" },
@@ -60,5 +60,20 @@ export const disabilityOptions = [
 
 export const languageOptions = [
   { value: "ENGLISH", label: "English" },
-  { value: "TAGALOG", label: "Tagalog" },
+  { value: "FILIPINO", label: "Filipino" },
+  { value: "CEBUANO", label: "Cebuano" },
+  { value: "ILOCANO", label: "Ilocano" },
+  { value: "HILIGAYNON", label: "Hiligaynon" },
+  { value: "WARAY", label: "Waray" },
+  { value: "KAPAMPANGAN", label: "Kapampangan" },
+  { value: "PANGASINAN", label: "Pangasinan" },
+  { value: "BICOLANO", label: "Bicolano" },
+  { value: "MARANAO", label: "Maranao" },
+  { value: "MAGUINDANAO", label: "Maguindanao" },
+  { value: "TAUSUG", label: "Tausug" },
+  { value: "CHAVACANO", label: "Chavacano" },
+  { value: "AKLANON", label: "Aklanon" },
+  { value: "KANKANAEY", label: "Kankanaey" },
+  { value: "IFUGAO", label: "Ifugao" },
+  { value: "IVATAN", label: "Ivatan" }
 ];

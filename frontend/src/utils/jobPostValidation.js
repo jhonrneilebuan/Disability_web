@@ -12,17 +12,20 @@ export const validateJobDescription = (jobDescription) =>
 export const validateJobCategory = (jobCategory) =>
   jobCategory ? null : "Job category is required";
 
-export const validatePreferredDisability = (preferredDisability) => {
-  if (Array.isArray(preferredDisability)) {
-    if (
-      preferredDisability.length === 0 ||
-      preferredDisability.includes("Any")
-    ) {
-      return null;
-    }
-  }
-  return "Preferred disability is required";
-};
+// export const validatePreferredDisability = (preferredDisability) => {
+//   if (Array.isArray(preferredDisability)) {
+//     if (
+//       preferredDisability.length === 0 ||
+//       preferredDisability.includes("Any")
+//     ) {
+//       return null;
+//     }
+//   }
+//   return "Preferred disability is required";
+// };
+export const validatePreferredDisability = (preferredDisability) =>
+  preferredDisability ? null : "Preferred disability is required";
+
 
 export const validateApplicationDeadline = (applicationDeadline) =>
   applicationDeadline ? null : "Application deadline is required";
@@ -68,6 +71,11 @@ export const validateLocation = (locations) => {
 
 export const validateJobSkills = (jobSkills) =>
   jobSkills.length > 0 ? null : "At least one job skill is required.";
+
+// export const validateJobSkills = (jobSkills) =>
+//   Array.isArray(jobSkills) && jobSkills.length > 0
+//     ? null
+//     : "At least one job skill is required.";
 
 export const validateJobAttachment = (jobAttachment) => {
   if (!jobAttachment) {
