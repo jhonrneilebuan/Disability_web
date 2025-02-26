@@ -51,7 +51,8 @@ export default {
         "applicant-nbg-4": "url('bgbgbg.jpg')",
         "applicant-nbg-5": "url('bgbgbgbg.jpg')",
         "applicant-nbg-6": "url('bgbgbgbgbg.jpg')",
-        "sample-logo":"url('sample-logo.png')"
+        "sample-logo":"url('sample-logo.png')",
+        "abtusimg":"url(abtusimg.jpg)"
       },
       textShadow: {
         default: "2px 2px 4px rgba(0, 0, 0, 0.5)",
