@@ -10,7 +10,7 @@ import { jobStore } from "../stores/jobStore";
 
 const UpdateModal = ({ open, onClose, job }) => {
   const [isSuccess, setIsSuccess] = useState(false);
-  const { updateJob } = jobStore();
+  const { updateJob, getEmployerJobs } = jobStore();
   const [keepPreviousAttachment, setKeepPreviousAttachment] = useState(true);
   const [showFileInput, setShowFileInput] = useState(false); 
 
@@ -84,7 +84,7 @@ const UpdateModal = ({ open, onClose, job }) => {
         setIsSuccess(true);
         formik.setFieldValue("previousAttachment", updatedJob.jobAttachment);
         console.log("Updated previousAttachment:", updatedJob.jobAttachment);
-
+        await getEmployerJobs();
       } catch (error) {
         console.error("Error updating job:", error);
         if (error.response && error.response.status === 401) {
