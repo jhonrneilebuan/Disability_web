@@ -4,6 +4,7 @@ import Modal from "../components/Modal";
 import NavbarEmployer from "../components/NavbarEmployer";
 import Sidebar from "../components/Sidebar";
 import { jobStore } from "../stores/jobStore";
+import SkeletonLoader from "../components/SkeletonLoader"; 
 
 const EmployerApplicantsPage = () => {
   const {
@@ -154,15 +155,33 @@ const EmployerApplicantsPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td
-                      colSpan="5"
-                      className="px-4 py-2 text-center text-sm text-gray-700"
-                    >
-                      Loading...
-                    </td>
-                  </tr>
+                {isLoading ? ( 
+                  [...Array(5)].map((_, index) => (
+                    <tr key={index} className="border-b border-gray-300">
+                      <td className="px-4 py-2 text-sm text-gray-700 text-center font-poppins">
+                        <SkeletonLoader className="h-4 w-3/4 mx-auto" />
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-700 text-center font-poppins">
+                        <div className="flex items-center justify-center space-x-2">
+                          <SkeletonLoader className="w-9 h-9 rounded-full" />
+                          <SkeletonLoader className="h-4 w-24" />
+                        </div>
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-700 text-center font-poppins">
+                        <SkeletonLoader className="h-6 w-16 mx-auto rounded-full" />
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-700 text-center font-poppins">
+                        <SkeletonLoader className="h-4 w-20 mx-auto" />
+                      </td>
+                      <td className="px-4 py-2 text-sm">
+                        <div className="flex justify-center space-x-3">
+                          <SkeletonLoader className="h-8 w-24 rounded-full" />
+                          <SkeletonLoader className="h-8 w-24 rounded-full" />
+                          <SkeletonLoader className="h-8 w-24 rounded-full" />
+                        </div>
+                      </td>
+                    </tr>
+                  ))
                 ) : error ? (
                   <tr>
                     <td

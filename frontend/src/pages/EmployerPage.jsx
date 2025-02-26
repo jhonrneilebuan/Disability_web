@@ -22,7 +22,7 @@ import { Bar, Line } from "react-chartjs-2";
 import NavbarEmployer from "../components/NavbarEmployer";
 import Sidebar from "../components/Sidebar";
 import { jobStore } from "../stores/jobStore";
-import SkeletonLoader from "../components/SkeletonLoader"; // Import the SkeletonLoader
+import SkeletonLoader from "../components/SkeletonLoader";
 
 ChartJS.register(
   CategoryScale,
@@ -108,48 +108,44 @@ const EmployerPage = () => {
                 Job & Application Summary
               </h3>
               <div className="flex justify-between gap-4">
-                {totalApplicants === undefined ? (
-                  <SkeletonLoader className="w-1/3 h-24" />
+                {isChartLoading ? (
+                  <>
+                    <SkeletonLoader className="w-1/3 h-32" />
+                    <SkeletonLoader className="w-1/3 h-32" />
+                    <SkeletonLoader className="w-1/3 h-32" />
+                  </>
                 ) : (
-                  <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
-                    <div className="bg-blue-300 p-2 rounded-full">
-                      <User size={20} className="text-blue-600" />
+                  <>
+                    <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
+                      <div className="bg-blue-300 p-2 rounded-full">
+                        <User size={20} className="text-blue-600" />
+                      </div>
+                      <h4 className="text-md font-semibold mt-1">
+                        Total Applicants
+                      </h4>
+                      <p className="text-xl font-bold mt-1">
+                        {totalApplicants ?? "0"}
+                      </p>
                     </div>
-                    <h4 className="text-md font-semibold mt-1">
-                      Total Applicants
-                    </h4>
-                    <p className="text-xl font-bold mt-1">
-                      {totalApplicants ?? "0"}
-                    </p>
-                  </div>
-                )}
-
-                {totalJobs === undefined ? (
-                  <SkeletonLoader className="w-1/3 h-24" />
-                ) : (
-                  <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
-                    <div className="bg-green-300 p-2 rounded-full">
-                      <Briefcase size={20} className="text-green-800" />
+                    <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
+                      <div className="bg-green-300 p-2 rounded-full">
+                        <Briefcase size={20} className="text-green-800" />
+                      </div>
+                      <h4 className="text-md font-semibold mt-1">Total Jobs</h4>
+                      <p className="text-xl font-bold mt-1">{totalJobs ?? "0"}</p>
                     </div>
-                    <h4 className="text-md font-semibold mt-1">Total Jobs</h4>
-                    <p className="text-xl font-bold mt-1">{totalJobs ?? "0"}</p>
-                  </div>
-                )}
-
-                {totalInterview === undefined ? (
-                  <SkeletonLoader className="w-1/3 h-24" />
-                ) : (
-                  <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
-                    <div className="bg-yellow-300 p-2 rounded-full">
-                      <VideoIcon size={20} className="text-yellow-700" />
+                    <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
+                      <div className="bg-yellow-300 p-2 rounded-full">
+                        <VideoIcon size={20} className="text-yellow-700" />
+                      </div>
+                      <h4 className="text-base font-semibold mt-1">
+                        Total Interviews
+                      </h4>
+                      <p className="text-xl font-bold mt-1">
+                        {totalInterview ?? "0"}
+                      </p>
                     </div>
-                    <h4 className="text-base font-semibold mt-1">
-                      Total Interviews
-                    </h4>
-                    <p className="text-xl font-bold mt-1">
-                      {totalInterview ?? "0"}
-                    </p>
-                  </div>
+                  </>
                 )}
               </div>
             </div>
@@ -159,50 +155,46 @@ const EmployerPage = () => {
                 Application Status
               </h3>
               <div className="flex justify-between gap-4">
-                {totalHired === undefined ? (
-                  <SkeletonLoader className="w-1/3 h-24" />
+                {isChartLoading ? (
+                  <>
+                    <SkeletonLoader className="w-1/3 h-32" />
+                    <SkeletonLoader className="w-1/3 h-32" />
+                    <SkeletonLoader className="w-1/3 h-32" />
+                  </>
                 ) : (
-                  <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
-                    <div className="bg-green-300 p-2 rounded-full">
-                      <CheckCircle size={20} className="text-green-800" />
+                  <>
+                    <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
+                      <div className="bg-green-300 p-2 rounded-full">
+                        <CheckCircle size={20} className="text-green-800" />
+                      </div>
+                      <h4 className="text-md font-semibold mt-1">Total Hired</h4>
+                      <p className="text-xl font-bold mt-1">
+                        {totalHired ?? "0"}
+                      </p>
                     </div>
-                    <h4 className="text-md font-semibold mt-1">Total Hired</h4>
-                    <p className="text-xl font-bold mt-1">
-                      {totalHired ?? "0"}
-                    </p>
-                  </div>
-                )}
-
-                {totalPending === undefined ? (
-                  <SkeletonLoader className="w-1/3 h-24" />
-                ) : (
-                  <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
-                    <div className="bg-yellow-300 p-2 rounded-full">
-                      <Clock size={20} className="text-yellow-700" />
+                    <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
+                      <div className="bg-yellow-300 p-2 rounded-full">
+                        <Clock size={20} className="text-yellow-700" />
+                      </div>
+                      <h4 className="text-md font-semibold mt-1">
+                        Total Pending
+                      </h4>
+                      <p className="text-xl font-bold mt-1">
+                        {totalPending ?? "0"}
+                      </p>
                     </div>
-                    <h4 className="text-md font-semibold mt-1">
-                      Total Pending
-                    </h4>
-                    <p className="text-xl font-bold mt-1">
-                      {totalPending ?? "0"}
-                    </p>
-                  </div>
-                )}
-
-                {totalShortlist === undefined ? (
-                  <SkeletonLoader className="w-1/3 h-24" />
-                ) : (
-                  <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
-                    <div className="bg-blue-300 p-2 rounded-full">
-                      <UserCheck size={20} className="text-blue-600" />
+                    <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
+                      <div className="bg-blue-300 p-2 rounded-full">
+                        <UserCheck size={20} className="text-blue-600" />
+                      </div>
+                      <h4 className="text-md font-semibold mt-1">
+                        Total Shortlisted
+                      </h4>
+                      <p className="text-xl font-bold mt-1">
+                        {totalShortlist ?? "0"}
+                      </p>
                     </div>
-                    <h4 className="text-md font-semibold mt-1">
-                      Total Shortlisted
-                    </h4>
-                    <p className="text-xl font-bold mt-1">
-                      {totalShortlist ?? "0"}
-                    </p>
-                  </div>
+                  </>
                 )}
               </div>
             </div>
@@ -218,7 +210,9 @@ const EmployerPage = () => {
                 <h3 className="text-xl font-semibold text-center mb-4">
                   Applicants Over Time
                 </h3>
-                {totalDataOfApplicants ? (
+                {isChartLoading ? (
+                  <SkeletonLoader className="h-56" />
+                ) : (
                   <Line
                     data={totalDataOfApplicants}
                     options={{
@@ -229,8 +223,6 @@ const EmployerPage = () => {
                       },
                     }}
                   />
-                ) : (
-                  <SkeletonLoader className="h-48" />
                 )}
               </div>
 
@@ -239,8 +231,8 @@ const EmployerPage = () => {
                   Job Applicants Chart
                 </h3>
                 {isChartLoading ? (
-                  <SkeletonLoader className="h-48" />
-                ) : chartData?.datasets?.length > 0 ? (
+                  <SkeletonLoader className="h-56" />
+                ) : (
                   <Bar
                     data={chartData}
                     options={{
@@ -261,8 +253,6 @@ const EmployerPage = () => {
                       },
                     }}
                   />
-                ) : (
-                  <SkeletonLoader className="h-48" />
                 )}
               </div>
             </div>

@@ -9,6 +9,7 @@ import { authStore } from "../stores/authStore";
 import { jobStore } from "../stores/jobStore";
 import ViewModal from "../components/ViewModal";
 import UpdateModal from "../components/UpdateModal"; 
+import SkeletonLoader from "../components/SkeletonLoader";
 
 const EmployerJobPage = () => {
   const [open, setOpen] = useState(false);
@@ -33,7 +34,7 @@ const EmployerJobPage = () => {
 
   const {
     jobPosts,
-    //isLoading,
+    isLoading,
     //error,
     getEmployerJobs,
     deleteJobPost,
@@ -150,7 +151,28 @@ const EmployerJobPage = () => {
           </div>
           <hr />
           <div key={filteredJobs.length} className="overflow-y-auto max-h-[80vh] pb-5">
-            {filteredJobs.length > 0 ? (
+            {isLoading ? ( 
+              [...Array(5)].map((_, index) => (
+                <div key={index} className="p-4 bg-white shadow-md m-2 relative">
+                  <SkeletonLoader className="h-6 w-1/2 mb-2" />
+                  <SkeletonLoader className="h-4 w-1/3 mb-2" />
+                  <div className="flex items-center mt-2 justify-between">
+                    <div className="flex items-center">
+                      <SkeletonLoader className="h-4 w-24 mr-4" />
+                      <SkeletonLoader className="h-4 w-24" />
+                    </div>
+                    <div className="flex items-center">
+                      <SkeletonLoader className="h-4 w-16 mr-2" />
+                      <SkeletonLoader className="h-4 w-16 mr-2" />
+                      <SkeletonLoader className="h-4 w-16" />
+                    </div>
+                  </div>
+                  <div className="absolute top-4 right-4">
+                    <SkeletonLoader className="h-6 w-6 rounded-full" />
+                  </div>
+                </div>
+              ))
+            ) : filteredJobs.length > 0 ? (
               [...filteredJobs].reverse().map((job) => (
                 <div
                   key={job._id}
