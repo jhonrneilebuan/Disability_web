@@ -35,6 +35,7 @@ import UserProfilingPage from "./pages/UserProfilingPage";
 import VideoChatRoom from "./pages/VideoChatRoom";
 import { authStore } from "./stores/authStore";
 import PrivacyPage from "./pages/PrivacyPage";
+import HowItWorks from "./pages/HowItWorks";
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();
   if (!isAuthenticated) {
@@ -158,12 +159,7 @@ function App() {
             </RedirectAuthenticatedUser>
           }
         />
-        <Route
-         path="/privacy-policy" 
-         element={
-           <PrivacyPage />
-           } 
-        />
+        <Route path="/privacy-policy" element={<PrivacyPage />} />
         <Route
           path="/verify-email"
           element={
@@ -308,6 +304,7 @@ function App() {
             path="disabilityVerification"
             element={<DisabilityVerification />}
           />
+          <Route path="howitworks" element={<HowItWorks />} />
         </Route>
 
         <Route path="/ban" element={<UserBan />} />

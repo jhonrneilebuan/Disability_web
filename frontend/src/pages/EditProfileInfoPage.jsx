@@ -260,7 +260,6 @@ const EditProfileInfoPage = () => {
     if (hasErrors) {
       setErrors(newErrors);
 
-      // Show modal with error message
       setModalMessage("Please check again for the errors before submitting.");
       setShowModal(true);
 
@@ -469,8 +468,6 @@ const EditProfileInfoPage = () => {
                 className="w-full border border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
               >
                 <option value="">Select Disability Type</option>
-
-                {/* Physical Disabilities */}
                 <option value="Mobility Impairment">Mobility Impairment</option>
                 <option value="Amputation">Amputation</option>
                 <option value="Cerebral Palsy">Cerebral Palsy</option>
@@ -478,87 +475,38 @@ const EditProfileInfoPage = () => {
                 <option value="Spinal Cord Injury">Spinal Cord Injury</option>
                 <option value="Multiple Sclerosis">Multiple Sclerosis</option>
                 <option value="Arthritis">Arthritis</option>
-                <option value="Stroke-related Disability">
-                  Stroke-related Disability
-                </option>
-                <option value="Spina Bifida">Spina Bifida</option>
-                <option value="Dwarfism">Dwarfism</option>
-                <option value="Parkinson's Disease">Parkinson's Disease</option>
-
-                {/* Visual Impairments */}
+                <option value="Stroke-related Disability">Stroke-related Disability</option>
                 <option value="Visual Impairment">Visual Impairment</option>
                 <option value="Blindness">Blindness</option>
-                <option value="Retinitis Pigmentosa">
-                  Retinitis Pigmentosa
-                </option>
-                <option value="Macular Degeneration">
-                  Macular Degeneration
-                </option>
-                <option value="Glaucoma">Glaucoma</option>
-                <option value="Albinism (Vision Impairment)">
-                  Albinism (Vision Impairment)
-                </option>
-
-                {/* Hearing Impairments */}
                 <option value="Hearing Impairment">Hearing Impairment</option>
                 <option value="Deafness">Deafness</option>
                 <option value="Deafblindness">Deafblindness</option>
-                <option value="Tinnitus">Tinnitus</option>
-                <option value="Meniere’s Disease">Meniere’s Disease</option>
-
-                {/* Cognitive & Developmental Disabilities */}
                 <option value="Down Syndrome">Down Syndrome</option>
-                <option value="Autism Spectrum Disorder (ASD)">
-                  Autism Spectrum Disorder (ASD)
-                </option>
-                <option value="Intellectual Disability">
-                  Intellectual Disability
-                </option>
-                <option value="Learning Disability (Dyslexia, Dyscalculia, Dysgraphia)">
-                  Learning Disability (Dyslexia, Dyscalculia, Dysgraphia)
-                </option>
-                <option value="Attention Deficit Hyperactivity Disorder (ADHD)">
-                  Attention Deficit Hyperactivity Disorder (ADHD)
-                </option>
-                <option value="Traumatic Brain Injury (TBI)">
-                  Traumatic Brain Injury (TBI)
-                </option>
-                <option value="Fetal Alcohol Spectrum Disorder (FASD)">
-                  Fetal Alcohol Spectrum Disorder (FASD)
-                </option>
+                <option value="Autism Spectrum Disorder (ASD)">Autism Spectrum Disorder (ASD)</option>
+                <option value="Intellectual Disability">Intellectual Disability</option>
+                <option value="Learning Disability (Dyslexia, Dyscalculia, Dysgraphia)">Learning Disability (Dyslexia, Dyscalculia, Dysgraphia)</option>
+                <option value="ADHD (Attention Deficit Hyperactivity Disorder)">ADHD (Attention Deficit Hyperactivity Disorder)</option>
+                <option value="Dyslexia">Dyslexia</option>
+                <option value="Dyspraxia">Dyspraxia</option>
                 <option value="Tourette Syndrome">Tourette Syndrome</option>
-
-                {/* Mental Health Disabilities */}
-                <option value="Schizophrenia">Schizophrenia</option>
+                <option value="Anxiety Disorder">Anxiety Disorder</option>
+                <option value="Depression">Depression</option>
                 <option value="Bipolar Disorder">Bipolar Disorder</option>
-                <option value="Severe Depression">Severe Depression</option>
-                <option value="Obsessive-Compulsive Disorder (OCD)">
-                  Obsessive-Compulsive Disorder (OCD)
-                </option>
-                <option value="Post-Traumatic Stress Disorder (PTSD)">
-                  Post-Traumatic Stress Disorder (PTSD)
-                </option>
-                <option value="Anxiety Disorders">Anxiety Disorders</option>
-
-                {/* Chronic Illnesses & Other Disabilities */}
+                <option value="Schizophrenia">Schizophrenia</option>
+                <option value="Post-Traumatic Stress Disorder (PTSD)">Post-Traumatic Stress Disorder (PTSD)</option>
+                <option value="Obsessive-Compulsive Disorder (OCD)">Obsessive-Compulsive Disorder (OCD)</option>
                 <option value="Epilepsy">Epilepsy</option>
-                <option value="Cystic Fibrosis">Cystic Fibrosis</option>
-                <option value="Chronic Fatigue Syndrome (CFS)">
-                  Chronic Fatigue Syndrome (CFS)
-                </option>
+                <option value="Chronic Fatigue Syndrome (CFS)">Chronic Fatigue Syndrome (CFS)</option>
                 <option value="Fibromyalgia">Fibromyalgia</option>
                 <option value="Lupus">Lupus</option>
-                <option value="Crohn’s Disease">Crohn’s Disease</option>
-                <option value="Irritable Bowel Syndrome (IBS)">
-                  Irritable Bowel Syndrome (IBS)
-                </option>
-                <option value="Sickle Cell Disease">Sickle Cell Disease</option>
-                <option value="Ehlers-Danlos Syndrome">
-                  Ehlers-Danlos Syndrome
-                </option>
-                <option value="Myalgic Encephalomyelitis (ME)">
-                  Myalgic Encephalomyelitis (ME)
-                </option>
+                <option value="Diabetes-related Disability">Diabetes-related Disability</option>
+                <option value="Chronic Pain">Chronic Pain</option>
+                <option value="Speech Impairment (Stuttering, Apraxia)">Speech Impairment (Stuttering, Apraxia)</option> 
+                <option value="Nonverbal Communication Disabilities">Nonverbal Communication Disabilities</option>
+                <option value="Rare Genetic Disorders">Rare Genetic Disorders</option>
+                <option value="Autoimmune Disorders affecting mobility or cognition">Autoimmune Disorders affecting mobility or cognition</option>
+                <option value="Traumatic Brain Injury (TBI)">Traumatic Brain Injury (TBI)</option>
+                <option value="Physical Disability">Physical Disability</option>
               </select>
             </div>
 

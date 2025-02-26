@@ -354,7 +354,6 @@ export const getAdminProfile = async (req, res) => {
   }
 };
 
-//disability bar chart
 export const getAllDisabilityCounts = async (req, res) => {
   try {
     const applicants = await User.find(
@@ -383,7 +382,6 @@ export const getAllDisabilityCounts = async (req, res) => {
   }
 };
 
-//id
 export const getUploadedDisabilityVerificationIds = async (req, res) => {
   try {
     const users = await User.find({
@@ -408,7 +406,6 @@ export const getUploadedDisabilityVerificationIds = async (req, res) => {
   }
 };
 
-//user list id
 export const getDisabilityVerificationId = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -428,7 +425,6 @@ export const getDisabilityVerificationId = async (req, res) => {
   }
 };
 
-//approved and  reject
 export const updateDisabilityVerificationStatus = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -473,8 +469,6 @@ export const updateDisabilityVerificationStatus = async (req, res) => {
   }
 };
 
-
-
 export const getUploadedEmployerVerificationIds = async (req, res) => {
   try {
     const users = await User.find({
@@ -499,7 +493,6 @@ export const getUploadedEmployerVerificationIds = async (req, res) => {
   }
 };
 
-
 export const getEmployerVerificationId = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -518,7 +511,6 @@ export const getEmployerVerificationId = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
-
 
 export const updateEmployerVerificationStatus = async (req, res) => {
   try {
@@ -563,7 +555,6 @@ export const updateEmployerVerificationStatus = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
-
 
 export const getPendingDisabilityVerifications = async (req, res) => {
   try {
