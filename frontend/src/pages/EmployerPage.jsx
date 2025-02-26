@@ -231,7 +231,7 @@ const EmployerPage = () => {
                   Job Applicants Chart
                 </h3>
                 {isChartLoading ? (
-                  <SkeletonLoader className="h-56" />
+                  <SkeletonLoader className="h-48" />
                 ) : (
                   <Bar
                     data={chartData}
