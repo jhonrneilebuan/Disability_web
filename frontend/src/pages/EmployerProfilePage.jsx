@@ -1,4 +1,4 @@
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, ChevronLeft } from "lucide-react"; 
 import { useState } from "react";
 import { FaCamera } from "react-icons/fa";
 import NavbarEmployer from "../components/NavbarEmployer";
@@ -33,12 +33,25 @@ const EmployerProfilePage = () => {
   };
 
   const handleVerification = () => {
-    navigate("/uploademployerId")
+    navigate("/uploademployerId");
+  };
+
+  const handleBackToDashboard = () => {
+    navigate("/employer"); 
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen font-[Poppins]">
+    <div className="bg-gray-50 min-h-screen">
       <NavbarEmployer />
+      <div className="flex items-center justify-start p-6">
+        <button
+          onClick={handleBackToDashboard}
+          className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors duration-300"
+        >
+          <ChevronLeft className="w-6 h-6" />
+          <span className="text-lg font-medium">Back to Dashboard</span>
+        </button>
+      </div>
       <main className="flex items-center justify-center p-6 mt-5">
         <div className="w-full max-w-4xl bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 pb-10 ">
           <div className="relative h-64 bg-gray-200 ">
