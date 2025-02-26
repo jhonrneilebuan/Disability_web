@@ -102,4 +102,54 @@ export default (keepPreviousAttachment) =>
         })
       )
       .min(1, "At least one preferred disability is required"),
+    // preferredDisabilities: yup
+    // .array()
+    // .of(yup.string().required("Preferred disability is required")) // Validate as array of strings
+    // .min(1, "At least one preferred disability is required"),
+    // preferredDisabilities: yup
+    //   .array()
+    //   .of(
+    //     yup
+    //       .string()
+    //       .oneOf([
+    //         "Mobility Impairment",
+    //         "Amputation",
+    //         "Cerebral Palsy",
+    //         "Muscular Dystrophy",
+    //         "Spinal Cord Injury",
+    //         "Multiple Sclerosis",
+    //         "Arthritis",
+    //         "Stroke-related Disability",
+    //         "Visual Impairment",
+    //         "Blindness",
+    //         "Hearing Impairment",
+    //         "Deafness",
+    //         "Deafblindness",
+    //         "Down Syndrome",
+    //         "Autism Spectrum Disorder (ASD)",
+    //         "Intellectual Disability",
+    //         "Learning Disability (Dyslexia, Dyscalculia, Dysgraphia)",
+    //         "ADHD (Attention Deficit Hyperactivity Disorder)",
+    //         "Dyslexia",
+    //         "Dyspraxia",
+    //         "Tourette Syndrome",
+    //         "Anxiety Disorder",
+    //         "Depression",
+    //         "Bipolar Disorder",
+    //         "Schizophrenia",
+    //         "Post-Traumatic Stress Disorder (PTSD)",
+    //         "Obsessive-Compulsive Disorder (OCD)",
+    //         "Epilepsy",
+    //         "Chronic Fatigue Syndrome (CFS)",
+    //         "Fibromyalgia",
+    //         "Lupus",
+    //         "Diabetes-related Disability",
+    //         "Chronic Pain",
+    //         "Speech Impairment (Stuttering, Apraxia)",
+    //         "Nonverbal Communication Disabilities",
+    //         "Rare Genetic Disorders",
+    //         "Autoimmune Disorders affecting mobility or cognition",
+    //         "Traumatic Brain Injury (TBI)",
+    //       ])
+    //   ),
   });
