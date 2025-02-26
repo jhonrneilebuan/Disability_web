@@ -72,10 +72,10 @@ const jobSchema = new mongoose.Schema(
       ],
       required: true,
     },
-    jobExperience: {
-      type: String,
-      required: true,
-    },
+    // jobExperience: {
+    //   type: String,
+    //   required: true,
+    // },
     jobType: {
       type: String,
       enum: ["Full-Time", "Part-Time", "Freelance", "Contract", "Internship"],
@@ -115,7 +115,7 @@ const jobSchema = new mongoose.Schema(
     preferredDisabilities: {
       type: [String],
       enum: [
-        "Any",
+        // "Any",
   "Mobility Impairment",
   "Amputation",
   "Cerebral Palsy",

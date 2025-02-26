@@ -13,7 +13,7 @@ export const createJob = async (req, res) => {
       locations,
       preferredLanguage,
       jobQualifications,
-      jobExperience,
+      // jobExperience,
       jobType,
       jobShift,
       jobLevel,
@@ -41,8 +41,8 @@ export const createJob = async (req, res) => {
       employer.employerInformation?.companyAddress,
     ];
     const finalPreferredDisabilities = preferredDisabilities?.length
-      ? preferredDisabilities
-      : ["Any"];
+    ? preferredDisabilities
+    : []; //inalis ko lang yung "Any" saglit
 
     const job = await Job.create({
       employer: req.userId,
@@ -54,7 +54,7 @@ export const createJob = async (req, res) => {
       locations: finalLocations,
       preferredLanguage,
       jobQualifications,
-      jobExperience,
+      // jobExperience,
       jobType,
       jobShift,
       jobLevel,
@@ -304,7 +304,6 @@ export const updateJob = async (req, res) => {
       locations,
       preferredLanguage,
       jobQualifications,
-      jobExperience,
       jobType,
       jobShift,
       jobLevel,
@@ -313,9 +312,19 @@ export const updateJob = async (req, res) => {
       preferredDisabilities,
     } = req.body;
 
-    const expectedSalary = req.body.expectedSalary
-      ? JSON.parse(req.body.expectedSalary)
-      : undefined;
+    let expectedSalary;
+    if (req.body.expectedSalary) {
+      if (typeof req.body.expectedSalary === 'string') {
+        try {
+          expectedSalary = JSON.parse(req.body.expectedSalary);
+        } catch (error) {
+          console.error("Error parsing expectedSalary:", error);
+          return res.status(400).json({ message: "Invalid expectedSalary format" });
+        }
+      } else {
+        expectedSalary = req.body.expectedSalary;
+      }
+    }
 
     const jobAttachmentPath = req.files?.jobAttachment?.[0]?.filename
       ? `http://localhost:8080/uploads/${req.files.jobAttachment[0].filename}`
@@ -329,7 +338,6 @@ export const updateJob = async (req, res) => {
     job.locations = locations || job.locations;
     job.preferredLanguage = preferredLanguage || job.preferredLanguage;
     job.jobQualifications = jobQualifications || job.jobQualifications;
-    job.jobExperience = jobExperience || job.jobExperience;
     job.jobType = jobType || job.jobType;
     job.jobShift = jobShift || job.jobShift;
     job.jobLevel = jobLevel || job.jobLevel;
