@@ -14,6 +14,7 @@ const EditEmployerPage = () => {
     },
   });
 
+  const [errors, setErrors] = useState({});
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleInputChange = (e) => {
@@ -32,8 +33,43 @@ const EditEmployerPage = () => {
     }
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Full Name is required.";
+    }
+
+    if (!formData.contact.trim()) {
+      newErrors.contact = "Contact is required.";
+    } else if (!/^\d{11}$/.test(formData.contact)) {
+      newErrors.contact = "Contact must be exactly 11 digits.";
+    }
+
+    if (!formData.age) {
+      newErrors.age = "Age is required.";
+    } else if (formData.age < 18 || formData.age > 99) {
+      newErrors.age = "Age must be between 18 and 99.";
+    }
+
+    if (!formData.employerInformation.companyName.trim()) {
+      newErrors.companyName = "Company Name is required.";
+    }
+
+    if (!formData.employerInformation.companyAddress.trim()) {
+      newErrors.companyAddress = "Company Address is required.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
+
     setIsUpdating(true);
     try {
       await updateEmployerProfile(formData);
@@ -50,7 +86,10 @@ const EditEmployerPage = () => {
     <div className="min-h-screen p-6 bg-gray-100 flex items-center justify-center font-poppins">
       <div className="container max-w-screen-lg mx-auto">
         <div className="bg-white rounded shadow-lg p-8 md:p-10 mb-6">
-          <form onSubmit={handleSubmit} className="grid gap-6 text-base grid-cols-1 lg:grid-cols-3">
+          <form
+            onSubmit={handleSubmit}
+            className="grid gap-6 text-base grid-cols-1 lg:grid-cols-3"
+          >
             <div className="text-gray-600">
               <p className="font-medium text-xl">Personal Details</p>
               <p className="text-lg">Please fill out all the fields.</p>
@@ -67,6 +106,9 @@ const EditEmployerPage = () => {
                   className="h-12 border mt-1 rounded-lg px-4 w-full bg-gray-50 text-lg"
                   required
                 />
+                {errors.fullName && (
+                  <span className="text-red-500">{errors.fullName}</span>
+                )}
               </div>
 
               <div className="md:col-span-5">
@@ -79,6 +121,9 @@ const EditEmployerPage = () => {
                   className="h-12 border mt-1 rounded-lg px-4 w-full bg-gray-50 text-lg"
                   required
                 />
+                {errors.contact && (
+                  <span className="text-red-500">{errors.contact}</span>
+                )}
               </div>
 
               <div className="md:col-span-2">
@@ -93,6 +138,9 @@ const EditEmployerPage = () => {
                   max="99"
                   required
                 />
+                {errors.age && (
+                  <span className="text-red-500">{errors.age}</span>
+                )}
               </div>
 
               <div className="md:col-span-3">
@@ -104,6 +152,9 @@ const EditEmployerPage = () => {
                   onChange={handleInputChange}
                   className="h-12 border mt-1 rounded-lg px-4 w-full bg-gray-50 text-lg"
                 />
+                {errors.companyName && (
+                  <span className="text-red-500">{errors.companyName}</span>
+                )}
               </div>
 
               <div className="md:col-span-5">
@@ -115,6 +166,9 @@ const EditEmployerPage = () => {
                   onChange={handleInputChange}
                   className="h-12 border mt-1 rounded-lg px-4 w-full bg-gray-50 text-lg"
                 />
+                {errors.companyAddress && (
+                  <span className="text-red-500">{errors.companyAddress}</span>
+                )}
               </div>
 
               <div className="md:col-span-5 text-right">
@@ -135,4 +189,3 @@ const EditEmployerPage = () => {
 };
 
 export default EditEmployerPage;
-   
