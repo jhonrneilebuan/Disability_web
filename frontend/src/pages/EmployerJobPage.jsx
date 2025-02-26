@@ -7,9 +7,13 @@ import NavbarEmployer from "../components/NavbarEmployer";
 import Sidebar from "../components/Sidebar";
 import { authStore } from "../stores/authStore";
 import { jobStore } from "../stores/jobStore";
+import ViewModal from "../components/ViewModal";
+import UpdateModal from "../components/UpdateModal"; 
 
 const EmployerJobPage = () => {
   const [open, setOpen] = useState(false);
+  const [openViewModal, setOpenViewModal] = useState(false);
+  const [openUpdateModal, setOpenUpdateModal] = useState(false); 
   const [selectedJob, setSelectedJob] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchSubmitted, setIsSearchSubmitted] = useState(false);
@@ -22,6 +26,8 @@ const EmployerJobPage = () => {
       setIsDropdownOpen(null);
     } else {
       setIsDropdownOpen(jobId);
+      console.log("iesefsd", jobId);
+      
     }
   };
 
@@ -35,6 +41,7 @@ const EmployerJobPage = () => {
 
   useEffect(() => {
     getEmployerJobs();
+    console.log("Job Posts:", jobPosts);
   }, [getEmployerJobs]);
 
   useEffect(() => {
@@ -53,12 +60,19 @@ const EmployerJobPage = () => {
     }
   };
 
-  const filteredJobs = jobPosts.filter((job) => {
-    if (isSearchSubmitted) {
-      return job.jobTitle.toLowerCase().includes(searchQuery.toLowerCase());
-    }
-    return true;
-  });
+  // const filteredJobs = jobPosts.filter((job) => {
+  //   if (isSearchSubmitted) {
+  //     return job.jobTitle.toLowerCase().includes(searchQuery.toLowerCase());
+  //   }
+  //   return true;
+  // });
+  const filteredJobs = jobPosts
+  .filter((job) => {
+    return isSearchSubmitted
+      ? job.jobTitle.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
+  })
+  .filter((job) => job.employer);
 
   const handleDeleteJob = async () => {
     if (!selectedJob) return;
@@ -68,6 +82,28 @@ const EmployerJobPage = () => {
       setOpen(false);
     } catch (error) {
       console.error("Failed to delete job:", error);
+    }
+  };
+
+  const handleView = (job, action) => {
+    setSelectedJob(job);
+    setOpenViewModal(true);
+  };
+
+  const handleUpdate = async (updatedJobData) => {
+    if (!selectedJob) return;
+  
+    try {
+      console.log("Updating job with ID:", selectedJob._id, "Data:", updatedJobData);
+      await jobStore.updateJob(selectedJob._id, updatedJobData);
+  
+      console.log("Fetching latest job posts...");
+      await getEmployerJobs();
+  
+      console.log("Closing update modal...");
+      setOpenUpdateModal(false);
+    } catch (error) {
+      console.error("Failed to update job:", error);
     }
   };
 
@@ -109,10 +145,11 @@ const EmployerJobPage = () => {
               <BriefcaseBusiness className="w-4 h-4 me-2" />
               {user.employerInformation.isIdVerified
                       ? "Post a Job"
-                      : "Upload ID First"}            </Link>
+                      : "Upload ID First"}            
+                      </Link>
           </div>
           <hr />
-          <div className="overflow-y-auto max-h-[80vh] pb-5">
+          <div key={filteredJobs.length} className="overflow-y-auto max-h-[80vh] pb-5">
             {filteredJobs.length > 0 ? (
               [...filteredJobs].reverse().map((job) => (
                 <div
@@ -124,8 +161,9 @@ const EmployerJobPage = () => {
                   </h3>
                   <div className="flex items-center mt-2">
                     <span className="text-sm text-gray-600 font-poppins font-semibold">
-                      {job.employer.fullName || "N/A"} |{" "}
-                      {job.companyName || "N/A"}
+                    {/* {job.employer ? job.employer.fullName : "N/A"} |{" "} */}
+                    {job.employer.fullName || "N/A"} |{" "}
+                    {job.companyName || "N/A"}
                     </span>
                   </div>
                   <div className="flex items-center mt-2 justify-between">
@@ -163,10 +201,10 @@ const EmployerJobPage = () => {
                       <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full mr-2 font-poppins font-semibold">
                         {job.preferredLanguage || "N/A"}
                       </span>
-                      <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200  rounded-full mr-2 font-poppins font-semibold">
+                      <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full mr-2 font-poppins font-semibold">
                         {job.jobType || "N/A"}
                       </span>
-                      <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200  rounded-full font-poppins font-semibold">
+                      <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full font-poppins font-semibold">
                         {job.jobLevel || "N/A"}
                       </span>
                     </div>
@@ -186,13 +224,16 @@ const EmployerJobPage = () => {
                         <div className="absolute right-0 mt-2 bg-white shadow-md rounded-md w-28 z-10 font-poppins font-semibold">
                           <button
                             className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                            onClick={() => {}}
+                            onClick={() => handleView(job, "view")}
                           >
                             View
                           </button>
                           <button
                             className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                            onClick={() => {}}
+                            onClick={() => {
+                              setSelectedJob(job);
+                              setOpenUpdateModal(true); 
+                            }}
                           >
                             Update
                           </button>
@@ -212,7 +253,7 @@ const EmployerJobPage = () => {
                 </div>
               ))
             ) : (
-              <p className="text-center font-poppins ">No jobs found.</p>
+              <p className="text-center font-poppins">No jobs found.</p>
             )}
           </div>
         </div>
@@ -242,6 +283,23 @@ const EmployerJobPage = () => {
               </div>
             </div>
           </Modal>
+        )}
+
+        {openViewModal && (
+          <ViewModal
+            open={openViewModal}
+            onClose={() => setOpenViewModal(false)}
+            job={selectedJob}
+          />
+        )}
+
+        {openUpdateModal && (
+          <UpdateModal
+            open={openUpdateModal}
+            onClose={() => setOpenUpdateModal(false)}
+            job={selectedJob}
+            onUpdate={handleUpdate} 
+          />
         )}
       </div>
     </div>

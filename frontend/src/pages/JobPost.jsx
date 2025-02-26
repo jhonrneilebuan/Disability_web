@@ -1,3 +1,4 @@
+import { useFormik } from "formik";
 import { motion } from "framer-motion";
 import { CircleCheck, Undo2 } from "lucide-react";
 import { useState } from "react";
@@ -5,108 +6,90 @@ import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import Sidebar from "../components/Sidebar";
 import { jobStore } from "../stores/jobStore";
-import { validateJobForm } from "../utils/jobPostValidation"; 
 import { disabilityOptions, languageOptions } from "../utils/options";
+import jobPostSchema from "../validations/jobpost";
 
 const JobPosts = () => {
   const navigate = useNavigate();
-  const [showApplyLink, setShowApplyLink] = useState(false);
-  const [skillInput, setSkillInput] = useState("");
-  const [skills, setSkills] = useState([]);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [selectedDisabilities, setSelectedDisabilities] = useState([]);
-  const [selectedLanguage, setSelectedLanguage] = useState(null);
-  const [errors, setErrors] = useState({});
+  const { createJob } = jobStore();
 
-  const {
-    //isLoading,
-    //error,
-    createJob,
-  } = jobStore();
+  const formik = useFormik({
+    initialValues: {
+      companyName: "",
+      jobTitle: "",
+      jobDescription: "",
+      jobCategory: "",
+      applicationDeadline: "",
+      locations: "",
+      preferredLanguage: null,
+      jobQualifications: "",
+      jobType: "",
+      jobShift: "",
+      jobLevel: "",
+      expectedSalary: {
+        minSalary: 0,
+        maxSalary: 0,
+      },
+      jobSkills: [],
+      jobAttachment: null,
+      applyWithLink: "",
+      preferredDisabilities: [],
+      showApplyLink: false,
+    },
+    validationSchema: jobPostSchema,
+    onSubmit: async (values) => {
+      console.log("Formik onSubmit triggered with values:", values);
+      try {
+        const jobData = {
+          ...values,
+          preferredLanguage: values.preferredLanguage ? values.preferredLanguage.value : "Any",
+          preferredDisabilities: values.preferredDisabilities.map((disability) => disability.value),
+        };
+        console.log("Prepared jobData for submission:", jobData);
+        await createJob(jobData);
+        console.log("Job created successfully");
+        setIsSuccess(true);
+      } catch (error) {
+        console.error("Error creating job:", error);
+        alert("There was an error creating your job. Please try again.");
+      }
+    },
+  });
+
+  console.log("Formik values:", formik.values);
+  console.log("Formik errors:", formik.errors);
+  console.log("Formik touched:", formik.touched);
 
   const handleSkillInputChange = (e) => {
-    setSkillInput(e.target.value);
-  };
-
-  const handleSkillKeyDown = (e) => {
-    if (e.key === "," || e.key === "Enter") {
-      e.preventDefault();
-      const newSkill = skillInput.trim();
-      if (newSkill && !skills.includes(newSkill)) {
-        setSkills([...skills, newSkill]);
+    if ((e.key === "," || e.key === "Enter") && e.target.value.trim()) {
+      const newSkill = e.target.value.trim();
+      console.log("Adding new skill:", newSkill);
+      if (!formik.values.jobSkills.includes(newSkill)) {
+        formik.setFieldValue("jobSkills", [...formik.values.jobSkills, newSkill]);
       }
-      setSkillInput("");
+      e.target.value = "";
     }
   };
 
   const removeSkill = (skillToRemove) => {
-    setSkills(skills.filter((skill) => skill !== skillToRemove));
-  };
-
-  const handleCreateJob = async (event) => {
-    event.preventDefault();
-    
-    console.log("Submit button clicked");
-  
-    const formData = new FormData(event.target);
-    
-    const validationErrors = validateJobForm(formData, selectedLanguage, selectedDisabilities, showApplyLink, skills);
-  
-    const filteredErrors = Object.fromEntries(
-      Object.entries(validationErrors).filter(([key, value]) => value !== null)
+    console.log("Removing skill:", skillToRemove);
+    formik.setFieldValue(
+      "jobSkills",
+      formik.values.jobSkills.filter((skill) => skill !== skillToRemove)
     );
-  
-    if (Object.keys(filteredErrors).length > 0) {
-      setErrors(filteredErrors);
-      return;
-    }
-  
-    try {
-      await createJob({
-        companyName: formData.get("companyName")?.trim(),
-        jobTitle: formData.get("jobTitle")?.trim(),
-        jobDescription: formData.get("jobDescription")?.trim(),
-        jobCategory: formData.get("jobCategory"),
-        applicationDeadline: formData.get("applicationDeadline"),
-        locations: formData.get("locations")?.split(",").map((loc) => loc.trim()),
-        preferredLanguage: selectedLanguage ? selectedLanguage.value : "Any",
-        jobQualifications: formData.get("jobQualifications"),
-        jobExperience: formData.get("jobExperience"),
-        jobType: formData.get("jobType"),
-        jobShift: formData.get("jobShift"),
-        jobLevel: formData.get("jobLevel"),
-        applyWithLink: showApplyLink ? formData.get("applyWithLink") : null,
-        jobSkills: skills,
-        expectedSalary: { 
-          minSalary: parseFloat(formData.get("minSalary")) || 0, 
-          maxSalary: parseFloat(formData.get("maxSalary")) || 0 
-        },
-        jobAttachment: formData.get("jobAttachment"),
-        preferredDisabilities: selectedDisabilities.map((disability) => disability.value),
-      });
-  
-      console.log("Job created successfully");
-      setIsSuccess(true);
-    } catch (error) {
-      console.error("Error creating job:", error);
-      alert("There was an error creating your job. Please try again.");
-    }
   };
-  
 
   if (isSuccess) {
+    console.log("Success screen rendered");
     return (
       <div className="h-screen font-poppins flex">
         <Sidebar />
         <div className="w-full bg-gray-50 p-8">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center text-black mb-6"
-          >
+          <button onClick={() => navigate(-1)} className="flex items-center text-black mb-6">
             <Undo2 className="w-5 h-5 mr-2" />
             Go Back
           </button>
-
           <div className="flex items-center justify-center h-[85vh]">
             <div className="bg-white shadow-2xl rounded-lg p-10 mx-auto max-w-lg w-full">
               <div className="text-center">
@@ -139,68 +122,77 @@ const JobPosts = () => {
     <div className="h-screen font-poppins flex">
       <Sidebar />
       <div className="w-full bg-gray-50 p-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center text-black mb-6"
-        >
+        <button onClick={() => navigate(-1)} className="flex items-center text-black mb-6">
           <Undo2 className="w-5 h-5 mr-2" />
           Go Back
         </button>
         <div className="bg-white shadow-lg rounded-lg p-6 mx-auto max-w-7xl overflow-auto h-[85vh]">
-          <form
-            className="space-y-6 w-full"
-            onSubmit={handleCreateJob}
-            encType="multipart/form-data"
-          >
+          <form onSubmit={formik.handleSubmit} className="space-y-6 w-full" encType="multipart/form-data">
             <div className="flex gap-4">
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
-                  Company Name
+                  Company Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  id="companyName"
                   name="companyName"
+                  value={formik.values.companyName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full border rounded-lg p-2"
                   placeholder="Enter company name"
                 />
-                {errors.companyName && <p className="text-red-500 text-sm">{errors.companyName}</p>}
+                {formik.touched.companyName && formik.errors.companyName && (
+                  <p className="text-red-500 text-sm">{formik.errors.companyName}</p>
+                )}
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
-                  Job Title
+                  Job Title <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  id="jobTitle"
                   name="jobTitle"
+                  value={formik.values.jobTitle}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full border rounded-lg p-2"
                   placeholder="Enter job title"
                 />
-                {errors.jobTitle && <p className="text-red-500 text-sm">{errors.jobTitle}</p>}
+                {formik.touched.jobTitle && formik.errors.jobTitle && (
+                  <p className="text-red-500 text-sm">{formik.errors.jobTitle}</p>
+                )}
               </div>
             </div>
+
             <div>
               <label className="text-sm font-medium block mb-2">
-                Job Description
+                Job Description <span className="text-red-500">*</span>
               </label>
               <textarea
-                id="jobDescription"
                 name="jobDescription"
+                value={formik.values.jobDescription}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 className="w-full border rounded-lg p-2"
                 rows="4"
                 placeholder="Enter job description"
-              ></textarea>
-              {errors.jobDescription && <p className="text-red-500 text-sm">{errors.jobDescription}</p>}
+              />
+              {formik.touched.jobDescription && formik.errors.jobDescription && (
+                <p className="text-red-500 text-sm">{formik.errors.jobDescription}</p>
+              )}
             </div>
+
             <div className="flex gap-4">
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
-                  Job Category
+                  Job Category <span className="text-red-500">*</span>
                 </label>
                 <select
-                  id="jobCategory"
                   name="jobCategory"
+                  value={formik.values.jobCategory}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full border rounded-lg p-2"
                 >
                   <option value="">Select category</option>
@@ -208,60 +200,71 @@ const JobPosts = () => {
                   <option value="DEVELOPMENT">Development</option>
                   <option value="MARKETING">Marketing</option>
                 </select>
-                {errors.jobCategory && <p className="text-red-500 text-sm">{errors.jobCategory}</p>}
+                {formik.touched.jobCategory && formik.errors.jobCategory && (
+                  <p className="text-red-500 text-sm">{formik.errors.jobCategory}</p>
+                )}
               </div>
               <div className="flex-1">
-                <label className="text-sm font-medium block mb-2">
-                  Preferred Disabilities
-                </label>
+                <label className="text-sm font-medium block mb-2">Preferred Disabilities<span className="text-red-500">*</span></label>
                 <Select
-                  id="preferredDisability"
                   options={disabilityOptions}
                   isMulti
+                  value={formik.values.preferredDisabilities}
+                  onChange={(selected) => formik.setFieldValue("preferredDisabilities", selected)}
+                  onBlur={formik.handleBlur}
                   className="w-full"
-                  value={selectedDisabilities}
-                  onChange={(options) => setSelectedDisabilities(options)}
                 />
-                {errors.preferredDisability && <p className="text-red-500 text-sm">{errors.preferredDisability}</p>}
+                {formik.touched.preferredDisabilities && formik.errors.preferredDisabilities && (
+                  <p className="text-red-500 text-sm">{formik.errors.preferredDisabilities}</p>
+                )}
               </div>
             </div>
+
             <div className="flex gap-4">
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
-                  Application Deadline
+                  Application Deadline <span className="text-red-500">*</span>
                 </label>
                 <input
-                  id="applicationDeadline"
-                  name="applicationDeadline"
                   type="date"
+                  name="applicationDeadline"
+                  value={formik.values.applicationDeadline}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full border rounded-lg p-2"
                 />
-                {errors.applicationDeadline && <p className="text-red-500 text-sm">{errors.applicationDeadline}</p>}
-
+                {formik.touched.applicationDeadline && formik.errors.applicationDeadline && (
+                  <p className="text-red-500 text-sm">{formik.errors.applicationDeadline}</p>
+                )}
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
-                  Preferred Language
+                  Preferred Language <span className="text-red-500">*</span>
                 </label>
                 <Select
-                  id="preferredLanguage"
                   options={languageOptions}
-                  value={selectedLanguage}
-                  onChange={setSelectedLanguage}
+                  value={formik.values.preferredLanguage}
+                  onChange={(selected) => formik.setFieldValue("preferredLanguage", selected)}
+                  onBlur={formik.handleBlur}
                   isClearable
                   className="w-full"
                 />
-                {errors.preferredLanguage && <p className="text-red-500 text-sm">{errors.preferredLanguage}</p>}
+                {formik.touched.preferredLanguage && formik.errors.preferredLanguage && (
+                  <p className="text-red-500 text-sm">{formik.errors.preferredLanguage}</p>
+                )}
               </div>
             </div>
+
             <div className="flex gap-4">
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
-                  Job Type
+                  Job Type <span className="text-red-500">*</span>
                 </label>
                 <select
-                  id="jobType"
                   name="jobType"
+                  value={formik.values.jobType}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full border rounded-lg p-2"
                 >
                   <option value="">Select Job Type</option>
@@ -271,15 +274,19 @@ const JobPosts = () => {
                   <option value="Contract">Contract</option>
                   <option value="Internship">Internship</option>
                 </select>
-                {errors.jobType && <p className="text-red-500 text-sm">{errors.jobType}</p>}
+                {formik.touched.jobType && formik.errors.jobType && (
+                  <p className="text-red-500 text-sm">{formik.errors.jobType}</p>
+                )}
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
-                  Job Shift
+                  Job Shift <span className="text-red-500">*</span>
                 </label>
                 <select
-                  id="jobShift"
                   name="jobShift"
+                  value={formik.values.jobShift}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full border rounded-lg p-2"
                 >
                   <option value="">Select Job Shift</option>
@@ -289,38 +296,42 @@ const JobPosts = () => {
                   <option value="Night-Shift">Night-Shift</option>
                   <option value="Day-Shift">Day-Shift</option>
                 </select>
-                {errors.jobShift && <p className="text-red-500 text-sm">{errors.jobShift}</p>}
+                {formik.touched.jobShift && formik.errors.jobShift && (
+                  <p className="text-red-500 text-sm">{formik.errors.jobShift}</p>
+                )}
               </div>
             </div>
 
             <div className="flex gap-4">
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
-                  Job Qualifications
+                  Job Qualifications <span className="text-red-500">*</span>
                 </label>
                 <select
-                  id="jobQualifications"
                   name="jobQualifications"
+                  value={formik.values.jobQualifications}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full border rounded-lg p-2"
                 >
                   <option value="">Select qualification</option>
-                  <option value="Bachelor's Degree">
-                    Bachelor&apos;s Degree
-                  </option>
-                  <option value="High School Diploma">
-                    High School Diploma
-                  </option>
+                  <option value="Bachelor's Degree">Bachelor's Degree</option>
+                  <option value="High School Diploma">High School Diploma</option>
                   <option value="Technical Training">Technical Training</option>
                 </select>
-                {errors.jobQualifications && <p className="text-red-500 text-sm">{errors.jobQualifications}</p>}
+                {formik.touched.jobQualifications && formik.errors.jobQualifications && (
+                  <p className="text-red-500 text-sm">{formik.errors.jobQualifications}</p>
+                )}
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
-                  Job Level
+                  Job Level <span className="text-red-500">*</span>
                 </label>
                 <select
-                  id="jobLevel"
                   name="jobLevel"
+                  value={formik.values.jobLevel}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full border rounded-lg p-2"
                 >
                   <option value="">Select level</option>
@@ -328,69 +339,84 @@ const JobPosts = () => {
                   <option value="Mid">Mid</option>
                   <option value="Senior">Senior</option>
                 </select>
-                {errors.jobLevel && <p className="text-red-500 text-sm">{errors.jobLevel}</p>}
+                {formik.touched.jobLevel && formik.errors.jobLevel && (
+                  <p className="text-red-500 text-sm">{formik.errors.jobLevel}</p>
+                )}
               </div>
             </div>
+
             <div className="flex gap-4">
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
-                  Min Salary
+                  Minimum Salary <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
-                  id="minSalary"
-                  name="minSalary"
+                  name="expectedSalary.minSalary"
+                  value={formik.values.expectedSalary.minSalary}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full border rounded-lg p-2"
-                  placeholder="Enter min salary"
+                  placeholder="Enter minimum salary"
                 />
-                {errors.salary && <p className="text-red-500 text-sm">{errors.salary}</p>}
+                {formik.touched.expectedSalary?.minSalary && formik.errors.expectedSalary?.minSalary && (
+                  <p className="text-red-500 text-sm">{formik.errors.expectedSalary.minSalary}</p>
+                )}
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
-                  Max Salary
+                  Maximum Salary <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
-                  id="maxSalary"
-                  name="maxSalary"
+                  name="expectedSalary.maxSalary"
+                  value={formik.values.expectedSalary.maxSalary}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full border rounded-lg p-2"
-                  placeholder="Enter max salary"
+                  placeholder="Enter maximum salary"
                 />
-                {errors.salary && <p className="text-red-500 text-sm">{errors.salary}</p>}
+                {formik.touched.expectedSalary?.maxSalary && formik.errors.expectedSalary?.maxSalary && (
+                  <p className="text-red-500 text-sm">{formik.errors.expectedSalary.maxSalary}</p>
+                )}
               </div>
-            </div>
-            <div>
-              <label className="text-sm font-medium block mb-2">
-                Locations
-              </label>
-              <input
-                type="text"
-                id="locations"
-                name="locations"
-                className="w-full border rounded-lg p-2"
-                placeholder="Enter location(s)"
-              />
-              {errors.location && <p className="text-red-500 text-sm">{errors.location}</p>}
             </div>
 
             <div>
               <label className="text-sm font-medium block mb-2">
-                Job Skills
+                Locations <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="locations"
+                value={formik.values.locations}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className="w-full border rounded-lg p-2"
+                placeholder="Enter location(s)"
+              />
+              {formik.touched.locations && formik.errors.locations && (
+                <p className="text-red-500 text-sm">{formik.errors.locations}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium block mb-2">
+                Job Skills <span className="text-red-500">*</span>
               </label>
               <div className="w-full border rounded-lg p-2">
                 <input
-                  id="jobSkills"
                   type="text"
-                  value={skillInput}
-                  onChange={handleSkillInputChange}
-                  onKeyDown={handleSkillKeyDown}
+                  onKeyDown={handleSkillInputChange}
                   className="w-full border-none outline-none"
                   placeholder="Enter skills (press ',' or 'Enter' to add)"
                 />
               </div>
-              {errors.jobSkills && <p className="text-red-500 text-sm">{errors.jobSkills}</p>}
+              {formik.touched.jobSkills && formik.errors.jobSkills && (
+                <p className="text-red-500 text-sm">{formik.errors.jobSkills}</p>
+              )}
               <div className="flex flex-wrap gap-2 mt-2">
-                {skills.map((skill, index) => (
+                {formik.values.jobSkills.map((skill, index) => (
                   <div
                     key={index}
                     className="flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium"
@@ -407,37 +433,33 @@ const JobPosts = () => {
                 ))}
               </div>
             </div>
+
             <div className="flex items-start gap-4">
               <div className="flex-1">
-                <label
-                  htmlFor="resume"
-                  className="block text-sm font-medium text-gray-700"
-                >
+                <label className="block text-sm font-medium text-gray-700">
                   Job Attachment <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="file"
-                  id="jobAttachment"
                   name="jobAttachment"
-                  accept=".pdf,.doc,.docx"
-                  required
+                  onChange={(e) => formik.setFieldValue("jobAttachment", e.currentTarget.files[0])}
+                  onBlur={formik.handleBlur}
                   className="block w-full mt-1 text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 focus:outline-none"
                 />
-                {errors.jobAttachment && <p className="text-red-500 text-sm">{errors.jobAttachment}</p>}
+                {formik.touched.jobAttachment && formik.errors.jobAttachment && (
+                  <p className="text-red-500 text-sm">{formik.errors.jobAttachment}</p>
+                )}
               </div>
 
               <div className="flex-1">
                 <label className="flex items-center gap-4">
-                  <span className="text-sm font-medium">
-                    Add &quot;Apply with Link&quot; Field
-                  </span>
+                  <span className="text-sm font-medium">Add &quot;Apply with Link&quot; Field</span>
                   <div className="relative inline-block w-10 h-6">
                     <input
                       type="checkbox"
-                      id="applyWithLinkToggle"
-                      name="applyWithLinkToggle"
-                      checked={showApplyLink}
-                      onChange={(e) => setShowApplyLink(e.target.checked)}
+                      name="showApplyLink"
+                      checked={formik.values.showApplyLink}
+                      onChange={(e) => formik.setFieldValue("showApplyLink", e.target.checked)}
                       className="opacity-0 w-0 h-0 peer"
                     />
                     <span className="absolute cursor-pointer inset-0 bg-gray-300 rounded-full transition peer-checked:bg-blue-600"></span>
@@ -445,15 +467,20 @@ const JobPosts = () => {
                   </div>
                 </label>
 
-                {showApplyLink && (
+                {formik.values.showApplyLink && (
                   <div className="mt-2">
                     <input
                       type="text"
-                      id="applyWithLink"
                       name="applyWithLink"
+                      value={formik.values.applyWithLink}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                       className="w-full border rounded-lg p-2"
                       placeholder="Enter application link"
                     />
+                    {formik.touched.applyWithLink && formik.errors.applyWithLink && (
+                      <p className="text-red-500 text-sm">{formik.errors.applyWithLink}</p>
+                    )}
                   </div>
                 )}
               </div>
