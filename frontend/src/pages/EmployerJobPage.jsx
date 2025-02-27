@@ -22,8 +22,8 @@ const EmployerJobPage = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(null);
   const dropdownRef = useRef(null);
 
-  const toggleDropdown = (jobId) => {
-    if (isDropdownOpen === jobId) {
+  const toggleDropdown = (jobId, shouldClose = false) => {
+    if (shouldClose || isDropdownOpen === jobId) {
       setIsDropdownOpen(null);
     } else {
       setIsDropdownOpen(jobId);
@@ -80,6 +80,7 @@ const EmployerJobPage = () => {
       await deleteJobPost(selectedJob._id);
       console.log("Job deleted successfully");
       setOpen(false);
+      toggleDropdown(selectedJob._id, true);
     } catch (error) {
       console.error("Failed to delete job:", error);
     }
@@ -88,6 +89,7 @@ const EmployerJobPage = () => {
   const handleView = (job, action) => {
     setSelectedJob(job);
     setOpenViewModal(true);
+    toggleDropdown(job._id, true);
   };
 
   const handleUpdate = async (updatedJobData) => {
@@ -102,6 +104,7 @@ const EmployerJobPage = () => {
   
       console.log("Closing update modal...");
       setOpenUpdateModal(false);
+      toggleDropdown(selectedJob._id, true);
     } catch (error) {
       console.error("Failed to update job:", error);
     }
@@ -254,6 +257,7 @@ const EmployerJobPage = () => {
                             onClick={() => {
                               setSelectedJob(job);
                               setOpenUpdateModal(true); 
+                              toggleDropdown(job._id, true); 
                             }}
                           >
                             Update
@@ -263,6 +267,7 @@ const EmployerJobPage = () => {
                             onClick={() => {
                               setSelectedJob(job);
                               setOpen(true);
+                              toggleDropdown(job._id, true); 
                             }}
                           >
                             Delete

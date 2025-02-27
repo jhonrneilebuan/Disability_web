@@ -1,5 +1,7 @@
 import * as yup from "yup";
 
+const allowedExtensions = ["pdf", "doc", "docx"];
+
 export default (keepPreviousAttachment) =>
   yup.object().shape({
     companyName: yup.string().required("Company name is required"),
@@ -89,10 +91,26 @@ export default (keepPreviousAttachment) =>
     //       return allowedExtensions.includes(fileExtension);
     //     }
     //   ),
+    
+    // jobAttachment: keepPreviousAttachment
+    //   ? yup.mixed().notRequired()
+    //   : yup.mixed().required("Job attachment is required"), //req if keeps the attachment
+  
     jobAttachment: keepPreviousAttachment
       ? yup.mixed().notRequired()
-      : yup.mixed().required("Job attachment is required"), //req if keeps the attachment
-  
+      : yup
+          .mixed()
+          .required("Job attachment is required")
+          .test(
+            "fileExtension",
+            "Invalid file type. Only PDF, DOC, and DOCX files are allowed.",
+            (value) => {
+              if (!value) return true;
+              const fileExtension = value.name.split(".").pop().toLowerCase();
+              return allowedExtensions.includes(fileExtension);
+            }
+          ),
+
     preferredDisabilities: yup
       .array()
       .of(
