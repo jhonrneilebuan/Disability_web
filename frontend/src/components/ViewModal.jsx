@@ -31,6 +31,10 @@ const ViewModal = ({ open, onClose, job }) => {
       })
     : "No deadline specified";
 
+    const formattedPreferredDisabilities = job.preferredDisabilities
+    .map((disability) => toPascalCase(disability))
+    .join(", ");
+
   return (
     <Modal open={open} onClose={onClose}>
       <div className="p-8 bg-white rounded-lg w-[800px] max-h-[80vh] overflow-y-auto">
@@ -77,7 +81,7 @@ const ViewModal = ({ open, onClose, job }) => {
           <div className="flex items-center bg-gray-50 p-4 rounded-lg">
             <p className="font-semibold text-gray-800 w-1/3">Preferred Disabilities:</p>
             <p className="text-gray-900 font-medium">
-              {job.preferredDisabilities}
+              {formattedPreferredDisabilities || "No Disabilities Specified"}
             </p>
           </div>
 
