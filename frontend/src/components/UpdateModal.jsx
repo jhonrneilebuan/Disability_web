@@ -13,6 +13,7 @@ const UpdateModal = ({ open, onClose, job }) => {
   const { updateJob, getEmployerJobs } = jobStore();
   const [keepPreviousAttachment, setKeepPreviousAttachment] = useState(true);
   const [showFileInput, setShowFileInput] = useState(false); 
+  const [showApplyWithLink, setShowApplyWithLink] = useState(!!job?.applyWithLink); 
 
   const formik = useFormik({
     initialValues: {
@@ -518,6 +519,46 @@ const UpdateModal = ({ open, onClose, job }) => {
               <div className="text-red-500 text-sm">{formik.errors.jobAttachment}</div>
             )}
           </div>
+
+          <div className="flex-1">
+            <label className="flex items-center gap-4">
+              <span className="text-sm font-medium">Apply with Link</span>
+              <div className="relative inline-block w-10 h-6">
+                <input
+                  type="checkbox"
+                  name="showApplyLink"
+                  checked={showApplyWithLink}
+                  onChange={(e) => {
+                    setShowApplyWithLink(e.target.checked);
+                    if (!e.target.checked) {
+                      formik.setFieldValue("applyWithLink", "");
+                    }
+                  }}
+                  className="opacity-0 w-0 h-0 peer"
+                />
+                <span className="absolute cursor-pointer inset-0 bg-gray-300 rounded-full transition peer-checked:bg-blue-600"></span>
+                <span className="absolute top-[3px] left-[3px] w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-4"></span>
+              </div>
+            </label>
+
+            {showApplyWithLink && (
+              <div className="mt-2">
+                <input
+                  type="text"
+                  name="applyWithLink"
+                  value={formik.values.applyWithLink}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="w-full border rounded-lg p-2"
+                  placeholder="Enter apply link"
+                />
+                {formik.touched.applyWithLink && formik.errors.applyWithLink && (
+                  <p className="text-red-500 text-sm">{formik.errors.applyWithLink}</p>
+                )}
+              </div>
+            )}
+          </div>
+
           <button
             type="submit"
             className="w-full px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold focus:outline-none focus:ring focus:ring-blue-300"

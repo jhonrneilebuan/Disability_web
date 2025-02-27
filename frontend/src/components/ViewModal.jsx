@@ -129,6 +129,13 @@ const ViewModal = ({ open, onClose, job }) => {
               <p className="text-gray-500">No Attachment Available</p>
             )}
           </div>
+
+          <div className="flex items-center bg-gray-50 p-4 rounded-lg">
+            <p className="font-semibold text-gray-800 w-1/3">Link:</p>
+            <p className="text-gray-900 font-medium">
+              {job.applyWithLink ? job.applyWithLink : "No link provided"}
+            </p>
+          </div>
         </div>
 
         <div className="mt-8 flex justify-center">
