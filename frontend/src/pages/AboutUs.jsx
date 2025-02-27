@@ -1,5 +1,6 @@
-import React from "react";
+import "react";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 const AboutUs = () => {
   return (
@@ -190,10 +191,11 @@ const AboutUs = () => {
             Join Us Today
           </h2>
           <p className="text-lg md:text-xl max-w-2xl mx-auto mb-8 text-white drop-shadow-md animate-fade-in">
-            Whether you're a job seeker or an employer, Disability Careers is here to support you.
+            Whether you&apos;re a job seeker or an employer, Disability Careers is here to support you.
           </p>
         </div>
       </section>
+      <Footer/>
     </div>
   );
 };

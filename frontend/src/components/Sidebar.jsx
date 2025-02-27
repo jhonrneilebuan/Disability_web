@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react";
 import {
   BarChart,
   Briefcase,
-  Mail,
-  Clipboard,
-  LogOut,
+  CalendarCheck,
   ChevronLeft,
   ChevronRight,
+  Clipboard,
+  FileCheck,
+  LogOut,
+  Mail,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { authStore } from "../stores/authStore";
 import { jobStore } from "../stores/jobStore";
-import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
   const { logout } = authStore();
@@ -72,7 +74,11 @@ const Sidebar = () => {
                 isSidebarCollapsed ? "justify-center" : ""
               } ${isActive("/employer") ? "bg-gray-700" : ""}`}
             >
-              <BarChart className={`${isSidebarCollapsed ? "h-8 w-8" : "h-6 w-6"} text-blue-400`} />
+              <BarChart
+                className={`${
+                  isSidebarCollapsed ? "h-8 w-8" : "h-6 w-6"
+                } text-blue-400`}
+              />
               {!isSidebarCollapsed && (
                 <span className="text-lg text-white hover:text-blue-400 transition-colors duration-300">
                   Dashboard
@@ -88,7 +94,11 @@ const Sidebar = () => {
                 isSidebarCollapsed ? "justify-center" : ""
               } ${isActive("/post-job") ? "bg-gray-700" : ""}`}
             >
-              <Briefcase className={`${isSidebarCollapsed ? "h-8 w-8" : "h-6 w-6"} text-blue-400`} />
+              <Briefcase
+                className={`${
+                  isSidebarCollapsed ? "h-8 w-8" : "h-6 w-6"
+                } text-blue-400`}
+              />
               {!isSidebarCollapsed && (
                 <span className="text-lg text-white hover:text-blue-400 transition-colors duration-300">
                   Jobs
@@ -96,7 +106,6 @@ const Sidebar = () => {
               )}
             </Link>
           </li>
-
           <li>
             <Link
               to="/applicant-list"
@@ -104,7 +113,11 @@ const Sidebar = () => {
                 isSidebarCollapsed ? "justify-center" : ""
               } ${isActive("/applicant-list") ? "bg-gray-700" : ""}`}
             >
-              <Clipboard className={`${isSidebarCollapsed ? "h-8 w-8" : "h-6 w-6"} text-blue-400`} />
+              <Clipboard
+                className={`${
+                  isSidebarCollapsed ? "h-8 w-8" : "h-6 w-6"
+                } text-blue-400`}
+              />
               {!isSidebarCollapsed && (
                 <div className="flex items-center justify-between w-full">
                   <span className="text-lg text-white hover:text-blue-400 transition-colors duration-300">
@@ -122,12 +135,56 @@ const Sidebar = () => {
 
           <li>
             <Link
+              to="/employer-interview"
+              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-all duration-300 ${
+                isSidebarCollapsed ? "justify-center" : ""
+              } ${isActive("/employer-interview") ? "bg-gray-700" : ""}`}
+            >
+              <CalendarCheck
+                className={`${
+                  isSidebarCollapsed ? "h-8 w-8" : "h-6 w-6"
+                } text-blue-400`}
+              />
+              {!isSidebarCollapsed && (
+                <span className="text-lg text-white hover:text-blue-400 transition-colors duration-300">
+                  Interview Management
+                </span>
+              )}
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              to="/employer-hiring"
+              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-all duration-300 ${
+                isSidebarCollapsed ? "justify-center" : ""
+              } ${isActive("/employer-hiring") ? "bg-gray-700" : ""}`}
+            >
+              <FileCheck
+                className={`${
+                  isSidebarCollapsed ? "h-8 w-8" : "h-6 w-6"
+                } text-blue-400`}
+              />
+              {!isSidebarCollapsed && (
+                <span className="text-lg text-white hover:text-blue-400 transition-colors duration-300">
+                  Interview Management
+                </span>
+              )}
+            </Link>
+          </li>
+
+          <li>
+            <Link
               to="/messaging"
               className={`flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-all duration-300 ${
                 isSidebarCollapsed ? "justify-center" : ""
               } ${isActive("/messaging") ? "bg-gray-700" : ""}`}
             >
-              <Mail className={`${isSidebarCollapsed ? "h-8 w-8" : "h-6 w-6"} text-blue-400`} />
+              <Mail
+                className={`${
+                  isSidebarCollapsed ? "h-8 w-8" : "h-6 w-6"
+                } text-blue-400`}
+              />
               {!isSidebarCollapsed && (
                 <span className="text-lg text-white hover:text-blue-400 transition-colors duration-300">
                   Messaging
@@ -143,7 +200,11 @@ const Sidebar = () => {
                 isSidebarCollapsed ? "justify-center" : ""
               }`}
             >
-              <LogOut className={`${isSidebarCollapsed ? "h-8 w-8" : "h-6 w-6"} text-red-400`} />
+              <LogOut
+                className={`${
+                  isSidebarCollapsed ? "h-8 w-8" : "h-6 w-6"
+                } text-red-400`}
+              />
               {!isSidebarCollapsed && (
                 <span className="text-lg text-white hover:text-red-400 transition-colors duration-300">
                   Logout

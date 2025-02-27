@@ -1,12 +1,22 @@
-import { Bookmark, Briefcase, Search, X } from "lucide-react";
+import {
+  Bookmark,
+  Briefcase,
+  Calendar,
+  CheckCircle,
+  Clock,
+  MapPin,
+  Search,
+  X,
+  XCircle,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import Footer from "../components/Footer";
 import FormatTimeDate from "../components/FormatTimeDate";
-import Loader2 from "../components/Loader";
 import Modal from "../components/Modal";
 import Navbar from "../components/Navbar";
 import { jobStore } from "../stores/jobStore";
+import AppliedJobSkeleton from "../components/AppliedJobSkeleton";
 
 const AppliedJobs = () => {
   const [open, setOpen] = useState(false);
@@ -18,17 +28,23 @@ const AppliedJobs = () => {
   const [activeTab, setActiveTab] = useState("applied");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [currentApplication, setCurrentApplication] = useState(null);
 
   const {
     applications = [],
     savedApplications = [],
     withdrawApplication,
     isLoading,
-    //error,
+    error,
+    isError,
+    confirmApplication,
+    declineApplication,
     getSavedJobs,
     savedJobs = [],
     unsaveJob,
     getApplicationsByApplicant,
+    isApplicationLoading,
   } = jobStore();
 
   useEffect(() => {
@@ -48,27 +64,26 @@ const AppliedJobs = () => {
     return applications.filter((application) => {
       const jobTitle = application.jobId?.jobTitle
         ? application.jobId.jobTitle.toLowerCase()
-        : '';
-  
-      const status = application.status ? application.status.toLowerCase() : '';
-  
+        : "";
+
+      const status = application.status ? application.status.toLowerCase() : "";
+
       const matchesKeyword =
         jobTitle.includes(searchKeyword.toLowerCase()) ||
         status.includes(searchKeyword.toLowerCase());
-  
+
       const matchesStatus = selectedStatus
         ? status === selectedStatus.toLowerCase()
         : true;
-  
+
       const matchesDate = selectedDate
         ? new Date(application.createdAt).toDateString() ===
           new Date(selectedDate).toDateString()
         : true;
-  
+
       return matchesKeyword && matchesStatus && matchesDate;
     });
   };
-  
 
   const filteredApplications =
     activeTab === "applied"
@@ -128,22 +143,50 @@ const AppliedJobs = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <main className="min-h-screen flex justify-center items-center">
-        <Loader2 />
-      </main>
-    );
-  }
+  const openModal = (application) => {
+    setCurrentApplication(application);
+    setShowModal(true);
+  };
 
-  // TODO: Implement error state later :>
+  const handleConfirm = async () => {
+    if (!currentApplication) {
+      console.error("No application selected");
+      return;
+    }
+
+    try {
+      await confirmApplication(currentApplication._id || currentApplication.id);
+      toast.success("Interview confirmed successfully.");
+      await getApplicationsByApplicant();
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error confirming interview schedule:", error);
+      toast.error("Failed to confirm interview.");
+    }
+  };
+
+  const handleDecline = async () => {
+    if (!currentApplication) {
+      console.error("No application selected");
+      return;
+    }
+
+    try {
+      await declineApplication(currentApplication._id || currentApplication.id);
+      toast.success("Interview declined successfully.");
+      await getApplicationsByApplicant();
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error declining interview schedule:", error);
+      toast.error("Failed to decline interview.");
+    }
+  };
 
   return (
     <main className="min-h-screen flex flex-col">
       <Navbar />
       {/* <section className="bg-applicant-bg-3 bg-transparent bg-no-repeat bg-cover bg-center flex-grow flex flex-col space-y-4 pt-8 h-screen"> */}
       <section className="bg-applicant-nbg-6 bg-no-repeat bg-cover bg-center flex flex-col items-center justify-start h-[50vh] w-full relative pt-32">
-
         <h1 className="text-6xl font-semibold text-center font-poppins text-white pb-7 text-shadow-xl">
           My Job Applications
         </h1>
@@ -174,6 +217,9 @@ const AppliedJobs = () => {
                 <option value="Pending">Pending</option>
                 <option value="Shortlisted">Shortlisted</option>
                 <option value="Rejected">Rejected</option>
+                <option value="Pending">Interview Scheduled</option>
+                <option value="Interview Completed">Interview Completed</option>
+                <option value="Hired">Hired</option>
               </select>
             </div>
 
@@ -220,108 +266,225 @@ const AppliedJobs = () => {
             <span>Saved Jobs</span>
           </button>
         </div>
-        {activeTab === "applied" ? (
-          sortedApplications.length > 0 ? (
-            sortedApplications.map((application) => (
-              <div
-                key={application._id}
-                className="bg-white rounded-2xl shadow-md p-6 flex flex-col justify-between mb-6 border-2 border-browny border-solid w-full overflow-auto"
-              >
-                <div className="flex-1">
-                  <h3 className="text-lg sm:text-xl font-base font-poppins mb-2">
-                    Job Title: {application.jobId?.jobTitle}
-                  </h3>
-                  <div className="flex items-center space-x-2 mb-2">
-                    <p className="text-lg sm:text-xl font-base font-poppins">
-                      Date Applied:
+        {activeTab === "applied" && (
+          <>
+            {isApplicationLoading ? (
+              <AppliedJobSkeleton rows={5} />
+            ) : isError ? (
+              <p className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
+                {isError}
+              </p>
+            ) : sortedApplications.length > 0 ? (
+              sortedApplications.map((application) => (
+                <div
+                  key={application._id}
+                  className="bg-white rounded-2xl shadow-md p-6 flex flex-col justify-between mb-6 border-2 border-browny border-solid w-full overflow-auto"
+                >
+                  <div className="flex-1">
+                    <h3 className="text-lg sm:text-xl font-base font-poppins mb-2">
+                      Job Title: {application.jobId?.jobTitle}
+                    </h3>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <p className="text-lg sm:text-xl font-base font-poppins">
+                        Date Applied:
+                      </p>
+                      <p className="text-lg sm:text-xl font-base font-poppins">
+                        <FormatTimeDate
+                          date={application.createdAt}
+                          formatType="relative"
+                        />
+                      </p>
+                    </div>
+                    <p className="text-lg sm:text-xl font-base font-poppins mb-4">
+                      Status:{" "}
+                      <span
+                        className={`${
+                          application.status === "Pending"
+                            ? "text-orange-500"
+                            : application.status === "Shortlisted"
+                            ? "text-blue-500"
+                            : application.status === "Rejected"
+                            ? "text-red-500"
+                            : application.status === "Interview Scheduled"
+                            ? "text-purple-500"
+                            : application.status === "Interview Completed"
+                            ? "text-teal-500"
+                            : application.status === "Hired"
+                            ? "text-green-500"
+                            : "text-gray-300"
+                        }`}
+                      >
+                        {application.status}
+                      </span>
                     </p>
-                    <p className="text-lg sm:text-xl font-base font-poppins">
-                      <FormatTimeDate
-                        date={application.createdAt}
-                        formatType="relative"
-                      />
-                    </p>
+
+                    {showModal && currentApplication && (
+                      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-10">
+                        <div className="relative bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg animate-fadeIn">
+                          <button
+                            onClick={() => setShowModal(false)}
+                            className="absolute top-4 right-4 text-black hover:text-gray-600 transition"
+                          >
+                            <XCircle className="w-6 h-6" />
+                          </button>
+                          <h4 className="text-4xl font-bold text-browny mb-8 text-center font-poppins">
+                            Interview Details
+                          </h4>
+                          <div className="space-y-6 font-poppins text-black">
+                            <p className="text-lg flex items-center">
+                              <CheckCircle className="w-5 h-5 text-browny mr-2" />
+                              <span className="font-semibold">Type:</span>{" "}
+                              {currentApplication.interview.interview_type ||
+                                "Not specified"}
+                            </p>
+                            <p className="text-lg flex items-center">
+                              <Calendar className="w-5 h-5 text-browny mr-2" />
+                              <span className="font-semibold">Date:</span>{" "}
+                              {currentApplication.interview.scheduled_time
+                                ? new Date(
+                                    currentApplication.interview.scheduled_time
+                                  ).toLocaleDateString("en-US", {
+                                    weekday: "long",
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                  })
+                                : "Not set"}
+                            </p>
+                            <p className="text-lg flex items-center mt-2">
+                              <Clock className="w-5 h-5 text-browny mr-2" />
+                              <span className="font-semibold">Time:</span>{" "}
+                              {currentApplication.interview.scheduled_time
+                                ? new Date(
+                                    currentApplication.interview.scheduled_time
+                                  ).toLocaleTimeString("en-US", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                  })
+                                : "Not set"}
+                            </p>
+
+                            <p className="text-lg flex items-center">
+                              <MapPin className="w-5 h-5 text-browny mr-2" />
+                              <span className="font-semibold">
+                                Location:
+                              </span>{" "}
+                              {currentApplication.interview.location ||
+                                "To be announced"}
+                            </p>
+                          </div>
+                          {currentApplication.interview.status ===
+                            "Scheduled" && (
+                            <div className="flex justify-end space-x-4 mt-8">
+                              <button
+                                onClick={handleConfirm}
+                                className="px-6 py-3 w-full bg-green-600 text-white text-lg rounded-md shadow-lg hover:bg-green-700 transform hover:scale-105 transition-all duration-300"
+                              >
+                                Confirm
+                              </button>
+                              <button
+                                onClick={handleDecline}
+                                className="px-6 py-3 w-full bg-red-600 text-white text-lg rounded-md shadow-lg hover:bg-red-700 transform hover:scale-105 transition-all duration-300"
+                              >
+                                Decline
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-lg sm:text-xl font-base font-poppins mb-4">
-                    Status:{" "}
-                    <span
-                      className={`${
-                        application.status === "Pending"
-                          ? "text-orange-500"
-                          : application.status === "Shortlisted"
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }`}
-                    >
-                      {application.status}
-                    </span>
-                  </p>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <button
-                    onClick={() => handleDetails(application)}
-                    className="px-4 py-2 text-sm sm:text-base bg-browny text-white rounded-md"
-                  >
-                    View Details
-                  </button>
-                  {application.status !== "Rejected" && (
+                  <div className="flex flex-col sm:flex-row items-center space-x-0 sm:space-x-4 space-y-4 sm:space-y-0">
                     <button
-                      onClick={() => handleWithdraw(application._id)}
+                      onClick={() => handleDetails(application)}
+                      className="px-6 py-3 text-base font-poppins bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 transition"
+                    >
+                      View Details
+                    </button>
+
+                    {application.status !== "Rejected" && application.status !== "Hired"&& (
+                      <button
+                        onClick={() => handleWithdraw(application._id)}
+                        className="px-6 py-3 text-base font-poppins bg-red-500 text-white rounded-md shadow-md hover:bg-red-600 transition"
+                      >
+                        Withdraw Application
+                      </button>
+                    )}
+
+                    {(application.status === "Interview Scheduled" ||
+                      application.status === "Interview Completed") &&
+                      application.interview && (
+                        <button
+                          onClick={() => openModal(application)}
+                          className="px-6 py-3 text-base font-poppins bg-green-500 text-white rounded-md shadow-md hover:bg-green-600 transition"
+                        >
+                          View Interview Details
+                        </button>
+                      )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-lg sm:text-xl font-poppins text-center text-gray-500">
+                No applications found.
+              </p>
+            )}
+          </>
+        )}
+
+        {activeTab === "saved" && (
+          <>
+            {isLoading ? (
+              <AppliedJobSkeleton rows={5} />
+            ) : error ? (
+              <p className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
+                {error}
+              </p>
+            ) : filteredSavedJobs.length > 0 ? (
+              filteredSavedJobs.map((savedJob) => (
+                <div
+                  key={savedJob._id}
+                  className="bg-white rounded-2xl shadow-md p-6 flex flex-col justify-between mb-6 border-2 border-browny border-solid w-full overflow-auto"
+                >
+                  <div className="flex-1">
+                    <h3 className="text-lg sm:text-xl font-base font-poppins mb-2">
+                      Job Title: {savedJob.jobId?.jobTitle}
+                    </h3>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <p className="text-lg sm:text-xl font-base font-poppins">
+                        Date Saved:
+                      </p>
+                      <p className="text-lg sm:text-xl font-base font-poppins">
+                        <FormatTimeDate
+                          date={savedJob.createdAt}
+                          formatType="relative"
+                        />
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <button
+                      onClick={() => handleDetails(savedJob)}
+                      className="px-4 py-2 text-sm sm:text-base bg-browny text-white rounded-md"
+                    >
+                      View Details
+                    </button>
+                    <button
+                      onClick={() => handleUnsave(savedJob._id)}
                       className="px-4 py-2 text-sm sm:text-base bg-red-500 text-white rounded-md"
                     >
-                      Withdraw Application
+                      Unsave Job
                     </button>
-                  )}
+                  </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-lg sm:text-xl font-poppins text-center text-gray-500">
-              No applications found.
-            </p>
-          )
-        ) : filteredSavedJobs.length > 0 ? (
-          filteredSavedJobs.map((savedJob) => (
-            <div
-              key={savedJob._id}
-              className="bg-white rounded-2xl shadow-md p-6 flex flex-col justify-between mb-6 border-2 border-browny border-solid w-full overflow-auto"
-            >
-              <div className="flex-1">
-                <h3 className="text-lg sm:text-xl font-base font-poppins mb-2">
-                  Job Title: {savedJob.jobId?.jobTitle}
-                </h3>
-                <div className="flex items-center space-x-2 mb-2">
-                  <p className="text-lg sm:text-xl font-base font-poppins">
-                    Date Saved:
-                  </p>
-                  <p className="text-lg sm:text-xl font-base font-poppins">
-                    <FormatTimeDate
-                      date={savedJob.createdAt}
-                      formatType="relative"
-                    />
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => handleDetails(savedJob)}
-                  className="px-4 py-2 text-sm sm:text-base bg-browny text-white rounded-md"
-                >
-                  View Details
-                </button>
-                <button
-                  onClick={() => handleUnsave(savedJob._id)}
-                  className="px-4 py-2 text-sm sm:text-base bg-red-500 text-white rounded-md"
-                >
-                  Unsave Job
-                </button>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-lg sm:text-xl font-poppins text-center text-gray-500">
-            No saved jobs found.
-          </p>
+              ))
+            ) : (
+              <p className="text-lg sm:text-xl font-poppins text-center text-gray-500">
+                No saved jobs found.
+              </p>
+            )}
+          </>
         )}
 
         {open && (

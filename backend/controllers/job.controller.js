@@ -78,7 +78,7 @@ export const AllJobs = async (req, res) => {
   try {
     const jobs = await Job.find().populate(
       "employer",
-      "fullName email employerInformation.companyName employerInformation.companyAddress employerInformation.isIdVerified"
+      "profilePicture fullName email employerInformation.companyName employerInformation.companyAddress employerInformation.isIdVerified"
     );
 
     const updatedJobs = jobs.map((job) => {

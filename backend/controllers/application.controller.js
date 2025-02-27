@@ -4,6 +4,7 @@ import Job from "../models/job.model.js";
 import User from "../models/user.model.js";
 import Notification from "../models/notification.model.js";
 import { io, getReceiverSocketId } from "../db/socket.js";
+import { format } from "date-fns"; 
 
 export const applyJobs = async (req, res) => {
   try {
@@ -304,7 +305,7 @@ export const shortlistApplication = async (req, res) => {
 
     const notification = new Notification({
       user: applicantId,
-      message: `Your job application has been shortlisted!`,
+      message: `Your job application for the position of ${application.jobId.jobTitle} has been has been shortlisted!`,
       type: "applicationShortlisted",
       isRead: false,
     });
@@ -410,15 +411,36 @@ export const hireApplication = async (req, res) => {
     application.status = "Hired";
     await application.save();
 
+    const applicantId = application.applicantId;
+
+    const notification = new Notification({
+      user: applicantId,
+      message: `Congratulations! You have been hired for the job you applied for.`,
+      type: "applicationRejected",
+      isRead: false,
+    });
+    await notification.save();
+
+    const applicantSocketId = getReceiverSocketId(applicantId.toString());
+
+    if (applicantSocketId) {
+      io.to(applicantSocketId).emit("applicationRejected", {
+        message: notification.message,
+        applicationId: application._id,
+        status: "Hired",
+      });
+    } else {
+      console.log(`Applicant ${applicantId} is offline. Notification saved.`);
+    }
+
     res.status(200).json({
-      message: "Application successfully moved to hired stage.",
+      message: "Application successfully hired.",
       application,
     });
   } catch (error) {
     console.error("Error updating application to hired stage:", error);
     res.status(500).json({
-      error:
-        "An error occurred while updating the application status to hired.",
+      error: "An error occurred while updating the application status to hired.",
     });
   }
 };
@@ -440,7 +462,7 @@ export const rejectApplication = async (req, res) => {
 
     const notification = new Notification({
       user: applicantId,
-      message: `Your job application has been rejected.`,
+      message: `Your job application for the position of ${application.jobId.jobTitle} has been rejected.`,
       type: "applicationRejected",
       isRead: false,
     });
@@ -540,12 +562,12 @@ export const getTotalInterview = async (req, res) => {
 
     const jobIds = jobs.map((job) => job._id);
 
-    const totalShortlist = await Application.countDocuments({
+    const TotalInterview = await Application.countDocuments({
       jobId: { $in: jobIds },
-      status: "Interview", 
+      status: "Interview Scheduled", 
     });
 
-    return res.status(200).json({ totalShortlist });
+    return res.status(200).json({ TotalInterview });
   } catch (error) {
     console.error("Error fetching Interview applications:", error);
     return res
@@ -569,12 +591,12 @@ export const getTotalHired = async (req, res) => {
 
     const jobIds = jobs.map((job) => job._id);
 
-    const totalShortlist = await Application.countDocuments({
+    const totalHired = await Application.countDocuments({
       jobId: { $in: jobIds },
       status: "Hired", 
     });
 
-    return res.status(200).json({ totalShortlist });
+    return res.status(200).json({ totalHired });
   } catch (error) {
     console.error("Error fetching Hired applications:", error);
     return res
@@ -853,5 +875,482 @@ export const clearJobPreferences = async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const scheduleInterview = async (req, res) => {
+  try {
+    const { applicationId } = req.params;
+    const { scheduled_time, interview_type, location } = req.body;
+
+    if (!scheduled_time || !interview_type || !location) {
+      return res
+        .status(400)
+        .json({ error: "All interview details are required." });
+    }
+
+    const application = await Application.findById(applicationId);
+    if (!application) {
+      return res.status(404).json({ error: "Application not found." });
+    }
+
+    const formattedTime = new Intl.DateTimeFormat("en-US", {
+      dateStyle: "full",
+      timeStyle: "short",
+    }).format(new Date(scheduled_time));
+
+    application.interview = {
+      scheduled_time,
+      interview_type,
+      location,
+      status: "Scheduled",
+    };
+    application.status = "Interview Scheduled";
+    await application.save();
+
+    const notification = new Notification({
+      user: application.applicantId,
+      message: `Your interview for the job has been scheduled. Interview Type: ${interview_type}, Date: ${formattedTime}, Location: ${location}`,
+      type: "interviewScheduled",
+      isRead: false,
+    });
+    await notification.save();
+
+    const applicantSocketId = getReceiverSocketId(
+      application.applicantId.toString()
+    );
+    if (applicantSocketId) {
+      io.to(applicantSocketId).emit("interviewScheduled", {
+        message: notification.message,
+        applicationId: application._id,
+        scheduled_time: application.interview.scheduled_time,
+        interview_type: application.interview.interview_type,
+        location: application.interview.location,
+      });
+    } else {
+      console.log(
+        `Applicant ${application.applicantId} is offline. Notification saved.`
+      );
+    }
+
+    res.status(200).json({
+      message: "Interview successfully scheduled.",
+      application,
+    });
+  } catch (error) {
+    console.error("Error scheduling interview:", error);
+    res.status(500).json({
+      error: "An error occurred while scheduling the interview.",
+    });
+  }
+};
+
+
+
+export const requestReschedule = async (req, res) => {
+  try {
+    const { applicationId } = req.params;
+    const { newScheduledTime } = req.body;
+
+    if (!newScheduledTime) {
+      return res.status(400).json({ error: "New scheduled time is required." });
+    }
+
+    const application = await Application.findById(applicationId);
+
+    if (!application) {
+      return res.status(404).json({ error: "Application not found." });
+    }
+
+    if (
+      !application.interview ||
+      application.interview.status !== "Scheduled"
+    ) {
+      return res.status(400).json({ error: "Interview is not scheduled." });
+    }
+
+    application.interview.status = "Rescheduled";
+    application.interview.scheduled_time = newScheduledTime;
+    await application.save();
+
+    const notification = new Notification({
+      user: application.jobId,
+      message: `The applicant has requested a reschedule. New time: ${newScheduledTime}`,
+      type: "interviewRescheduled",
+      isRead: false,
+    });
+    await notification.save();
+
+    const employerSocketId = getReceiverSocketId(application.jobId.toString());
+    if (employerSocketId) {
+      io.to(employerSocketId).emit("interviewRescheduled", {
+        message: notification.message,
+        applicationId: application._id,
+        newScheduledTime,
+      });
+    }
+
+    res.status(200).json({
+      message: "Reschedule request sent successfully.",
+      application,
+    });
+  } catch (error) {
+    console.error("Error requesting reschedule:", error);
+    res.status(500).json({
+      error: "An error occurred while requesting reschedule.",
+    });
+  }
+};
+
+
+export const getInterviewDetails = async (req, res) => {
+  try {
+    const { applicationId } = req.params;
+    const application = await Application.findById(applicationId);
+
+    if (!application) {
+      return res.status(404).json({ error: "Application not found." });
+    }
+
+    res.status(200).json({
+      message: "Interview details retrieved successfully.",
+      interview: application.interview,
+    });
+  } catch (error) {
+    console.error("Error retrieving interview details:", error);
+    res.status(500).json({
+      error: "An error occurred while retrieving interview details.",
+    });
+  }
+};
+
+export const getCompleteInterview = async (req, res) => {
+  try {
+    const employerId = req.userId;
+
+    const employerJobs = await Job.find({ employer: employerId });
+
+    if (!employerJobs.length) {
+      return res
+        .status(403)
+        .json({ message: "No jobs found for this employer" });
+    }
+
+    const completedInterviews = await Application.find({
+      jobId: { $in: employerJobs.map((job) => job._id) },
+      "interview.status": "Completed",
+    })
+      .populate("jobId", "jobTitle jobCategory jobType")
+      .populate("applicantId", "fullName profilePicture")
+      .select(
+        "applicantId jobId createdAt status coverLetter resume additionalFiles accessibilityNeeds interview"
+      )
+      .exec();
+
+    if (!completedInterviews.length) {
+      return res.status(404).json({ message: "No completed interviews found" });
+    }
+
+    const ApplicantsInfo = completedInterviews.map((applicant) => ({
+      id: applicant._id,
+      applicantName: applicant.applicantId
+        ? applicant.applicantId.fullName
+        : "No name provided",
+      applicantProfilePicture: applicant.applicantId
+        ? applicant.applicantId.profilePicture || "No profile picture available"
+        : "No profile picture available",
+      jobTitle: applicant.jobId.jobTitle,
+      jobCategory: applicant.jobId.jobCategory,
+      jobType: applicant.jobId.jobType,
+      appliedAt: applicant.createdAt,
+      status: applicant.status,
+      coverLetter: applicant.coverLetter || "No cover letter provided",
+      resume: applicant.resume,
+      additionalFiles: applicant.additionalFiles || [],
+      accessibilityNeeds: applicant.accessibilityNeeds || "None",
+      interview: {
+        scheduledTime: applicant.interview.scheduled_time,
+        interviewType: applicant.interview.interview_type,
+        location: applicant.interview.location || "No location provided",
+        interviewStatus: applicant.interview.status,
+      },
+    }));
+
+    res.status(200).json(ApplicantsInfo);
+  } catch (error) {
+    console.error("Error fetching completed interviews:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+export const getInteviewedScheduledApplicants = async (req, res) => {
+  try {
+    const employerId = req.userId;
+
+    const employerJobs = await Job.find({ employer: employerId });
+
+    if (!employerJobs.length) {
+      return res
+        .status(403)
+        .json({ message: "No jobs found for this employer." });
+    }
+
+    const interviewScheduledApplicants = await Application.find({
+      jobId: { $in: employerJobs.map((job) => job._id) },
+      status: "Interview Scheduled",
+
+    })
+      .populate("jobId", "jobTitle jobCategory jobType")
+      .populate("applicantId", "fullName profilePicture")
+      .select(
+        "applicantId jobId createdAt status coverLetter resume additionalFiles accessibilityNeeds interview"
+      )
+      .exec();
+
+    if (!interviewScheduledApplicants.length) {
+      return res
+        .status(404)
+        .json({ message: "No interview-scheduled applicants found for your jobs." });
+    }
+
+    const interviewScheduledInfo = interviewScheduledApplicants.map((applicant) => ({
+      id: applicant._id,
+      applicantName: applicant.applicantId
+        ? applicant.applicantId.fullName
+        : "No name provided",
+      applicantProfilePicture: applicant.applicantId
+        ? applicant.applicantId.profilePicture || "No profile picture available"
+        : "No profile picture available",
+      jobTitle: applicant.jobId.jobTitle,
+      jobCategory: applicant.jobId.jobCategory,
+      jobType: applicant.jobId.jobType,
+      appliedAt: applicant.createdAt,
+      status: applicant.status,
+      coverLetter: applicant.coverLetter || "No cover letter provided",
+      resume: applicant.resume,
+      additionalFiles: applicant.additionalFiles || [],
+      accessibilityNeeds: applicant.accessibilityNeeds || "None",
+      interview: applicant.interview || {
+        scheduled_time: null,
+        interview_type: "Not scheduled",
+        location: "No location provided",
+        status: "Not scheduled",
+      },
+    }));
+
+    res.status(200).json({
+      message: "Interview-scheduled applicants retrieved successfully.",
+      interviewScheduledApplicants: interviewScheduledInfo,
+    });
+  } catch (error) {
+    console.error("Error fetching interview-scheduled applicants:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+export const getCompleteInterviewedApplicants = async (req, res) => {
+  try {
+    const employerId = req.userId;
+
+    if (!employerId) {
+      return res.status(400).json({ message: "Employer ID is missing." });
+    }
+
+    const employerJobs = await Job.find({ employer: employerId });
+
+    if (!employerJobs || employerJobs.length === 0) {
+      return res.status(404).json({ message: "No jobs found for this employer." });
+    }
+
+    const interviewScheduledApplicants = await Application.find({
+      jobId: { $in: employerJobs.map((job) => job._id) },
+      status: "Interview Completed",
+    })
+      .populate("jobId", "jobTitle jobCategory jobType")
+      .populate("applicantId", "fullName profilePicture")
+      .select(
+        "applicantId jobId createdAt status coverLetter resume additionalFiles accessibilityNeeds interview"
+      )
+      .exec();
+
+    if (!interviewScheduledApplicants || interviewScheduledApplicants.length === 0) {
+      return res.status(404).json({ message: "No completed interview applicants found for your jobs." });
+    }
+
+    const interviewScheduledInfo = interviewScheduledApplicants.map((applicant) => ({
+      id: applicant._id,
+      applicantName: applicant.applicantId?.fullName || "No name provided",
+      applicantProfilePicture: applicant.applicantId?.profilePicture || "No profile picture available",
+      jobTitle: applicant.jobId?.jobTitle || "No job title provided",
+      jobCategory: applicant.jobId?.jobCategory || "No job category provided",
+      jobType: applicant.jobId?.jobType || "No job type provided",
+      appliedAt: applicant.createdAt,
+      status: applicant.status,
+      coverLetter: applicant.coverLetter || "No cover letter provided",
+      resume: applicant.resume || "No resume provided",
+      additionalFiles: applicant.additionalFiles || [],
+      accessibilityNeeds: applicant.accessibilityNeeds || "None",
+      interview: applicant.interview || {
+        scheduled_time: null,
+        interview_type: "Not scheduled",
+        location: "No location provided",
+        status: "Not scheduled",
+      },
+    }));
+
+    res.status(200).json({
+      message: "Completed interview applicants retrieved successfully.",
+      interviewScheduledApplicants: interviewScheduledInfo,
+    });
+  } catch (error) {
+    console.error("Error fetching completed interview applicants:", error);
+    res.status(500).json({ message: error.message || "Internal Server Error" });
+  }
+};
+
+export const completeInterview = async (req, res) => {
+  try {
+    const { id: applicationId } = req.params;
+    if (!applicationId) {
+      return res.status(400).json({ error: "Application ID is required." });
+    }
+
+    const application = await Application.findById(applicationId).populate('jobId');;
+    
+    if (!application) {
+      return res.status(404).json({ error: "Application not found." });
+    }
+
+    const applicantId = application.applicantId; 
+
+    application.interview.status = "Completed";
+    application.status = "Interview Completed";
+    await application.save();
+
+    const notification = new Notification({
+      user: applicantId,
+      message: `Your interview for the job ${application.jobId.jobTitle} has been marked as completed.`,
+      type: "interviewCompleted",
+      isRead: false,
+    });
+    await notification.save();
+
+    const applicantSocketId = getReceiverSocketId(applicantId.toString());
+    if (applicantSocketId) {
+      io.to(applicantSocketId).emit("interviewCompleted", {
+        message: notification.message,
+        applicationId: application._id,
+      });
+    } else {
+      console.log(`Applicant ${applicantId} is offline. Notification saved.`);
+    }
+
+    res.status(200).json({
+      message: "Interview successfully marked as completed.",
+      application,
+    });
+  } catch (error) {
+    console.error("Error completing interview:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+export const confirmInterview = async (req, res) => {
+  try {
+    const { id: applicationId } = req.params;
+    if (!applicationId) {
+      return res.status(400).json({ error: "Application ID is required." });
+    }
+
+    const application = await Application.findById(applicationId).populate('applicantId'); ;
+
+    if (!application) {
+      return res.status(404).json({ error: "Application not found." });
+    }
+
+    if (!application.interview || application.interview.status !== "Scheduled") {
+      return res.status(400).json({ error: "Interview is not scheduled." });
+    }
+
+    application.interview.status = "Confirmed";
+    await application.save();
+
+    const notification = new Notification({
+      user: application.jobId,
+      message: `The applicant ${application.applicantId.fullName} has confirmed the interview schedule.`,
+      type: "interviewConfirmed",
+      isRead: false,
+    });
+    await notification.save();
+
+    const employerSocketId = getReceiverSocketId(application.jobId.toString());
+    if (employerSocketId) {
+      io.to(employerSocketId).emit("interviewConfirmed", {
+        message: notification.message,
+        applicationId: application._id,
+      });
+    } else {
+      console.log(`Employer ${application.jobId} is offline. Notification saved.`);
+    }
+
+    res.status(200).json({
+      message: "Interview confirmed successfully.",
+      application,
+    });
+  } catch (error) {
+    console.error("Error confirming interview:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+export const declineInterview = async (req, res) => {
+  try {
+    const { id: applicationId } = req.params;
+    if (!applicationId) {
+      return res.status(400).json({ error: "Application ID is required." });
+    }
+
+    const application = await Application.findById(applicationId);
+
+    if (!application) {
+      return res.status(404).json({ error: "Application not found." });
+    }
+
+    if (!application.interview || application.interview.status !== "Scheduled") {
+      return res.status(400).json({ error: "Interview is not scheduled." });
+    }
+
+    application.interview.status = "Declined";
+    await application.save();
+
+    const notification = new Notification({
+      user: application.jobId,
+      message: `The applicant ${application.applicantId.fullName} has declined the interview schedule.`,
+      type: "interviewConfirmed",
+      isRead: false,
+    });
+    await notification.save();
+
+    const employerSocketId = getReceiverSocketId(application.jobId.toString());
+    if (employerSocketId) {
+      io.to(employerSocketId).emit("interviewConfirmed", {
+        message: notification.message,
+        applicationId: application._id,
+      });
+    } else {
+      console.log(`Employer ${application.jobId} is offline. Notification saved.`);
+    }
+
+    res.status(200).json({
+      message: "Interview declined successfully.",
+      application,
+    });
+  } catch (error) {
+    console.error("Error declining interview:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };

@@ -15,6 +15,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import FormatTimeDate from "../components/FormatTimeDate";
+import JobPostSkeleton from "../components/JobPostSkeleton";
+import JobPostSkeleton2 from "../components/JobPostSkeleton2";
 import JobPreferencesModal from "../components/JobPreferencesModal ";
 import Modal from "../components/Modal";
 import Navbar from "../components/Navbar";
@@ -34,10 +36,11 @@ const JobsPage = () => {
   const [selectedJobShift, setSelectedJobShift] = useState("listedAnyTime");
   const [selectedJobType, setselectedJobType] = useState("All work types");
   const [isModalOpen, setModalOpen] = useState(false);
-  const { user } = authStore();
+  const [formErrors, setFormErrors] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const jobsPerPage = 9;
   const navigate = useNavigate();
+  const { user } = authStore();
 
   const {
     getJobPosts,
@@ -48,12 +51,28 @@ const JobsPage = () => {
     applyJobs,
     getSavedJobs,
     savedJobs,
+    isjobLoading,
+    isError,
   } = jobStore();
 
   const toggleSection = () => {
     setCurrentSection((prevSection) =>
       prevSection === "section1" ? "section2" : "section1"
     );
+  };
+
+  const validateForm = (coverLetter, resume) => {
+    const errors = {};
+
+    if (!coverLetter || !coverLetter.trim()) {
+      errors.coverLetter = "Cover letter is required.";
+    } else if (coverLetter.trim().length < 20) {
+      errors.coverLetter = "Cover letter must be at least 50 characters.";
+    }
+    if (!resume || (resume && resume.size === 0)) {
+      errors.resume = "Resume is required.";
+    }
+    return errors;
   };
 
   useEffect(() => {
@@ -64,7 +83,7 @@ const JobsPage = () => {
   useEffect(() => {
     if (
       selectedJob &&
-      savedJobs.some((savedJob) => savedJob.jobId._id === selectedJob._id)
+      savedJobs?.some((savedJob) => savedJob?.jobId?._id === selectedJob?._id)
     ) {
       setIsJobSaved(true);
     } else {
@@ -79,10 +98,6 @@ const JobsPage = () => {
       setIsJobSaved(false);
     };
   }, []);
-
-  if (error) {
-    return <p className="error">{error}</p>;
-  }
 
   const filteredJobPosts = jobPosts.filter((job) => {
     const matchesKeyword =
@@ -205,6 +220,13 @@ const JobsPage = () => {
     const resume = formData.get("resume");
     const additionalFiles = formData.getAll("additionalFiles");
 
+    const errors = validateForm(coverLetter, resume);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
+
     try {
       console.log("Submitting job application with data:", {
         jobId,
@@ -314,7 +336,13 @@ const JobsPage = () => {
         <section className="flex mt-3 h-[150vh] flex-col sm:flex-row bg-white">
           <div className="w-full sm:w-2/4 p-4 h-full overflow-y-auto ml-24">
             <div className="space-y-4">
-              {filteredJobPosts.length > 0 ? (
+              {isjobLoading ? (
+                <JobPostSkeleton2 rows={6} />
+              ) : isError ? (
+                <p className="text-red-500 text-lg font-semibold text-center font-poppins">
+                  {isError}
+                </p>
+              ) : filteredJobPosts.length > 0 ? (
                 [...filteredJobPosts].reverse().map((job) => (
                   <div
                     key={job.id || job._id}
@@ -371,7 +399,7 @@ const JobsPage = () => {
                   <div className="flex items-center space-x-2">
                     <MapPinned className="h-5 w-5 text-gray-500" />
                     <p className="text-xl font-normal">
-                      {selectedJob.locations.join(", ").replace(/[\[\]"]+/g, "")}
+                      {selectedJob.locations.join(", ").replace(/[\\[\]"]+/g, "")}
                     </p>
                   </div>
                 )}
@@ -504,7 +532,7 @@ const JobsPage = () => {
                                 key={index}
                                 className="text-base text-black bg-gray-200 px-4 py-2 rounded-full"
                               >
-                                {skill.replace(/[\[\]"]+/g, "")}
+                                {skill.replace(/[\\[\]"]+/g, "")}
                               </li>
                             ))
                           ) : (
@@ -562,10 +590,16 @@ const JobsPage = () => {
       ) : (
         <div>
           <section className="mt-3 max-h-[170vh] max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4 overflow-auto">
-            {currentJobs.length > 0 ? (
+            {isjobLoading ? (
+              <JobPostSkeleton rows={6} />
+            ) : isError ? (
+              <p className="text-red-500 text-lg font-semibold col-span-full text-center">
+                {isError}
+              </p>
+            ) : currentJobs.length > 0 ? (
               currentJobs.map((job) => {
                 const isJobSaved = savedJobs.some((savedJob) => {
-                  return savedJob.jobId._id === job._id;
+                  return savedJob.jobId && savedJob.jobId._id === job._id;
                 });
                 return (
                   <div
@@ -686,6 +720,12 @@ const JobsPage = () => {
               Apply for : {selectedJob.jobTitle}
             </h2>
 
+            {error && (
+              <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4 text-center font-poppins">
+                {error}
+              </p>
+            )}
+
             <form
               onSubmit={handleApply}
               className="space-y-4"
@@ -702,10 +742,14 @@ const JobsPage = () => {
                   id="coverLetter"
                   name="coverLetter"
                   rows="5"
-                  required
                   placeholder="Write your cover letter here..."
                   className="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
                 ></textarea>
+                {formErrors.coverLetter && (
+                  <p className="text-red-500 text-sm mt-1 font-poppins">
+                    {formErrors.coverLetter}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -736,9 +780,13 @@ const JobsPage = () => {
                   id="resume"
                   name="resume"
                   accept=".pdf,.doc,.docx"
-                  required
                   className="block w-full mt-1 text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 focus:outline-none"
                 />
+                {formErrors.resume && (
+                  <p className="text-red-500 text-sm mt-1 font-poppins">
+                    {formErrors.resume}
+                  </p>
+                )}
               </div>
 
               <div>

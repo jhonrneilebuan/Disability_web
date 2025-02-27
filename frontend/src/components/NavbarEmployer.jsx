@@ -1,19 +1,26 @@
 import { Bell, Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { authStore } from "../stores/authStore";
 import { userStore } from "../stores/userStore";
 
 const NavbarEmployer = () => {
   const [query, setQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { notifications, clearNotifications, user, fetchNotifications } = authStore();
+  const {
+    notifications,
+    clearNotifications,
+    user,
+    fetchNotifications,
+    markAllNotificationsAsRead,
+  } = authStore();
   const { searchUsers, users, isLoading, error } = userStore();
   const navigate = useNavigate();
+  const unreadCount = notifications.filter((notif) => !notif.isRead).length;
 
   useEffect(() => {
-    fetchNotifications([...notifications].reverse());
-  }, [fetchNotifications, notifications]);
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const handleSearch = () => {
     if (query.trim()) {
@@ -32,6 +39,7 @@ const NavbarEmployer = () => {
   const handleViewProfile = () => {
     navigate("/employer-profile");
   };
+
 
   return (
     <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-4 shadow-lg relative">
@@ -80,6 +88,11 @@ const NavbarEmployer = () => {
                       alt={user.fullName}
                       className="w-8 h-8 rounded-full mr-3"
                     />
+                    <img
+                      src={user.profilePicture || "/avatar.png"}
+                      alt={user.fullName}
+                      className="w-8 h-8 rounded-full mr-3"
+                    />
                     <span>{user.fullName}</span>
                   </div>
                 ))}
@@ -95,9 +108,9 @@ const NavbarEmployer = () => {
             className="relative cursor-pointer hover:bg-gray-700 p-2 rounded-full transition-colors"
           >
             <Bell className="w-6 h-6" />
-            {notifications.length > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 text-xs text-white px-1">
-                {notifications.length}
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                {unreadCount}
               </span>
             )}
           </button>
@@ -145,6 +158,8 @@ const NavbarEmployer = () => {
           {notifications.length > 0 && (
             <button
               onClick={() => {
+                markAllNotificationsAsRead();
+                fetchNotifications();
                 clearNotifications();
                 setIsDropdownOpen(false);
               }}

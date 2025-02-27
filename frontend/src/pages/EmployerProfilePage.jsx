@@ -6,7 +6,7 @@ import { authStore } from "../stores/authStore";
 import { useNavigate } from "react-router-dom";
 
 const EmployerProfilePage = () => {
-  const { user } = authStore();
+  const { user, updateProfile, updateCoverPhoto } = authStore();
   const [selectedImg, setSelectedImg] = useState(null);
   const [selectedCoverImg, setSelectedCoverImg] = useState(null);
   const navigate = useNavigate();
@@ -26,9 +26,24 @@ const EmployerProfilePage = () => {
 
     reader.onload = async () => {
       const base64Image = reader.result;
-      isCoverPhoto
-        ? setSelectedCoverImg(base64Image)
-        : setSelectedImg(base64Image);
+
+      if (isCoverPhoto) {
+        setSelectedCoverImg(base64Image);
+        try {
+          await updateCoverPhoto({ coverPhoto: base64Image });
+        } catch (error) {
+          console.error("Failed to upload cover photo:", error);
+          alert("Failed to upload cover photo. Please try again.");
+        }
+      } else {
+        setSelectedImg(base64Image);
+        try {
+          await updateProfile({ profilePicture: base64Image });
+        } catch (error) {
+          console.error("Failed to upload profile picture:", error);
+          alert("Failed to upload profile picture. Please try again.");
+        }
+      }
     };
   };
 

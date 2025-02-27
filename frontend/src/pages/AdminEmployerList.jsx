@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   fetchUsersApi,
   deleteUserApi,
@@ -10,7 +10,7 @@ import AdminListSkeletonLoader from "../components/AdminListSkeletonLoader";
 
 const EmployerList = () => {
   const [employers, setEmployers] = useState([]);
-  const [loading, setLoading] = useState(true); // Start with loading true
+  const [loading, setLoading] = useState(true); 
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBanned, setFilterBanned] = useState("All");
@@ -39,7 +39,8 @@ const EmployerList = () => {
     try {
       const response = await fetchUsersApi();
       setEmployers(response.data.employers);
-    } catch (err) {
+    } catch (error) {
+      console.error(error, "Failed to fetch employers.")
       setError("Failed to fetch employers.");
     } finally {
       const elapsed = Date.now() - startTime;

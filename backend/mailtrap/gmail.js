@@ -93,4 +93,27 @@ export const sendConfirmationEmail = async (applicantId, jobId) => {
   return transporter.sendMail(mailOptions);
 };
 
+export const sendContactUsEmail = async (name, email, subject, message) => {
+  try {
+    const mailOptions = {
+      from: email,
+      to: process.env.EMAIL_USER,
+      subject: `Contact Us: ${subject}`,
+      html: `
+        <h3>Contact Form Submission</h3>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Message:</strong></p>
+        <p>${message}</p>
+      `,
+    };
 
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Contact Us email sent: " + info.response);
+    return { success: true, message: "Email sent successfully!" };
+  } catch (error) {
+    console.error("Error sending contact email: ", error);
+    throw new Error("Error sending contact email.");
+  }
+};

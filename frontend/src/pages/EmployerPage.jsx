@@ -21,8 +21,8 @@ import { useEffect } from "react";
 import { Bar, Line } from "react-chartjs-2";
 import NavbarEmployer from "../components/NavbarEmployer";
 import Sidebar from "../components/Sidebar";
+import SkeletonLoader from "../components/SkeletonLoader";
 import { jobStore } from "../stores/jobStore";
-import SkeletonLoader from "../components/SkeletonLoader"; // Import the SkeletonLoader
 
 ChartJS.register(
   CategoryScale,
@@ -53,6 +53,7 @@ const EmployerPage = () => {
     totalApplicantCount,
     getJobApplicantsCount,
     isChartLoading,
+    isTotalLoading,
   } = jobStore();
 
   useEffect(() => {
@@ -108,7 +109,7 @@ const EmployerPage = () => {
                 Job & Application Summary
               </h3>
               <div className="flex justify-between gap-4">
-                {totalApplicants === undefined ? (
+                {isTotalLoading ? (
                   <SkeletonLoader className="w-1/3 h-24" />
                 ) : (
                   <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
@@ -124,7 +125,7 @@ const EmployerPage = () => {
                   </div>
                 )}
 
-                {totalJobs === undefined ? (
+                {isTotalLoading ? (
                   <SkeletonLoader className="w-1/3 h-24" />
                 ) : (
                   <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
@@ -136,7 +137,7 @@ const EmployerPage = () => {
                   </div>
                 )}
 
-                {totalInterview === undefined ? (
+                {isTotalLoading ? (
                   <SkeletonLoader className="w-1/3 h-24" />
                 ) : (
                   <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
@@ -159,7 +160,7 @@ const EmployerPage = () => {
                 Application Status
               </h3>
               <div className="flex justify-between gap-4">
-                {totalHired === undefined ? (
+                {isTotalLoading ? (
                   <SkeletonLoader className="w-1/3 h-24" />
                 ) : (
                   <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
@@ -173,7 +174,7 @@ const EmployerPage = () => {
                   </div>
                 )}
 
-                {totalPending === undefined ? (
+                {isTotalLoading ? (
                   <SkeletonLoader className="w-1/3 h-24" />
                 ) : (
                   <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
@@ -189,7 +190,7 @@ const EmployerPage = () => {
                   </div>
                 )}
 
-                {totalShortlist === undefined ? (
+                {isTotalLoading ? (
                   <SkeletonLoader className="w-1/3 h-24" />
                 ) : (
                   <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center text-center w-1/3">
@@ -218,7 +219,9 @@ const EmployerPage = () => {
                 <h3 className="text-xl font-semibold text-center mb-4">
                   Applicants Over Time
                 </h3>
-                {totalDataOfApplicants ? (
+                {isChartLoading ? (
+                  <SkeletonLoader className="h-48" />
+                ) : totalDataOfApplicants ? (
                   <Line
                     data={totalDataOfApplicants}
                     options={{
@@ -230,7 +233,7 @@ const EmployerPage = () => {
                     }}
                   />
                 ) : (
-                  <SkeletonLoader className="h-48" />
+                  <p>No data available</p>
                 )}
               </div>
 
@@ -262,7 +265,7 @@ const EmployerPage = () => {
                     }}
                   />
                 ) : (
-                  <SkeletonLoader className="h-48" />
+                  <p>No data available</p>
                 )}
               </div>
             </div>

@@ -1,29 +1,38 @@
 import express from "express";
-import { uploadFiles } from "../middlewares/file_upload.js";
-import { employerOnly, verifyToken } from "../middlewares/token.js";
 import {
+  acceptApplication,
   applyJobs,
+  clearJobPreferences,
+  completeInterview,
+  confirmInterview,
+  declineInterview,
+  getApplicantsWithJobs,
   getApplications,
   getApplicationsByApplicant,
-  getTotalApplications,
-  getApplicantsWithJobs,
-  withdrawApplication,
-  shortlistApplication,
-  interviewApplication,
-  acceptApplication,
-  hireApplication,
-  rejectApplication,
-  getShortlistedApplicants,
-  getTotalPending,
-  getTotalShortlist,
-  getTotalInterview,
-  getTotalHired,
-  getTotalApplicant,
+  getCompleteInterview,
+  getCompleteInterviewedApplicants,
+  getInterviewDetails,
+  getInteviewedScheduledApplicants,
   getJobApplicantsCount,
   getJobPreferences,
+  getShortlistedApplicants,
+  getTotalApplicant,
+  getTotalApplications,
+  getTotalHired,
+  getTotalInterview,
+  getTotalPending,
+  getTotalShortlist,
+  hireApplication,
+  interviewApplication,
+  rejectApplication,
+  requestReschedule,
+  scheduleInterview,
+  shortlistApplication,
   updateJobPreferences,
-  clearJobPreferences
+  withdrawApplication,
 } from "../controllers/application.controller.js";
+import { uploadFiles } from "../middlewares/file_upload.js";
+import { employerOnly, verifyToken } from "../middlewares/token.js";
 
 const router = express.Router();
 
@@ -45,17 +54,63 @@ router.patch("/:id/interview", verifyToken, employerOnly, interviewApplication);
 router.patch("/:id/acceptance", verifyToken, employerOnly, acceptApplication);
 router.patch("/:id/hired", verifyToken, employerOnly, hireApplication);
 router.patch("/:id/reject", verifyToken, employerOnly, rejectApplication);
-router.get('/shortlist', verifyToken, employerOnly, getShortlistedApplicants);
+router.patch("/:id/complete", verifyToken, employerOnly, completeInterview);
+router.patch("/:id/confirm-interview", verifyToken, confirmInterview);
+router.patch("/:id/decline-interview", verifyToken, declineInterview);
+router.get("/shortlist", verifyToken, employerOnly, getShortlistedApplicants);
+router.get(
+  "/scheduled-interview",
+  verifyToken,
+  employerOnly,
+  getInteviewedScheduledApplicants
+);
+router.get(
+  "/complete-interview",
+  verifyToken,
+  employerOnly,
+  getCompleteInterviewedApplicants
+);
 router.get("/total-pending", verifyToken, employerOnly, getTotalPending);
 router.get("/total-shortlist", verifyToken, employerOnly, getTotalShortlist);
 router.get("/total-interview", verifyToken, employerOnly, getTotalInterview);
 router.get("/total-hired", verifyToken, employerOnly, getTotalHired);
 router.get("/total-applicant", verifyToken, employerOnly, getTotalApplicant);
-router.get("/applicant-count", verifyToken, employerOnly, getJobApplicantsCount);
+router.get(
+  "/applicant-count",
+  verifyToken,
+  employerOnly,
+  getJobApplicantsCount
+);
 router.get("/", verifyToken, getJobPreferences);
-router.put("/", verifyToken, updateJobPreferences)
+router.put("/", verifyToken, updateJobPreferences);
 router.delete("/clear", verifyToken, clearJobPreferences);
+router.get(
+  "/applicant-count",
+  verifyToken,
+  employerOnly,
+  getJobApplicantsCount
+);
+router.get("/", verifyToken, getJobPreferences);
+router.put("/", verifyToken, updateJobPreferences);
+router.delete("/clear", verifyToken, clearJobPreferences);
+router.post(
+  "/applications/:applicationId/schedule-interview",
+  verifyToken,
+  scheduleInterview
+);
 
+router.post(
+  "/applications/:applicationId/request-reschedule",
+  verifyToken,
+  requestReschedule
+);
 
+router.get(
+  "/applications/:applicationId/interview",
+  verifyToken,
+  getInterviewDetails
+);
+
+router.get("/applicants/CompleteInterview", verifyToken, getCompleteInterview);
 
 export default router;

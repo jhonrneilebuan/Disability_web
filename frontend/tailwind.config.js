@@ -64,6 +64,10 @@ export default {
       animation: {
         "waving-hand": "wave 2s linear infinite",
       },
+      variants: {
+        backgroundColor: ['responsive', 'hover', 'focus', 'active', 'group-hover'],
+        backgroundOpacity: ['responsive', 'hover', 'focus', 'active'],
+      },
     },
   },
   plugins: [daisyui],

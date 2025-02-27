@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Loading from "./components/Loading";
+import AboutUs from "./pages/AboutUs";
 import ApplicantList from "./pages/AdminApplicantList";
 import AdminDashboard from "./pages/AdminDashboard";
 import DisabilityVerification from "./pages/AdminDisabilityVerification";
@@ -11,19 +12,26 @@ import AdminPanel from "./pages/AdminPanel";
 import AdminProfilePage from "./pages/AdminProfilePage";
 import ApplicantPage from "./pages/ApplicantPage";
 import AppliedJobs from "./pages/AppliedJobs";
+import ContactUsPage from "./pages/ContactUsPage";
 import EditEmployerPage from "./pages/EditEmployerPage";
 import EditProfileInfoPage from "./pages/EditProfileInfoPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
 import EmployerApplicantsPage from "./pages/EmployerApplicantsPage";
+import EmployerHiringPage from "./pages/EmployerHiringPage";
+import EmployerInterviewPage from "./pages/EmployerInterviewPage";
 import EmployerJobPage from "./pages/EmployerJobPage";
 import EmployerPage from "./pages/EmployerPage";
 import EmployerProfilePage from "./pages/EmployerProfilePage";
+import FindAJob from "./pages/FindAJob";
 import ForgotPassword from "./pages/ForgotPassword";
+import Homepage from "./pages/Homepage";
+import HowItWorks from "./pages/HowItWorks";
 import JobDetailsPage from "./pages/JobDetailsPage";
 import JobPost from "./pages/JobPost";
 import JobsPage from "./pages/JobsPage";
 import LoginPage from "./pages/LoginPage";
 import MessagingPage from "./pages/MessagingPage";
+import PrivacyPage from "./pages/PrivacyPage";
 import ProfileInfoPage from "./pages/ProfileInfoPage";
 import ResetPassword from "./pages/ResetPassword";
 import SignUpPage from "./pages/SignUpPage";
@@ -34,14 +42,11 @@ import UserData from "./pages/UserData";
 import UserProfilingPage from "./pages/UserProfilingPage";
 import VideoChatRoom from "./pages/VideoChatRoom";
 import { authStore } from "./stores/authStore";
-import PrivacyPage from "./pages/PrivacyPage";
-import HowItWorks from "./pages/HowItWorks";
-import AboutUs from "./pages/AboutUs";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   if (!user.isVerified) {
@@ -73,9 +78,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
 };
 
 function App() {
-  const { isCheckingAuth, checkAuth, onlineUsers } = authStore();
-
-  console.log("Online Users: ", onlineUsers);
+  const { isCheckingAuth, checkAuth } = authStore();
 
   useEffect(() => {
     checkAuth();
@@ -146,13 +149,41 @@ function App() {
           }
         />
         <Route
-          path="/"
+          path="/sign-up"
           element={
             <RedirectAuthenticatedUser>
               <SignUpPage />
             </RedirectAuthenticatedUser>
           }
         />
+
+        <Route
+          path="/"
+          element={
+            <RedirectAuthenticatedUser>
+              <Homepage />
+            </RedirectAuthenticatedUser>
+          }
+        />
+
+        <Route
+          path="/job-find"
+          element={
+            <RedirectAuthenticatedUser>
+              <FindAJob />
+            </RedirectAuthenticatedUser>
+          }
+        />
+
+        <Route
+          path="/contact-us"
+          element={
+            <RedirectAuthenticatedUser>
+              <ContactUsPage />
+            </RedirectAuthenticatedUser>
+          }
+        />
+
         <Route
           path="/login"
           element={
@@ -161,7 +192,7 @@ function App() {
             </RedirectAuthenticatedUser>
           }
         />
-        <Route path="/about-us" element={<AboutUs />} /> 
+        <Route path="/about-us" element={<AboutUs />} />
         <Route path="/privacy-policy" element={<PrivacyPage />} />
         <Route
           path="/verify-email"
@@ -187,6 +218,9 @@ function App() {
             </RedirectAuthenticatedUser>
           }
         />
+
+        <Route path="/howitworks" element={<HowItWorks />} />
+
         <Route
           path="/user/:userId"
           element={
@@ -251,6 +285,33 @@ function App() {
         />
 
         <Route
+          path="/uploadId"
+          element={
+            <ProtectedRoute>
+              <UploadDisabilityIdPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/employer-interview"
+          element={
+            <ProtectedRoute>
+              <EmployerInterviewPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/employer-hiring"
+          element={
+            <ProtectedRoute>
+              <EmployerHiringPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/uploademployerId"
           element={
             <ProtectedRoute>
@@ -264,6 +325,24 @@ function App() {
           element={
             <ProtectedRoute>
               <EmployerProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/employer-hiring"
+          element={
+            <ProtectedRoute>
+              <EmployerHiringPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/employer-Interview"
+          element={
+            <ProtectedRoute>
+              <EmployerInterviewPage />
             </ProtectedRoute>
           }
         />
@@ -307,7 +386,6 @@ function App() {
             path="disabilityVerification"
             element={<DisabilityVerification />}
           />
-          <Route path="howitworks" element={<HowItWorks />} />
         </Route>
 
         <Route path="/ban" element={<UserBan />} />

@@ -21,7 +21,7 @@ const EmployerApplicantsPage = () => {
   const [openRejectModal, setOpenRejectModal] = useState(false);
   const [selectedRejectApplicant, setSelectedRejectApplicant] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState("All");
+  const [filterStatus, setFilterStatus] = useState("Pending");
   const [isSearchSubmitted, setIsSearchSubmitted] = useState(false);
   const [selectedViewApplicant, setSelectedViewApplicant] = useState(null);
   const [openViewModal, setOpenViewModal] = useState(false);
@@ -130,6 +130,10 @@ const EmployerApplicantsPage = () => {
               <option value="Pending">Pending</option>
               <option value="Shortlisted">Shortlisted</option>
               <option value="Rejected">Rejected</option>
+              <option value="Interview Scheduled">Interview Scheduled</option>
+              <option value="Interview Completed">Interview Completed</option>
+              <option value="Hired">Hired</option>
+
             </select>
           </div>
 
@@ -220,13 +224,19 @@ const EmployerApplicantsPage = () => {
                         <span
                           className={`inline-block px-4 py-1 text-white rounded-full font-medium ${
                             applicant.status === "Pending"
-                              ? "bg-orange-500"
-                              : applicant.status === "Rejected"
-                              ? "bg-red-500"
-                              : applicant.status === "Shortlisted"
-                              ? "bg-blue-500"
-                              : "bg-gray-300"
-                          }`}
+                            ? "bg-orange-500"
+                            : applicant.status === "Rejected"
+                            ? "bg-red-500"
+                            : applicant.status === "Shortlisted"
+                            ? "bg-blue-500"
+                            : applicant.status === "Interview Scheduled"
+                            ? "bg-purple-500"
+                            : applicant.status === "Interview Completed"
+                            ? "bg-green-500"
+                            : applicant.status === "Hired"
+                            ? "bg-teal-500"
+                            : "bg-gray-300"
+                        }`}
                         >
                           {applicant.status || "N/A"}
                         </span>
@@ -249,24 +259,29 @@ const EmployerApplicantsPage = () => {
                           >
                             View
                           </button>
-                          <button
-                            onClick={() => {
-                              setSelectedApplicant(applicant);
-                              setOpenShortlistModal(true);
-                            }}
-                            className="w-24 bg-blue-500 text-white px-3 py-2 text-sm font-medium rounded-full shadow-md hover:bg-blue-600 hover:shadow-lg focus:ring-2 focus:ring-blue-400 transition-all duration-200"
-                          >
-                            Shortlist
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedRejectApplicant(applicant);
-                              setOpenRejectModal(true);
-                            }}
-                            className="w-24 bg-red-500 text-white px-3 py-2 text-sm font-medium rounded-full shadow-md hover:bg-red-600 hover:shadow-lg focus:ring-2 focus:ring-red-400 transition-all duration-200"
-                          >
-                            Reject
-                          </button>
+                          {applicant.status === "Pending" && (
+                            <>
+                              <button
+                                onClick={() => {
+                                  setSelectedApplicant(applicant);
+                                  setOpenShortlistModal(true);
+                                }}
+                                className="w-24 bg-blue-500 text-white px-3 py-2 text-sm font-medium rounded-full shadow-md hover:bg-blue-600 hover:shadow-lg focus:ring-2 focus:ring-blue-400 transition-all duration-200"
+                              >
+                                Shortlist
+                              </button>
+
+                              <button
+                                onClick={() => {
+                                  setSelectedRejectApplicant(applicant);
+                                  setOpenRejectModal(true);
+                                }}
+                                className="w-24 bg-red-500 text-white px-3 py-2 text-sm font-medium rounded-full shadow-md hover:bg-red-600 hover:shadow-lg focus:ring-2 focus:ring-red-400 transition-all duration-200"
+                              >
+                                Reject
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -300,7 +315,7 @@ const EmployerApplicantsPage = () => {
             </h2>
             <p className="font-poppins">
               Are you sure you want to shortlist{" "}
-              <strong>{selectedApplicant?.applicantId}</strong> for the job{" "}
+              <strong>{selectedApplicant?.applicantName}</strong> for the job{" "}
               <strong>{selectedApplicant?.jobTitle}</strong>?
             </p>
             <div className="mt-4 flex justify-center gap-16">
@@ -331,7 +346,7 @@ const EmployerApplicantsPage = () => {
             </h2>
             <p className="font-poppins text-center">
               Are you sure you want to reject the application of
-              <strong> {selectedRejectApplicant?.applicantId}</strong> for the
+              <strong> {selectedRejectApplicant?.applicantName}</strong> for the
               job
               <strong> {selectedRejectApplicant?.jobTitle}</strong>?
             </p>

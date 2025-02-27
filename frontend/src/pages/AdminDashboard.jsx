@@ -13,9 +13,9 @@ import {
 import { useEffect, useState } from "react";
 import { Bar, Line, Pie } from "react-chartjs-2";
 import { FaBell, FaBriefcase, FaClock, FaUsers } from "react-icons/fa";
+import AdminDashboardSkeletonLoader from "../components/AdminDashboardSkeletonLoader";
 import { adminStore } from "../stores/adminApi";
 import { authStore } from "../stores/authStore";
-import AdminDashboardSkeletonLoader from "../components/AdminDashboardSkeletonLoader";
 
 ChartJS.register(
   CategoryScale,
@@ -47,7 +47,13 @@ const AdminDashboard = () => {
     error,
   } = adminStore();
 
-  const { notifications, clearNotifications, fetchNotifications } = authStore();
+  const {
+    notifications,
+    clearNotifications,
+    fetchNotifications,
+    markAllNotificationsAsRead,
+  } = authStore();
+  const unreadCount = notifications.filter((notif) => !notif.isRead).length;
 
   const [barData, setBarData] = useState({
     labels: ["Applicants", "Employers", "Users"],
@@ -189,9 +195,9 @@ const AdminDashboard = () => {
           className="relative p-2 text-gray-700 hover:text-gray-900 focus:outline-none"
         >
           <FaBell className="w-6 h-6" />
-          {notifications.length > 0 && (
+          {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-              {notifications.length}
+              {unreadCount}
             </span>
           )}
         </button>
@@ -200,11 +206,13 @@ const AdminDashboard = () => {
           <div className="absolute left-0 w-64 bg-white shadow-lg rounded-lg overflow-hidden z-50">
             <div className="p-3 text-gray-700 font-semibold">Notifications</div>
             {notifications.length > 0 ? (
-              <ul className="max-h-48 overflow-y-auto">
-                {[...notifications].reverse().map((notif, index) => (
+              <ul className="max-h-48 overflow-y-scroll no-scrollbar">
+                {notifications.map((notif, index) => (
                   <li
                     key={notif._id || index}
-                    className="px-4 py-2 text-sm border-b hover:bg-gray-100 font-poppins"
+                    className={`px-4 py-2 text-sm border-b hover:bg-gray-100 ${
+                      notif.isRead ? "text-gray-500" : "text-black"
+                    }`}
                   >
                     {notif?.message || notif}
                   </li>
@@ -219,6 +227,8 @@ const AdminDashboard = () => {
             {notifications.length > 0 && (
               <button
                 onClick={() => {
+                  markAllNotificationsAsRead();
+                  fetchNotifications();
                   clearNotifications();
                   setIsOpen(false);
                 }}

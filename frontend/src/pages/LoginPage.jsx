@@ -92,7 +92,7 @@ const LoginPage = () => {
             <div className="px-8 py-4 bg-opacity-50 flex justify-center">
               <p className="text-sm text-gray-500 flex items-center">
                 Don&apos;t have an account?
-                <Link to={"/"} className="text-yellow-600 hover:underline ml-2">
+                <Link to={"/sign-up"} className="text-yellow-600 hover:underline ml-2">
                   Sign up
                 </Link>
               </p>
@@ -100,7 +100,6 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* temp img */}
         <div className="w-1/2 bg-applicant-bg-1 bg-cover h-full"></div>
       </motion.div>
     </div>

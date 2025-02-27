@@ -1,6 +1,6 @@
-import { create } from "zustand";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { create } from "zustand";
 
 const API_URL = "http://localhost:8080/api";
 
@@ -10,6 +10,7 @@ export const userStore = create((set) => ({
   isLoading: false,
   error: null,
   users: [],
+  profileData: null,
   isuploadDisabilityId: false,
   isuploadEmployerId: false,
 
@@ -43,7 +44,7 @@ export const userStore = create((set) => ({
     try {
       const response = await axios.get(`${API_URL}/users/${userId}`);
       set({
-        profileData: response.data,  
+        profileData: response.data,
         isLoading: false,
       });
     } catch (error) {
@@ -52,6 +53,59 @@ export const userStore = create((set) => ({
         error: "Failed to load user data",
         isLoading: false,
       });
+    }
+  },
+
+  contactForm: {
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+    success: null,
+  },
+
+  setContactField: (field, value) =>
+    set((state) => ({
+      contactForm: { ...state.contactForm, [field]: value },
+    })),
+
+  sendContactForm: async () => {
+    const { name, email, subject, message } = userStore.getState().contactForm;
+
+    if (!name || !email || !subject || !message) {
+      set({ error: "All fields are required." });
+      toast.error("All fields are required.");
+      return;
+    }
+
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await axios.post(`${API_URL}/contact/`, {
+        name,
+        email,
+        subject,
+        message,
+      });
+
+      set({
+        contactForm: {
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+          success: response.data.message,
+        },
+        isLoading: false,
+      });
+      toast.success("Message sent successfully!");
+    } catch (error) {
+      console.error("Error sending contact form:", error);
+      set({
+        error: error.response?.data?.error || "Failed to send message",
+        isLoading: false,
+      });
+      toast.error("Failed to send message.");
     }
   },
 
@@ -66,11 +120,16 @@ export const userStore = create((set) => ({
       toast.success("Disability ID updated successfully");
     } catch (error) {
       console.log("error in Disability ID:", error);
-      toast.error(error.response.data.message);
+      if (error.response && error.response.data.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("An unexpected error occurred. Please try again.");
+      }
     } finally {
       set({ isuploadDisabilityId: false });
     }
   },
+
   uploadEmployerId: async (data) => {
     set({ isuploadEmployerId: true });
     try {

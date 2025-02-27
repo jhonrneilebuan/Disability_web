@@ -42,7 +42,6 @@ const EmployerJobPage = () => {
 
   useEffect(() => {
     getEmployerJobs();
-    console.log("Job Posts:", jobPosts);
   }, [getEmployerJobs]);
 
   useEffect(() => {

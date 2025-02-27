@@ -15,6 +15,10 @@ export const jobStore = create((set, get) => ({
   employerApplicants: [],
   totalApplicantCount: [],
   savedJobs: [],
+  shortlistedApplicants: [],
+  completeInteview: [],
+  interviewScheduledApplicants: [],
+  CompleteInterviewApplicants: [],
   totalPending: 0,
   totalDataOfApplicants: null,
   totalShortlist: 0,
@@ -25,8 +29,13 @@ export const jobStore = create((set, get) => ({
   isLoading: false,
   isTotalLoading: false,
   isChartLoading: false,
+  interviewLoading: false,
+  isApplicationLoading: false,
   error: null,
   message: null,
+  isError: null,
+  jobpostError: null,
+  isjobLoading: null,
 
   getJobPreferences: async () => {
     set({ isjobPreferencesLoading: true, error: null });
@@ -41,51 +50,56 @@ export const jobStore = create((set, get) => ({
       set({
         error:
           error.response?.data?.message || "Error fetching job preferences",
-          isjobPreferencesLoading: false,
+        isjobPreferencesLoading: false,
       });
     }
   },
 
   updateJobPreferences: async (preferences) => {
     set({ isLoading: true, error: null });
-  
+
     try {
       preferences.expectedSalary = {
         minSalary: Number(preferences.expectedSalary.minSalary),
         maxSalary: Number(preferences.expectedSalary.maxSalary),
       };
-  
-      if (!Array.isArray(preferences.jobCategories) || preferences.jobCategories.length > 3) {
+
+      if (
+        !Array.isArray(preferences.jobCategories) ||
+        preferences.jobCategories.length > 3
+      ) {
         throw new Error("You must select up to 3 job categories.");
       }
-  
-      if (!Array.isArray(preferences.jobTypes) || preferences.jobTypes.length > 3) {
+
+      if (
+        !Array.isArray(preferences.jobTypes) ||
+        preferences.jobTypes.length > 3
+      ) {
         throw new Error("You must select up to 3 job types.");
       }
-  
+
       if (!preferences.jobQualifications) {
         throw new Error("Job qualifications are required.");
       }
-  
+
       const response = await axios.put(`${API_URL}/applications/`, preferences);
-  
+
       set({ jobPreferences: response.data, isLoading: false });
       toast.success("Job preferences updated successfully");
     } catch (error) {
       console.error("Error updating job preferences:", error);
-  
+
       toast.error(
         error.response?.data?.message || "Error updating job preferences"
       );
-  
+
       set({
-        error: error.response?.data?.message || "Error updating job preferences",
+        error:
+          error.response?.data?.message || "Error updating job preferences",
         isLoading: false,
       });
     }
   },
-  
-  
 
   getTotalApplicant: async () => {
     set({ isTotalLoading: true, error: null });
@@ -135,19 +149,19 @@ export const jobStore = create((set, get) => ({
   },
 
   getJobPosts: async () => {
-    set({ isLoading: true, error: null });
+    set({ isjobLoading: true, isError: null });
     try {
       const response = await axios.get(`${API_URL}/jobs/`);
       set({
         jobPosts: response.data,
-        isLoading: false,
+        isjobLoading: false,
       });
     } catch (error) {
       console.error("Error fetching job posts:", error);
       toast.error(error.response?.data?.message || "Error fetching job posts");
       set({
-        error: error.response?.data?.message || "Error fetching job posts",
-        isLoading: false,
+        isError: error.response?.data?.message || "Error fetching job posts",
+        isjobLoading: false,
       });
       throw error;
     }
@@ -156,7 +170,7 @@ export const jobStore = create((set, get) => ({
   getAllJobs: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.get(`${API_URL}/jobs/`);
+      const response = await axios.get(`${API_URL}/jobs/all`);
       set({
         jobPosts: response.data,
         isLoading: false,
@@ -173,7 +187,7 @@ export const jobStore = create((set, get) => ({
   },
 
   getJobById: async (jobId) => {
-    set({ isLoading: true, error: null });
+    set({ isLoading: true, jobpostError: null });
     try {
       const response = await axios.get(`${API_URL}/jobs/${jobId}`);
       set({
@@ -184,7 +198,8 @@ export const jobStore = create((set, get) => ({
       console.error("Error fetching job posts:", error);
       toast.error(error.response?.data?.message || "Error fetching job posts");
       set({
-        error: error.response?.data?.message || "Error fetching job posts",
+        jobpostError:
+          error.response?.data?.message || "Error fetching job posts",
         isLoading: false,
       });
       throw error;
@@ -214,20 +229,20 @@ export const jobStore = create((set, get) => ({
   },
 
   getApplicationsByApplicant: async () => {
-    set({ isLoading: true, error: null });
+    set({ isApplicationLoading: true, isError: null });
     try {
       const response = await axios.get(
         `${API_URL}/applications/my-applications`
       );
       set({
         applications: response.data,
-        isLoading: false,
+        isApplicationLoading: false,
       });
     } catch (error) {
       console.error("Error fetching applications:", error);
       set({
-        error: error.response?.data?.message || "Error fetching applications",
-        isLoading: false,
+        isError: error.response?.data?.message || "Error fetching applications",
+        isApplicationLoading: false,
       });
       throw error;
     }
@@ -324,11 +339,12 @@ export const jobStore = create((set, get) => ({
       const response = await axios.get(
         `${API_URL}/applications/total-interview`
       );
-      const totalInterview = response.data.totalInterview || 0;
+      const totalInterview = response.data.TotalInterview || 0;
       set({
         totalInterview,
         isTotalLoading: false,
       });
+      console.log(response.data);
     } catch (error) {
       console.error("Error fetching total interview:", error);
       set({ error: error.response?.data?.message, isTotalLoading: false });
@@ -537,6 +553,158 @@ export const jobStore = create((set, get) => ({
     }
   },
 
+  CompleteInterviewApplication: async (applicationId) => {
+    if (!applicationId) {
+      console.error("Application ID is missing");
+      return;
+    }
+
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.patch(
+        `${API_URL}/applications/${applicationId}/complete`
+      );
+
+      set((state) => ({
+        employerApplicants: state.employerApplicants.map((applicant) =>
+          applicant._id === applicationId
+            ? { ...applicant, status: "Interview Completed" }
+            : applicant
+        ),
+        isLoading: false,
+      }));
+
+      toast.success(
+        response.data.message || "Interview completed successfully."
+      );
+    } catch (error) {
+      console.error("Error completing interview:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to complete the interview."
+      );
+      set({
+        error: error.response?.data?.message || "Error completing interview",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  hiredApplication: async (applicationId) => {
+    if (!applicationId) {
+      console.error("Application ID is missing");
+      return;
+    }
+
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.patch(
+        `${API_URL}/applications/${applicationId}/hired`
+      );
+
+      set((state) => ({
+        employerApplicants: state.employerApplicants.map((applicant) =>
+          applicant._id === applicationId
+            ? { ...applicant, status: "Hired" }
+            : applicant
+        ),
+        isLoading: false,
+      }));
+
+      toast.success(response.data.message || "Application hired successfully.");
+    } catch (error) {
+      console.error("Error hiring application:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to hire the application."
+      );
+      set({
+        error: error.response?.data?.message || "Error hiring application",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  confirmApplication: async (applicationId) => {
+    if (!applicationId) {
+      console.error("Application ID is missing");
+      return;
+    }
+
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.patch(
+        `${API_URL}/applications/${applicationId}/confirm-interview`
+      );
+
+      set((state) => ({
+        employerApplicants: state.employerApplicants.map((applicant) =>
+          applicant._id === applicationId
+            ? {
+                ...applicant,
+                interview: { ...applicant.interview, status: "Confirmed" },
+              }
+            : applicant
+        ),
+        isLoading: false,
+      }));
+
+      toast.success(
+        response.data.message || "Interview confirmed successfully."
+      );
+    } catch (error) {
+      console.error("Error confirming application:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to confirm the interview."
+      );
+      set({
+        error: error.response?.data?.message || "Error confirming application",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  declineApplication: async (applicationId) => {
+    if (!applicationId) {
+      console.error("Application ID is missing");
+      return;
+    }
+
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.patch(
+        `${API_URL}/applications/${applicationId}/decline-interview`
+      );
+
+      set((state) => ({
+        employerApplicants: state.employerApplicants.map((applicant) =>
+          applicant._id === applicationId
+            ? {
+                ...applicant,
+                interview: { ...applicant.interview, status: "Declined" },
+              }
+            : applicant
+        ),
+        isLoading: false,
+      }));
+
+      toast.success(
+        response.data.message || "Interview declined successfully."
+      );
+    } catch (error) {
+      console.error("Error declining application:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to decline the interview."
+      );
+      set({
+        error: error.response?.data?.message || "Error declining application",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
   applyJobs: async ({
     jobId,
     coverLetter,
@@ -666,25 +834,138 @@ export const jobStore = create((set, get) => ({
       throw error;
     }
   },
+
+  getCompleteInterview: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.get(`
+        ${API_URL}/applications/applicants/CompleteInterview
+      `);
+      console.log("Applicants fetched:", response.data);
+      set({
+        completeInteview: response.data,
+        isLoading: false,
+      });
+    } catch (error) {
+      console.error("Error fetching applicants:", error);
+      toast.error(error.response?.data?.message || "Error fetching applicants");
+      set({
+        error: error.response?.data?.message || "Error fetching applicants",
+        isLoading: false,
+      });
+    }
+  },
+
+  getShortlistedApplicant: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.get(`
+        ${API_URL}/applications/shortlist
+      `);
+      console.log("Applicants fetched:", response.data);
+      set({
+        shortlistedApplicants: response.data.shortlistedApplicants,
+        isLoading: false,
+      });
+      console.log("State updated with applicants:", response.data);
+    } catch (error) {
+      console.error("Error fetching applicants:", error);
+      set({
+        error: error.response?.data?.message || "Error fetching applicants",
+        isLoading: false,
+      });
+    }
+  },
+
+  scheduleInterview: async (applicationId, interviewDetails) => {
+    set({ interviewLoading: true, error: null });
+    try {
+      const response = await axios.post(
+        `${API_URL}/applications/applications/${applicationId}/schedule-interview`,
+        interviewDetails
+      );
+
+      toast.success("Interview successfully scheduled.");
+      set({ message: response.data.message, interviewLoading: false });
+    } catch (error) {
+      console.error("Error scheduling interview:", error);
+      toast.error(
+        error.response?.data?.error ||
+          "An error occurred while scheduling the interview."
+      );
+      set({
+        error:
+          error.response?.data?.error ||
+          "An error occurred while scheduling the interview.",
+        interviewLoading: false,
+      });
+    }
+  },
+
+  getscheduledInterviewStatus: async () => {
+    set({ isLoading: true, isError: null });
+
+    try {
+      const response = await axios.get(
+        `${API_URL}/applications/scheduled-interview`
+      );
+
+      set({
+        scheduledInterviewApplicants:
+          response.data.interviewScheduledApplicants || [],
+        isLoading: false,
+      });
+    } catch (error) {
+      console.error("Error fetching applicants:", error);
+      set({
+        isError: error.response?.data?.message || "Error fetching applicants",
+        isLoading: false,
+      });
+    }
+  },
+
+  getCompleteInterviewStatus: async () => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await axios.get(
+        `${API_URL}/applications/complete-interview`
+      );
+
+      set({
+        CompleteInterview: response.data.interviewScheduledApplicants || [],
+        isLoading: false,
+      });
+    } catch (error) {
+      console.error("Error fetching applicants:", error);
+      set({
+        error: error.response?.data?.message || "Error fetching applicants",
+        isLoading: false,
+      });
+    }
+  },
+
   updateJob: async (jobId, updatedData) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.put(`${API_URL}/jobs/update/${jobId}`, updatedData, {
-        
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        withCredentials: true,
-      }
-    
-    );
+      const response = await axios.put(
+        `${API_URL}/jobs/update/${jobId}`,
+        updatedData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
       set({
-        jobPosts: get().jobPosts.map(job => job._id === jobId ? response.data : job),
+        jobPosts: get().jobPosts.map((job) =>
+          job._id === jobId ? response.data : job
+        ),
         isLoading: false,
       });
       toast.success(response.data.message || "Job updated successfully.");
       return response.data;
-
     } catch (error) {
       console.error("Error updating job:", error);
       toast.error(error.response?.data?.message || "Error updating job");
@@ -695,5 +976,4 @@ export const jobStore = create((set, get) => ({
       throw error;
     }
   },
-
 }));

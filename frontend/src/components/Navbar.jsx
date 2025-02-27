@@ -7,23 +7,31 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useState, useEffect } from "react";
-import { FaBell } from "react-icons/fa";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { authStore } from "../stores/authStore";
-
+import { FaBell } from 'react-icons/fa';
 const Navbar = () => {
-  const { user, logout, notifications, clearNotifications, fetchNotifications  } = authStore();
+  const {
+    user,
+    logout,
+    notifications,
+    clearNotifications,
+    fetchNotifications,
+    isAuthenticated,
+    markAllNotificationsAsRead,
+  } = authStore();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isMenuOpen, setMenuOpen] = useState(false);
 
   const isActive = (path) => location.pathname === path;
+  const unreadCount = notifications.filter((notif) => !notif.isRead).length;
 
   useEffect(() => {
     fetchNotifications();
-  }, [fetchNotifications])
+  }, [fetchNotifications]);
 
   const toggleDropdown = () => {
     setDropdownOpen(!isDropdownOpen);
@@ -40,6 +48,99 @@ const Navbar = () => {
       setDropdownOpen(false);
     }
   };
+
+  if (!isAuthenticated)
+    return (
+      <nav className="bg-white shadow-md">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="text-lg font-normal text-black flex items-center ml-5">
+            <div className="w-10 h-10 rounded-full overflow-hidden cursor-pointer">
+              <Link to="/">
+                <img
+                  src="/sample-logo.png"
+                  alt="Logo"
+                  className="w-full h-full object-cover"
+                />
+              </Link>
+            </div>
+          </div>
+
+          <div className="hidden md:flex items-center space-x-6">
+            <Link
+              to="/"
+              className={`${
+                isActive("/")
+                  ? "text-browny font-normal"
+                  : "text-BLUE font-normal"
+              } text-base hover:text-browny font-poppins`}
+            >
+              Home
+            </Link>
+            <Link
+              to="/job-find"
+              className={`${
+                isActive("/job-find")
+                  ? "text-browny font-normal"
+                  : "text-BLUE font-normal"
+              } text-base hover:text-browny font-poppins`}
+            >
+              Find a Job
+            </Link>
+            <Link
+              to="/about-us"
+              className={`${
+                isActive("/about-us")
+                  ? "text-browny font-normal"
+                  : "text-BLUE font-normal"
+              } text-base hover:text-browny font-poppins`}
+            >
+              About Us
+            </Link>
+            <Link
+              to="/howitworks"
+              className={`${
+                isActive("/howitworks")
+                  ? "text-browny font-normal"
+                  : "text-BLUE font-normal"
+              } text-base hover:text-browny font-poppins`}
+            >
+              How It Works
+            </Link>
+            <Link
+              to="/contact-us"
+              className={`${
+                isActive("/contact-us")
+                  ? "text-browny font-normal"
+                  : "text-BLUE font-normal"
+              } text-base hover:text-browny font-poppins`}
+            >
+              Contact Us
+            </Link>
+            <Link
+              to="/login"
+              className={`${
+                isActive("/login")
+                  ? "text-browny font-normal"
+                  : "text-BLUE font-normal"
+              } text-base hover:text-browny font-poppins`}
+            >
+              Login
+            </Link>
+            <Link
+              to="/sign-up"
+              className={`${
+                isActive("/sign-up")
+                  ? "text-browny font-normal"
+                  : "text-BLUE font-normal"
+              } text-base hover:text-browny font-poppins`}
+            >
+              Sign Up
+            </Link>
+            <div className="h-10 border-l-2 border-BLUE mx-4"></div>
+          </div>
+        </div>
+      </nav>
+    );
 
   return (
     <nav className="bg-white shadow-md">
@@ -101,10 +202,10 @@ const Navbar = () => {
             onClick={() => setIsOpen(!isOpen)}
             className="relative p-2 text-gray-700 hover:text-gray-900 focus:outline-none"
           >
-            <FaBell className="w-6 h-6" />
-            {notifications.length > 0 && (
+            <FaBell className="w-6 h-6" fill="gray" />
+            {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                {notifications.length}
+                {unreadCount}
               </span>
             )}
           </button>
@@ -251,27 +352,33 @@ const Navbar = () => {
         </div>
       )}
 
-{isOpen && (
+      {isOpen && (
         <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg overflow-hidden z-50 mr-2">
           <div className="p-3 text-gray-700 font-semibold">Notifications</div>
           {notifications.length > 0 ? (
             <ul className="max-h-48 overflow-y-scroll no-scrollbar">
-              {[...notifications].reverse().map((notif, index) => (
+              {notifications.map((notif, index) => (
                 <li
                   key={notif._id || index}
-                  className="px-4 py-2 text-sm border-b hover:bg-gray-100"
+                  className={`px-4 py-2 text-sm border-b hover:bg-gray-100 ${
+                    notif.isRead ? "text-gray-500" : "text-black"
+                  }`}
                 >
                   {notif?.message || notif}
                 </li>
               ))}
             </ul>
           ) : (
-            <div className="p-4 text-sm text-gray-500">No new notifications</div>
+            <div className="p-4 text-sm text-gray-500">
+              No new notifications
+            </div>
           )}
 
           {notifications.length > 0 && (
             <button
               onClick={() => {
+                markAllNotificationsAsRead();
+                fetchNotifications(); 
                 clearNotifications();
                 setIsOpen(false);
               }}

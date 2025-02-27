@@ -1,10 +1,10 @@
 import { Calendar, Camera, CheckCircle, Home, Phone, User } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import SkeletonLoader from "../components/SkeletonLoader";
 import { formatDate } from "../lib/utils";
 import { authStore } from "../stores/authStore";
-import { useNavigate } from "react-router-dom";
-import SkeletonLoader from "../components/SkeletonLoader";
 
 const ProfileInfoPage = () => {
   const { user, updateProfile, updateCoverPhoto } = authStore();
@@ -19,33 +19,45 @@ const ProfileInfoPage = () => {
     }, 2000);
   }, []);
 
-  // Handle profile photo upload
-  const handleProfilePhotoUpload = (e) => {
+  const handleImageUpload = async (e, isCoverPhoto = false) => {
     const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImg(imageUrl);
+    if (!file) return;
 
-      // Upload function
-      const formData = new FormData();
-      formData.append("profilePicture", file);
-      updateProfile(formData);
+    const validTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (!validTypes.includes(file.type)) {
+      alert("Invalid file type. Please upload a JPEG or PNG image.");
+      return;
     }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+
+    reader.onload = async () => {
+      const base64Image = reader.result;
+
+      if (isCoverPhoto) {
+        setSelectedCoverImg(base64Image);
+        try {
+          await updateCoverPhoto({ coverPhoto: base64Image });
+        } catch (error) {
+          console.error("Failed to upload cover photo:", error);
+          alert("Failed to upload cover photo. Please try again.");
+        }
+      } else {
+        setSelectedImg(base64Image);
+        try {
+          await updateProfile({ profilePicture: base64Image });
+        } catch (error) {
+          console.error("Failed to upload profile picture:", error);
+          alert("Failed to upload profile picture. Please try again.");
+        }
+      }
+    };
   };
 
-  // Handle cover photo upload
-  const handleCoverPhotoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedCoverImg(imageUrl);
-
-      // Upload function
-      const formData = new FormData();
-      formData.append("coverPhoto", file);
-      updateCoverPhoto(formData);
-    }
-  };
+  const handleVerification = () => {
+    navigate("/uploadId")
+  }
 
   return (
     <>
@@ -65,19 +77,21 @@ const ProfileInfoPage = () => {
                 className="w-full h-full object-cover rounded-t-xl"
               />
             )}
-            {/* Cover photo upload button */}
-            <label className="absolute bottom-4 right-4 bg-black bg-opacity-50 p-2 rounded-full cursor-pointer">
-              <Camera className="w-6 h-6 text-white" />
+            <label
+              htmlFor="cover-upload"
+              className="absolute top-4 right-4 bg-gray-800 text-white p-3 rounded-full cursor-pointer shadow-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center"
+            >
+              <Camera size={20} />
               <input
+                id="cover-upload"
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={handleCoverPhotoUpload}
+                onChange={(e) => handleImageUpload(e, true)}
               />
             </label>
           </div>
 
-          {/* Profile Picture & Basic Info */}
           <div className="flex flex-col md:flex-row items-center p-8 gap-6 bg-gradient-to-br from-white to-gray-50">
             <div className="relative w-32 h-32">
               {loading ? (
@@ -89,14 +103,17 @@ const ProfileInfoPage = () => {
                   className="w-full h-full object-cover rounded-full border-4 border-blue-500 shadow-lg"
                 />
               )}
-              {/* Profile photo upload button */}
-              <label className="absolute bottom-2 right-2 bg-black bg-opacity-50 p-2 rounded-full cursor-pointer">
-                <Camera className="w-5 h-5 text-white" />
+              <label
+                htmlFor="profile-upload"
+                className="absolute bottom-2 right-2 bg-blue-500 text-white p-3 rounded-full cursor-pointer shadow-md hover:bg-blue-400 transition duration-300 flex items-center justify-center"
+              >
+                <Camera size={20} />
                 <input
+                  id="profile-upload"
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={handleProfilePhotoUpload}
+                  onChange={(e) => handleImageUpload(e, false)}
                 />
               </label>
             </div>
@@ -105,11 +122,27 @@ const ProfileInfoPage = () => {
                 {loading ? (
                   <SkeletonLoader className="w-48 h-6 rounded-md" />
                 ) : (
-                  <h1 className="text-3xl font-bold font-poppins text-gray-800">
-                    {user.fullName || "N/A"}
-                  </h1>
+                  <>
+                    <h1 className="text-3xl font-bold font-poppins text-gray-800">
+                      {user.fullName || "N/A"}
+                    </h1>
+                    {user.disabilityInformation?.isIdVerified ? (
+                      <div className="flex items-center gap-2 text-green-600 font-medium ml-5">
+                        <CheckCircle className="w-6 h-6" />
+                        <span>Verified</span>
+                      </div>
+                    ) : (
+                      <button
+                        className="bg-blue-600 text-white text-xs font-medium px-4 py-2 ml-5 rounded-lg hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-400 font-poppins"
+                        onClick={handleVerification}
+                      >
+                        Get Verified
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
+
               {loading ? (
                 <SkeletonLoader className="w-40 h-4 mt-2 rounded-md" />
               ) : (
@@ -120,7 +153,6 @@ const ProfileInfoPage = () => {
             </div>
           </div>
 
-          {/* Bio Section */}
           <div className="flex flex-col gap-6 px-8 py-4">
             <div className="bg-gradient-to-r from-gray-50 to-white rounded-lg p-6 shadow-md">
               <h1 className="font-poppins font-bold text-xl text-gray-800">
@@ -136,7 +168,6 @@ const ProfileInfoPage = () => {
             </div>
           </div>
 
-          {/* Profile Overview */}
           <div className="border-t p-8">
             <h2 className="text-2xl font-semibold mb-4 text-gray-800 font-poppins">
               Profile Overview
@@ -167,7 +198,6 @@ const ProfileInfoPage = () => {
             </div>
           </div>
 
-          {/* Career Information */}
           <div className="border-t p-8">
             <h2 className="text-2xl font-semibold mb-4 text-gray-800 font-poppins">
               Career Information
@@ -184,7 +214,7 @@ const ProfileInfoPage = () => {
                 },
                 {
                   label: "Work Experience",
-                  value: user.careerInformation?.workExperience || "N/A",
+                  value: user.careerInformation?.workExperience || "Not Provided",
                 },
                 {
                   label: "Skills",
@@ -207,7 +237,6 @@ const ProfileInfoPage = () => {
             </div>
           </div>
 
-          {/* PWD Information */}
           <div className="border-t p-8">
             <h2 className="text-2xl font-semibold mb-4 text-gray-800 font-poppins">
               PWD Information

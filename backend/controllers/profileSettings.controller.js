@@ -1,7 +1,7 @@
 import { uploadToCloudinary } from "../db/cloudinary.js";
 import { getReceiverSocketId, io } from "../db/socket.js";
-import User from "../models/user.model.js";
 import Notification from "../models/notification.model.js";
+import User from "../models/user.model.js";
 
 export const updateProfile = async (req, res) => {
   try {
@@ -253,7 +253,16 @@ export const uploadDisabilityId = async (req, res) => {
       return res.status(400).json({ message: "Disability ID is required" });
     }
 
-    const verificationUrl = await uploadToCloudinary(verificationId);
+    let verificationUrl;
+    try {
+      verificationUrl = await uploadToCloudinary(verificationId);
+    } catch (cloudinaryError) {
+      console.error(
+        "Cloudinary upload error:",
+        cloudinaryError.stack || cloudinaryError
+      );
+      return res.status(400).json({ message: "Invalid image size or format" });
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,

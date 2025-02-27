@@ -27,11 +27,28 @@ export const authStore = create((set, get) => ({
   fetchNotifications: async () => {
     try {
       const response = await axios.get(`${API_URL}/notifications/notify`);
-      set({ notifications: response.data }); 
+      set({ notifications: response.data });
     } catch (error) {
       console.error("Error fetching notifications:", error);
     }
   },
+
+  markAllNotificationsAsRead: async () => {
+    try {
+      const response = await axios.patch(`${API_URL}/notifications/mark-all-read`);
+      console.log(response.data); 
+      set((state) => ({
+        notifications: state.notifications.map((notif) => ({
+          ...notif,
+          isRead: true,
+        })),
+      }));
+      await get().fetchNotifications();
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+    }
+  },
+  
 
   signup: async (email, password, fullName, role, privacyAgreement) => {
     set({ isLoading: true, error: null });
@@ -305,7 +322,7 @@ export const authStore = create((set, get) => ({
     if (!user || (socket && socket.connected)) return;
 
     const newSocket = io(BASE_URL, {
-      query: { userId: user._id }, 
+      query: { userId: user._id },
     });
 
     newSocket.connect();
@@ -314,9 +331,11 @@ export const authStore = create((set, get) => ({
     newSocket.off("newUser");
     newSocket.off("newDisabilityId");
     newSocket.off("receiveMessage");
-    newSocket.off("applicationShortlisted"); 
-    newSocket.off("applicationRejected"); 
-    newSocket.off("newJobApplication");  
+    newSocket.off("applicationShortlisted");
+    newSocket.off("applicationRejected");
+    newSocket.off("newJobApplication");
+    newSocket.off("verificationUpdate");
+    newSocket.off("interviewConfirmed");
     newSocket.off("verificationUpdate");
 
     newSocket.on("getOnlineUsers", (userIds) => {
@@ -370,6 +389,13 @@ export const authStore = create((set, get) => ({
       }));
     });
 
+    newSocket.on("interviewConfirmed", (data) => {
+      toast.success(data.message);
+      set((state) => ({
+        notifications: [...state.notifications, data.message],
+      }));
+    });
+
     newSocket.on("disconnect", () => {
       console.log("Socket disconnected");
     });
@@ -383,12 +409,12 @@ export const authStore = create((set, get) => ({
       socket.off("newUser");
       socket.off("newDisabilityId");
       socket.off("receiveMessage");
-      socket.off("applicationShortlisted"); 
-      socket.off("applicationRejected"); 
-      socket.off("newJobApplication");  
-      socket.off("verificationUpdate"); 
+      socket.off("applicationShortlisted");
+      socket.off("applicationRejected");
+      socket.off("newJobApplication");
+      socket.off("verificationUpdate");
+      socket.off("interviewConfirmed");
       socket.disconnect();
     }
   },
-
 }));

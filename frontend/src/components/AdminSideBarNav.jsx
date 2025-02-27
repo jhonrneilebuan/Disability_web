@@ -67,11 +67,6 @@ const AdminSidebarNav = ({ handleNavigation }) => {
             icon: <MdVerifiedUser className="w-6 h-6" />,
           },
 
-          {
-            id: "howitworks",
-            label: "How It Works",
-            icon: <MdVerifiedUser className="w-6 h-6" />,
-          },
         ].map((item) => (
           <button
             key={item.id}

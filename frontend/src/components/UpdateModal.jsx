@@ -5,7 +5,7 @@ import Select from "react-select";
 import { disabilityOptions, languageOptions } from "../utils/options";
 import Modal from "../components/Modal";
 import { motion } from "framer-motion";
-import { CircleCheck, Undo2 } from "lucide-react";
+import { CircleCheck } from "lucide-react";
 import { jobStore } from "../stores/jobStore";
 
 const UpdateModal = ({ open, onClose, job }) => {
@@ -344,7 +344,7 @@ const UpdateModal = ({ open, onClose, job }) => {
               className="w-full border rounded-lg p-2"
             >
               <option value="">Select qualification</option>
-              <option value="Bachelor's Degree">Bachelor's Degree</option>
+              <option value="Bachelor's Degree">Bachelor&apos;s Degree</option>
               <option value="High School Diploma">High School Diploma</option>
               <option value="Technical Training">Technical Training</option>
             </select>

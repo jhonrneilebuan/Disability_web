@@ -46,7 +46,7 @@ const PrivacyPolicy = () => {
         <p className="text-gray-700">Employers registered on our platform must:</p>
         <ul className="list-disc pl-6 text-gray-700 mb-4">
           <li>Ensure non-discriminatory hiring practices and provide equal opportunities.</li>
-          <li>Respect applicant's privacy and use their data only for recruitment purposes.</li>
+          <li>Respect applicant&apos;s privacy and use their data only for recruitment purposes.</li>
           <li>Comply with labor laws regarding workplace accessibility and accommodations.</li>
         </ul>
 
