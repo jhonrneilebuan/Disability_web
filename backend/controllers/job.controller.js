@@ -31,6 +31,57 @@ export const createJob = async (req, res) => {
       return res.status(404).json({ message: "Employer not found." });
     }
 
+    const validDisabilities = [
+      "Mobility Impairment",
+      "Amputation",
+      "Cerebral Palsy",
+      "Muscular Dystrophy",
+      "Spinal Cord Injury",
+      "Multiple Sclerosis",
+      "Arthritis",
+      "Stroke-related Disability",
+      "Visual Impairment",
+      "Blindness",
+      "Hearing Impairment",
+      "Deafness",
+      "Deafblindness",
+      "Down Syndrome",
+      "Autism Spectrum Disorder (ASD)",
+      "Intellectual Disability",
+      "Learning Disability (Dyslexia, Dyscalculia, Dysgraphia)",
+      "ADHD (Attention Deficit Hyperactivity Disorder)",
+      "Dyslexia",
+      "Dyspraxia",
+      "Tourette Syndrome",
+      "Anxiety Disorder",
+      "Depression",
+      "Bipolar Disorder",
+      "Schizophrenia",
+      "Post-Traumatic Stress Disorder (PTSD)",
+      "Obsessive-Compulsive Disorder (OCD)",
+      "Epilepsy",
+      "Chronic Fatigue Syndrome (CFS)",
+      "Fibromyalgia",
+      "Lupus",
+      "Diabetes-related Disability",
+      "Chronic Pain",
+      "Speech Impairment (Stuttering, Apraxia)",
+      "Nonverbal Communication Disabilities",
+      "Rare Genetic Disorders",
+      "Autoimmune Disorders affecting mobility or cognition",
+      "Traumatic Brain Injury (TBI)",
+    ];
+
+    let sanitizedPreferredDisabilities = [];
+    if (preferredDisabilities) {
+      sanitizedPreferredDisabilities = preferredDisabilities
+        .split(",")
+        .map((disability) => disability.trim());
+      sanitizedPreferredDisabilities = sanitizedPreferredDisabilities.filter(
+        (disability) => validDisabilities.includes(disability)
+      );
+    }
+
     const jobAttachmentPath = req.files?.jobAttachment?.[0]?.filename
       ? `http://localhost:8080/uploads/${req.files.jobAttachment[0].filename}`
       : null;
@@ -40,9 +91,10 @@ export const createJob = async (req, res) => {
     const finalLocations = locations || [
       employer.employerInformation?.companyAddress,
     ];
-    const finalPreferredDisabilities = preferredDisabilities?.length
-    ? preferredDisabilities
-    : []; //inalis ko lang yung "Any" saglit
+
+    // const finalPreferredDisabilities = preferredDisabilities?.length
+    // ? preferredDisabilities
+    // : []; //inalis ko lang yung "Any" saglit
 
     const job = await Job.create({
       employer: req.userId,
@@ -62,7 +114,7 @@ export const createJob = async (req, res) => {
       jobSkills,
       expectedSalary,
       jobAttachment: jobAttachmentPath,
-      preferredDisabilities: finalPreferredDisabilities,
+      preferredDisabilities: sanitizedPreferredDisabilities,
     });
 
     res.status(201).json({
@@ -325,6 +377,17 @@ export const updateJob = async (req, res) => {
         expectedSalary = req.body.expectedSalary;
       }
     }
+
+    // let jobAttachmentPath = job.jobAttachment;
+
+    // if (
+    //   req.files &&
+    //   req.files.jobAttachment &&
+    //   req.files.jobAttachment.length > 0
+    // ) {
+    //   const jobAttachment = req.files.jobAttachment[0];
+    //   jobAttachmentPath = `http://localhost:8080/uploads/${jobAttachment.filename}`;
+    // }
 
     const jobAttachmentPath = req.files?.jobAttachment?.[0]?.filename
       ? `http://localhost:8080/uploads/${req.files.jobAttachment[0].filename}`
