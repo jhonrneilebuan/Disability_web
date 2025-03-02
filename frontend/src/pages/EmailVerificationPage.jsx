@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { authStore } from "../stores/authStore";
 import toast from "react-hot-toast";
+import { FaSpinner } from "react-icons/fa";
+
 const EmailVerificationPage = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
@@ -36,6 +38,7 @@ const EmailVerificationPage = () => {
       }
     }
   };
+
   const handleKeyDown = (index, e) => {
     if (e.key === "Backspace" && !code[index] && index > 0) {
       inputRefs.current[index - 1].focus();
@@ -60,58 +63,86 @@ const EmailVerificationPage = () => {
       console.log(error);
     }
   };
+
   useEffect(() => {
     if (code.every((digit) => digit !== "")) {
       handleSubmit(new Event("submit"));
     }
   }, [code]);
-  
+
   return (
-    <div className="min-h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center relative overflow-hidden">
-      <div className="max-w-md w-full bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-brown-900 via-brown-800 to-brown-700 flex items-center justify-center relative overflow-hidden">
         <motion.div
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-2xl p-8 w-full max-w-md"
-        >
-          <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text">
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1, delay: 0.5 }}
+        className="absolute w-64 h-64 bg-brown-600 rounded-full opacity-20 blur-3xl -top-32 -left-32"
+      ></motion.div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1, delay: 0.7 }}
+        className="absolute w-64 h-64 bg-brown-500 rounded-full opacity-20 blur-3xl -bottom-32 -right-32"
+      ></motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/10 p-8 w-full max-w-md mx-4"
+      >
+        <div className="mb-8">
+          <h2 className="text-4xl font-bold text-center bg-gradient-to-r from-amber-400 to-orange-500 text-transparent bg-clip-text">
             Verify Your Email
           </h2>
-          <p className="text-center text-gray-300 mb-6">
-            Enter the 6-digit code sent to your email address.
+          <p className="text-center text-brown-100 mt-4">
+            Enter the 6-digit code sent to your email to continue your job
+            search.
           </p>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="flex justify-between">
-              {code.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={(el) => (inputRefs.current[index] = el)}
-                  type="text"
-                  maxLength="6"
-                  value={digit}
-                  onChange={(e) => handleChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-12 h-12 text-center text-2xl font-bold bg-gray-700 text-white border-2 border-gray-600 rounded-lg focus:border-green-500 focus:outline-none"
-                />
-              ))}
-            </div>{" "}
-            {error && (
-              <p className="text-red-500 font-semibold mt-2">{error}</p>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="flex justify-between gap-3">
+            {code.map((digit, index) => (
+              <input
+                key={index}
+                ref={(el) => (inputRefs.current[index] = el)}
+                type="text"
+                maxLength="1"
+                value={digit}
+                onChange={(e) => handleChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                className="w-14 h-14 text-center text-3xl font-bold bg-brown-100/10 text-brown-100 border-2 border-brown-200/20 rounded-xl focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition-all duration-200 ease-in-out transform hover:scale-105"
+                aria-label={`Digit ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          {error && (
+            <p className="text-red-400 font-semibold text-center mt-4">
+              {error}
+            </p>
+          )}
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            type="submit"
+            disabled={isLoading || code.some((digit) => !digit)}
+            className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:from-amber-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            aria-label="Verify Email"
+          >
+            {isLoading ? (
+              <>
+                <FaSpinner className="animate-spin" />
+                Verifying...
+              </>
+            ) : (
+              "Verify Email"
             )}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              type="submit"
-              disabled={isLoading || code.some((digit) => !digit)}
-              className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 disabled:opacity-50"
-            >
-              {isLoading ? "Verifying..." : "Verify Email"}
-            </motion.button>
-          </form>
-        </motion.div>
-      </div>
+          </motion.button>
+        </form>
+      </motion.div>
     </div>
   );
 };

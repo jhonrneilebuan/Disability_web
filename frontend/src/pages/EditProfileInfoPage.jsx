@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { authStore } from "../stores/authStore";
+import SkillsSelector from "../components/SkillsSelector";
 
 const EditProfileInfoPage = () => {
   const { user, userProfileInfo, isUpdatingProfileInfo } = authStore();
@@ -412,22 +413,13 @@ const EditProfileInfoPage = () => {
                 </p>
               )}
             </div>
-            <label className="block text-gray-700 font-medium font-poppins">
-              Skills
-            </label>
-            <input
-              type="text"
-              name="careerInformation.skills"
-              value={formData.careerInformation.skills || ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-              placeholder="e.g., JavaScript, React, Node.js"
+
+            {/* Skills Selector */}
+            <SkillsSelector
+              formData={formData}
+              setFormData={setFormData}
+              errors={errors}
             />
-            {errors.skills && (
-              <p className="text-red-500 text-sm mt-1 font-poppins">
-                {errors.skills}
-              </p>
-            )}
 
             <div>
               <label className="block text-gray-700 font-medium font-poppins">
