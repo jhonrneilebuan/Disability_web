@@ -2,7 +2,7 @@ import React from "react";
 
 const SkeletonLoader = () => {
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-6xl mx-auto">
       <div className="animate-pulse">
         {/* Title skeleton (centered) */}
         <div className="mb-4">

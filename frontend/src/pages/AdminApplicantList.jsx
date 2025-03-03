@@ -10,7 +10,7 @@ import AdminListSkeletonLoader from "../components/AdminListSkeletonLoader";
 
 const ApplicantList = () => {
   const [applicants, setApplicants] = useState([]);
-  const [loading, setLoading] = useState(true); // Initialize as true
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBanned, setFilterBanned] = useState("All");

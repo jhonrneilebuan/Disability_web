@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { adminStore } from "../stores/adminApi";
 import SkeletonLoader from "../components/adminVerificationSkeletonLoader";
+import { FaEye } from "react-icons/fa";
 
 const DisabilityVerification = () => {
   const {
@@ -35,8 +36,8 @@ const DisabilityVerification = () => {
   }
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-center">
+    <>
+      <h2 className="text-3xl font-semibold mb-8 text-center text-gray-800">
         Disability Verification
       </h2>
 
@@ -46,29 +47,33 @@ const DisabilityVerification = () => {
           <table className="min-w-full bg-white border border-gray-200">
             <thead>
               <tr className="bg-gray-100">
-                <th className="py-3 px-4 border-b text-left">User ID</th>
-                <th className="py-3 px-4 border-b text-left">Full Name</th>
-                <th className="py-3 px-4 border-b text-left">
+                <th className="py-4 px-6 border-b text-left">User ID</th>
+                <th className="py-4 px-6 border-b text-left">Full Name</th>
+                <th className="py-4 px-6 border-b text-center">
                   Verification ID
                 </th>
-                <th className="py-3 px-4 border-b text-left">Status</th>
-                <th className="py-3 px-4 border-b text-left">Actions</th>
+                <th className="py-4 px-6 border-b text-left">Status</th>
+                <th className="py-4 px-6 border-b text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
               {[...totaluploaddisability].reverse().map((user) => (
-                <tr key={user.userId} className="hover:bg-gray-50 transition">
-                  <td className="py-3 px-4 border-b">{user.userId}</td>
-                  <td className="py-3 px-4 border-b">{user.fullName}</td>
-                  <td className="py-3 px-4 border-b">
+                <tr
+                  key={user.userId}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="py-4 px-6 border-b">{user.userId}</td>
+                  <td className="py-4 px-6 border-b">{user.fullName}</td>
+                  <td className="py-4 px-6 border-b text-center">
                     <button
                       onClick={() => setSelectedImage(user.verificationId)}
-                      className="text-blue-500 underline"
+                      className="text-blue-500 hover:text-blue-700 transition-colors"
+                      title="View Image"
                     >
-                      View Image
+                      <FaEye size={18} />
                     </button>
                   </td>
-                  <td className="py-3 px-4 border-b">
+                  <td className="py-4 px-6 border-b">
                     {user.isIdVerified !== undefined ? (
                       <span
                         className={`font-semibold ${
@@ -81,14 +86,14 @@ const DisabilityVerification = () => {
                       <span className="text-gray-500">Pending</span>
                     )}
                   </td>
-                  <td className="py-3 px-4 border-b">
+                  <td className="py-4 px-6 border-b">
                     {user.isIdVerified === false && (
-                      <div className="flex gap-2">
+                      <div className="flex gap-3">
                         <button
                           onClick={() =>
                             handleVerificationUpdate(user.userId, true)
                           }
-                          className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+                          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
                         >
                           Approve
                         </button>
@@ -96,7 +101,7 @@ const DisabilityVerification = () => {
                           onClick={() =>
                             handleVerificationUpdate(user.userId, false)
                           }
-                          className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                          className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
                         >
                           Reject
                         </button>
@@ -116,22 +121,23 @@ const DisabilityVerification = () => {
 
       {selectedImage && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="relative bg-white p-4 rounded-lg shadow-lg max-w-lg w-full">
+          <div className="relative bg-white p-6 rounded-xl shadow-xl max-w-lg w-full transform transition-all duration-300">
             <button
               onClick={() => setSelectedImage(null)}
-              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+              className="absolute top-3 right-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-full w-8 h-8 flex items-center justify-center"
+              title="Close"
             >
-              ×
+              &times;
             </button>
             <img
               src={selectedImage}
               alt="Verification ID"
-              className="w-full h-auto rounded-lg"
+              className="w-full h-auto rounded-md"
             />
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

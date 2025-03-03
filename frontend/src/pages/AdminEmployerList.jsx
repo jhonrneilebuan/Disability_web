@@ -10,7 +10,7 @@ import AdminListSkeletonLoader from "../components/AdminListSkeletonLoader";
 
 const EmployerList = () => {
   const [employers, setEmployers] = useState([]);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBanned, setFilterBanned] = useState("All");
@@ -40,7 +40,7 @@ const EmployerList = () => {
       const response = await fetchUsersApi();
       setEmployers(response.data.employers);
     } catch (error) {
-      console.error(error, "Failed to fetch employers.")
+      console.error(error, "Failed to fetch employers.");
       setError("Failed to fetch employers.");
     } finally {
       const elapsed = Date.now() - startTime;
@@ -98,6 +98,8 @@ const EmployerList = () => {
       (user) => filterBanned === "All" || String(user.banned) === filterBanned
     );
 
+  const sortedEmployers = [...filteredEmployers].reverse();
+
   if (loading) {
     return <AdminListSkeletonLoader />;
   }
@@ -137,7 +139,7 @@ const EmployerList = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredEmployers.map((user) => (
+            {sortedEmployers.map((user) => (
               <tr key={user._id} className="text-center border">
                 <td className="p-2 border">{user.fullName}</td>
                 <td className="p-2 border">{user.email}</td>
