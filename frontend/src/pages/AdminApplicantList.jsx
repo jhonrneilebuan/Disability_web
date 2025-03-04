@@ -16,7 +16,7 @@ const ApplicantList = () => {
   const [filterBanned, setFilterBanned] = useState("All");
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // State for delete modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -64,8 +64,8 @@ const ApplicantList = () => {
     } catch {
       setError("Failed to delete applicant.");
     } finally {
-      setIsDeleteModalOpen(false); // Close the delete modal
-      setUserToDelete(null); // Reset the user to delete
+      setIsDeleteModalOpen(false);
+      setUserToDelete(null);
     }
   };
 
@@ -169,8 +169,8 @@ const ApplicantList = () => {
                   <button
                     className="bg-red-500 text-white p-1 rounded"
                     onClick={() => {
-                      setUserToDelete(user._id); // Set the user to delete
-                      setIsDeleteModalOpen(true); // Open the delete modal
+                      setUserToDelete(user._id);
+                      setIsDeleteModalOpen(true);
                     }}
                   >
                     Delete
@@ -190,7 +190,6 @@ const ApplicantList = () => {
         </table>
       </div>
 
-      {/* Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-md w-1/2">
@@ -332,7 +331,6 @@ const ApplicantList = () => {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-md w-96">
@@ -342,13 +340,13 @@ const ApplicantList = () => {
             </p>
             <div className="flex justify-end space-x-2">
               <button
-                onClick={() => setIsDeleteModalOpen(false)} // Close the modal
+                onClick={() => setIsDeleteModalOpen(false)}
                 className="bg-gray-500 text-white px-4 py-2 rounded"
               >
                 Cancel
               </button>
               <button
-                onClick={handleDelete} // Confirm deletion
+                onClick={handleDelete}
                 className="bg-red-500 text-white px-4 py-2 rounded"
               >
                 OK
