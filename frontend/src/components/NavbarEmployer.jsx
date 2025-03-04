@@ -90,11 +90,6 @@ const NavbarEmployer = () => {
                       alt={user.fullName}
                       className="w-8 h-8 rounded-full mr-3"
                     />
-                    <img
-                      src={user.profilePicture || "/avatar.png"}
-                      alt={user.fullName}
-                      className="w-8 h-8 rounded-full mr-3"
-                    />
                     <span>{user.fullName}</span>
                   </div>
                 ))}
