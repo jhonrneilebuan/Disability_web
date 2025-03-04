@@ -52,8 +52,8 @@ const DisabilityVerification = () => {
                 <th className="py-4 px-6 border-b text-center">
                   Verification ID
                 </th>
-                <th className="py-4 px-6 border-b text-left">Status</th>
-                <th className="py-4 px-6 border-b text-left">Actions</th>
+                <th className="py-4 px-6 border-b text-center">Status</th>
+                <th className="py-4 px-6 border-b text-center   min-w-[250px]">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -73,7 +73,7 @@ const DisabilityVerification = () => {
                       <FaEye size={18} />
                     </button>
                   </td>
-                  <td className="py-4 px-6 border-b">
+                  <td className="py-4 px-6 border-b text-center">
                     {user.isIdVerified !== undefined ? (
                       <span
                         className={`font-semibold ${
@@ -86,9 +86,9 @@ const DisabilityVerification = () => {
                       <span className="text-gray-500">Pending</span>
                     )}
                   </td>
-                  <td className="py-4 px-6 border-b">
+                  <td className="py-4 px-6 border-b text-center">
                     {user.isIdVerified === false && (
-                      <div className="flex gap-3">
+                      <div className="flex justify-center gap-3">
                         <button
                           onClick={() =>
                             handleVerificationUpdate(user.userId, true)

@@ -17,7 +17,7 @@ const EmailVerificationPage = () => {
     if (value.length > 1) {
       const pastedCode = value.slice(0, 6).split("");
       let pasteIndex = index;
-      123;
+      123
       for (let char of pastedCode) {
         if (pasteIndex < 6 && !newcode[pasteIndex]) {
           newcode[pasteIndex] = char;
@@ -71,37 +71,20 @@ const EmailVerificationPage = () => {
   }, [code]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brown-900 via-brown-800 to-brown-700 flex items-center justify-center relative overflow-hidden">
-        <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1, delay: 0.5 }}
-        className="absolute w-64 h-64 bg-brown-600 rounded-full opacity-20 blur-3xl -top-32 -left-32"
-      ></motion.div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-200">
       <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1, delay: 0.7 }}
-        className="absolute w-64 h-64 bg-brown-500 rounded-full opacity-20 blur-3xl -bottom-32 -right-32"
-      ></motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, x: 100 }}
+        animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/10 p-8 w-full max-w-md mx-4"
+        className="w-full max-w-md bg-white bg-opacity-50 backdrop-blur-xl rounded-2xl shadow-xl p-8"
       >
-        <div className="mb-8">
-          <h2 className="text-4xl font-bold text-center bg-gradient-to-r from-amber-400 to-orange-500 text-transparent bg-clip-text">
-            Verify Your Email
-          </h2>
-          <p className="text-center text-brown-100 mt-4">
-            Enter the 6-digit code sent to your email to continue your job
-            search.
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <h2 className="text-3xl font-bold mb-6 text-center text-black">
+          Verify Your Email
+        </h2>
+        <p className="text-center text-gray-500 mb-8">
+          Enter the 6-digit code sent to your email to continue your job search.
+        </p>
+        <form onSubmit={handleSubmit}>
           <div className="flex justify-between gap-3">
             {code.map((digit, index) => (
               <input
@@ -112,14 +95,14 @@ const EmailVerificationPage = () => {
                 value={digit}
                 onChange={(e) => handleChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                className="w-14 h-14 text-center text-3xl font-bold bg-brown-100/10 text-brown-100 border-2 border-brown-200/20 rounded-xl focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition-all duration-200 ease-in-out transform hover:scale-105"
+                className="w-14 h-14 text-center text-3xl font-bold bg-gray-100 text-gray-800 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all duration-200 ease-in-out transform hover:scale-105"
                 aria-label={`Digit ${index + 1}`}
               />
             ))}
           </div>
 
           {error && (
-            <p className="text-red-400 font-semibold text-center mt-4">
+            <p className="text-red-500 font-semibold text-center mt-4">
               {error}
             </p>
           )}
@@ -129,12 +112,12 @@ const EmailVerificationPage = () => {
             whileTap={{ scale: 0.95 }}
             type="submit"
             disabled={isLoading || code.some((digit) => !digit)}
-            className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:from-amber-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="mt-5 w-full py-3 px-4 bg-transparent text-black font-bold border-2 border-gray-400 rounded-lg shadow-lg hover:border-black hover:text-black focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200"
             aria-label="Verify Email"
           >
             {isLoading ? (
               <>
-                <FaSpinner className="animate-spin" />
+                <FaSpinner className="animate-spin inline-block mr-2" />
                 Verifying...
               </>
             ) : (

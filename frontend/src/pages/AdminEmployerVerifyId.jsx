@@ -51,8 +51,10 @@ const AdminEmployerVerifyId = () => {
                 <th className="py-4 px-6 border-b text-center">
                   Verification ID
                 </th>
-                <th className="py-4 px-6 border-b text-left">Status</th>
-                <th className="py-4 px-6 border-b text-left">Actions</th>
+                <th className="py-4 px-6 border-b text-center">Status</th>
+                <th className="py-4 px-6 border-b text-center min-w-[250px]">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -72,7 +74,7 @@ const AdminEmployerVerifyId = () => {
                       <FaEye size={18} />
                     </button>
                   </td>
-                  <td className="py-4 px-6 border-b">
+                  <td className="py-4 px-6 border-b text-center">
                     {employer.isIdVerified !== undefined ? (
                       <span
                         className={`font-semibold ${
@@ -87,9 +89,9 @@ const AdminEmployerVerifyId = () => {
                       <span className="text-gray-500">Pending</span>
                     )}
                   </td>
-                  <td className="py-4 px-6 border-b">
+                  <td className="py-4 px-6 border-b text-center min-w-[150px]">
                     {employer.isIdVerified === false && (
-                      <div className="flex gap-3">
+                      <div className="flex justify-center gap-3">
                         <button
                           onClick={() =>
                             handleVerificationUpdate(employer.userId, true)
