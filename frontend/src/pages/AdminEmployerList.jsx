@@ -16,6 +16,8 @@ const EmployerList = () => {
   const [filterBanned, setFilterBanned] = useState("All");
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // State for delete modal
+  const [userToDelete, setUserToDelete] = useState(null); // State to store user to delete
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -53,14 +55,16 @@ const EmployerList = () => {
     }
   };
 
-  const handleDelete = async (userId) => {
-    if (!window.confirm("Are you sure you want to delete this employer?"))
-      return;
+  const handleDelete = async () => {
+    if (!userToDelete) return;
     try {
-      await deleteUserApi(userId);
+      await deleteUserApi(userToDelete);
       fetchEmployers();
     } catch {
       setError("Failed to delete employer.");
+    } finally {
+      setIsDeleteModalOpen(false); // Close the delete modal
+      setUserToDelete(null); // Reset the user to delete
     }
   };
 
@@ -157,7 +161,10 @@ const EmployerList = () => {
                   </button>
                   <button
                     className="bg-red-500 text-white p-1 rounded"
-                    onClick={() => handleDelete(user._id)}
+                    onClick={() => {
+                      setUserToDelete(user._id); // Set the user to delete
+                      setIsDeleteModalOpen(true); // Open the delete modal
+                    }}
                   >
                     Delete
                   </button>
@@ -176,6 +183,7 @@ const EmployerList = () => {
         </table>
       </div>
 
+      {/* Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-md w-1/2">
@@ -229,7 +237,7 @@ const EmployerList = () => {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label>Verified:</label>
+                  <label>Verification:</label>
                   <select
                     value={formData.isVerified ? "true" : "false"}
                     onChange={(e) =>
@@ -295,6 +303,32 @@ const EmployerList = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-md w-96">
+            <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
+            <p className="mb-6">
+              Are you sure you want to delete this employer?
+            </p>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)} // Close the modal
+                className="bg-gray-500 text-white px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete} // Confirm deletion
+                className="bg-red-500 text-white px-4 py-2 rounded"
+              >
+                OK
+              </button>
+            </div>
           </div>
         </div>
       )}
