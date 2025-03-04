@@ -1,19 +1,21 @@
-import { useState } from "react";
 import { useFormik } from "formik";
-import jobPostSchema from "../validations/jobpost";
-import Select from "react-select";
-import { disabilityOptions, languageOptions } from "../utils/options";
-import Modal from "../components/Modal";
 import { motion } from "framer-motion";
 import { CircleCheck } from "lucide-react";
+import { useState } from "react";
+import Select from "react-select";
+import Modal from "../components/Modal";
 import { jobStore } from "../stores/jobStore";
+import { disabilityOptions, languageOptions } from "../utils/options";
+import jobPostSchema from "../validations/jobpost";
 
 const UpdateModal = ({ open, onClose, job }) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const { updateJob, getEmployerJobs } = jobStore();
   const [keepPreviousAttachment, setKeepPreviousAttachment] = useState(true);
-  const [showFileInput, setShowFileInput] = useState(false); 
-  const [showApplyWithLink, setShowApplyWithLink] = useState(!!job?.applyWithLink); 
+  const [showFileInput, setShowFileInput] = useState(false);
+  const [showApplyWithLink, setShowApplyWithLink] = useState(
+    !!job?.applyWithLink
+  );
 
   const formik = useFormik({
     initialValues: {
@@ -47,10 +49,10 @@ const UpdateModal = ({ open, onClose, job }) => {
         ? job.locations.join(", ")
         : job?.locations || "",
 
-      jobAttachment: null, 
+      jobAttachment: null,
 
-      // jobAttachment: job?.jobAttachment, 
-      previousAttachment: job?.jobAttachment, 
+      // jobAttachment: job?.jobAttachment,
+      previousAttachment: job?.jobAttachment,
     },
     enableReinitialize: true,
     validationSchema: jobPostSchema(keepPreviousAttachment),
@@ -70,11 +72,11 @@ const UpdateModal = ({ open, onClose, job }) => {
             (disability) => disability.value
           ),
           // jobAttachment: keepPreviousAttachment
-          // ? values.previousAttachment 
+          // ? values.previousAttachment
           // : values.jobAttachment || values.previousAttachment,
           jobAttachment: keepPreviousAttachment
-        ? values.previousAttachment
-        : values.jobAttachment, 
+            ? values.previousAttachment
+            : values.jobAttachment,
         };
 
         console.log("Job data being submitted:", jobData);
@@ -103,16 +105,18 @@ const UpdateModal = ({ open, onClose, job }) => {
 
   const handleSkillInputChange = (e) => {
     if ((e.key === "," || e.key === "Enter") && e.target.value.trim()) {
-      e.preventDefault(); 
+      e.preventDefault();
       const newSkill = e.target.value.trim();
       if (!formik.values.jobSkills.includes(newSkill)) {
-        formik.setFieldValue("jobSkills", [...formik.values.jobSkills, newSkill]);
+        formik.setFieldValue("jobSkills", [
+          ...formik.values.jobSkills,
+          newSkill,
+        ]);
         console.log("Skill added:", newSkill);
       }
-      e.target.value = ""; 
+      e.target.value = "";
     }
   };
-
 
   const removeSkill = (skillToRemove) => {
     formik.setFieldValue(
@@ -125,8 +129,8 @@ const UpdateModal = ({ open, onClose, job }) => {
   if (isSuccess) {
     return (
       <Modal open={open} onClose={onClose}>
-          <div className="bg-white rounded-lg p-10 mx-auto max-w-lg w-full">
-            <div className="text-center">
+        <div className="bg-white rounded-lg p-10 mx-auto max-w-lg w-full">
+          <div className="text-center">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -153,15 +157,18 @@ const UpdateModal = ({ open, onClose, job }) => {
     );
   }
 
-
   return (
     <Modal open={open} onClose={onClose}>
       <div className="p-8 bg-white rounded-lg w-[800px] max-h-[80vh] overflow-y-auto">
-      <form onSubmit={formik.handleSubmit} className="space-y-6 w-full">
-      <h2 className="text-2xl font-bold text-center text-gray-900 mb-8 tracking-wide">Update Job</h2>
+        <form onSubmit={formik.handleSubmit} className="space-y-6 w-full">
+          <h2 className="text-2xl font-bold text-center text-gray-900 mb-8 tracking-wide">
+            Update Job
+          </h2>
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="text-sm font-medium block mb-2">Company Name</label>
+              <label className="text-sm font-medium block mb-2">
+                Company Name
+              </label>
               <input
                 type="text"
                 name="companyName"
@@ -175,11 +182,15 @@ const UpdateModal = ({ open, onClose, job }) => {
                 placeholder="Enter company name"
               />
               {formik.touched.companyName && formik.errors.companyName && (
-                <p className="text-red-500 text-sm">{formik.errors.companyName}</p>
+                <p className="text-red-500 text-sm">
+                  {formik.errors.companyName}
+                </p>
               )}
             </div>
             <div className="flex-1">
-              <label className="text-sm font-medium block mb-2">Job Title</label>
+              <label className="text-sm font-medium block mb-2">
+                Job Title
+              </label>
               <input
                 type="text"
                 name="jobTitle"
@@ -198,7 +209,9 @@ const UpdateModal = ({ open, onClose, job }) => {
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium block mb-2">Job Description</label>
+            <label className="text-sm font-medium block mb-2">
+              Job Description
+            </label>
             <textarea
               name="jobDescription"
               value={formik.values.jobDescription}
@@ -211,11 +224,15 @@ const UpdateModal = ({ open, onClose, job }) => {
               placeholder="Enter job description"
             />
             {formik.touched.jobDescription && formik.errors.jobDescription && (
-              <p className="text-red-500 text-sm">{formik.errors.jobDescription}</p>
+              <p className="text-red-500 text-sm">
+                {formik.errors.jobDescription}
+              </p>
             )}
           </div>
           <div>
-            <label className="text-sm font-medium block mb-2">Job Category</label>
+            <label className="text-sm font-medium block mb-2">
+              Job Category
+            </label>
             <select
               name="jobCategory"
               value={formik.values.jobCategory}
@@ -232,11 +249,15 @@ const UpdateModal = ({ open, onClose, job }) => {
               <option value="MARKETING">Marketing</option>
             </select>
             {formik.touched.jobCategory && formik.errors.jobCategory && (
-              <p className="text-red-500 text-sm">{formik.errors.jobCategory}</p>
+              <p className="text-red-500 text-sm">
+                {formik.errors.jobCategory}
+              </p>
             )}
           </div>
           <div>
-            <label className="text-sm font-medium block mb-2">Preferred Disabilities</label>
+            <label className="text-sm font-medium block mb-2">
+              Preferred Disabilities
+            </label>
             <Select
               options={disabilityOptions}
               isMulti
@@ -248,12 +269,17 @@ const UpdateModal = ({ open, onClose, job }) => {
               onBlur={formik.handleBlur}
               className="w-full"
             />
-            {formik.touched.preferredDisabilities && formik.errors.preferredDisabilities && (
-              <p className="text-red-500 text-sm">{formik.errors.preferredDisabilities}</p>
-            )}
+            {formik.touched.preferredDisabilities &&
+              formik.errors.preferredDisabilities && (
+                <p className="text-red-500 text-sm">
+                  {formik.errors.preferredDisabilities}
+                </p>
+              )}
           </div>
           <div>
-            <label className="text-sm font-medium block mb-2">Application Deadline</label>
+            <label className="text-sm font-medium block mb-2">
+              Application Deadline
+            </label>
             <input
               type="date"
               name="applicationDeadline"
@@ -265,12 +291,17 @@ const UpdateModal = ({ open, onClose, job }) => {
               onBlur={formik.handleBlur}
               className="w-full border rounded-lg p-2"
             />
-            {formik.touched.applicationDeadline && formik.errors.applicationDeadline && (
-              <p className="text-red-500 text-sm">{formik.errors.applicationDeadline}</p>
-            )}
+            {formik.touched.applicationDeadline &&
+              formik.errors.applicationDeadline && (
+                <p className="text-red-500 text-sm">
+                  {formik.errors.applicationDeadline}
+                </p>
+              )}
           </div>
           <div>
-            <label className="text-sm font-medium block mb-2">Preferred Language</label>
+            <label className="text-sm font-medium block mb-2">
+              Preferred Language
+            </label>
             <Select
               options={languageOptions}
               value={formik.values.preferredLanguage}
@@ -282,9 +313,12 @@ const UpdateModal = ({ open, onClose, job }) => {
               isClearable
               className="w-full"
             />
-            {formik.touched.preferredLanguage && formik.errors.preferredLanguage && (
-              <p className="text-red-500 text-sm">{formik.errors.preferredLanguage}</p>
-            )}
+            {formik.touched.preferredLanguage &&
+              formik.errors.preferredLanguage && (
+                <p className="text-red-500 text-sm">
+                  {formik.errors.preferredLanguage}
+                </p>
+              )}
           </div>
           <div>
             <label className="text-sm font-medium block mb-2">Job Type</label>
@@ -333,7 +367,9 @@ const UpdateModal = ({ open, onClose, job }) => {
             )}
           </div>
           <div>
-            <label className="text-sm font-medium block mb-2">Job Qualifications</label>
+            <label className="text-sm font-medium block mb-2">
+              Job Qualifications
+            </label>
             <select
               name="jobQualifications"
               value={formik.values.jobQualifications}
@@ -349,9 +385,12 @@ const UpdateModal = ({ open, onClose, job }) => {
               <option value="High School Diploma">High School Diploma</option>
               <option value="Technical Training">Technical Training</option>
             </select>
-            {formik.touched.jobQualifications && formik.errors.jobQualifications && (
-              <p className="text-red-500 text-sm">{formik.errors.jobQualifications}</p>
-            )}
+            {formik.touched.jobQualifications &&
+              formik.errors.jobQualifications && (
+                <p className="text-red-500 text-sm">
+                  {formik.errors.jobQualifications}
+                </p>
+              )}
           </div>
           <div>
             <label className="text-sm font-medium block mb-2">Job Level</label>
@@ -376,7 +415,9 @@ const UpdateModal = ({ open, onClose, job }) => {
           </div>
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="text-sm font-medium block mb-2">Min Salary</label>
+              <label className="text-sm font-medium block mb-2">
+                Min Salary
+              </label>
               <input
                 type="number"
                 name="expectedSalary.minSalary"
@@ -389,12 +430,17 @@ const UpdateModal = ({ open, onClose, job }) => {
                 className="w-full border rounded-lg p-2"
                 placeholder="Enter minimum salary"
               />
-              {formik.touched.expectedSalary?.minSalary && formik.errors.expectedSalary?.minSalary && (
-                <p className="text-red-500 text-sm">{formik.errors.expectedSalary.minSalary}</p>
-              )}
+              {formik.touched.expectedSalary?.minSalary &&
+                formik.errors.expectedSalary?.minSalary && (
+                  <p className="text-red-500 text-sm">
+                    {formik.errors.expectedSalary.minSalary}
+                  </p>
+                )}
             </div>
             <div className="flex-1">
-              <label className="text-sm font-medium block mb-2">Max Salary</label>
+              <label className="text-sm font-medium block mb-2">
+                Max Salary
+              </label>
               <input
                 type="number"
                 name="expectedSalary.maxSalary"
@@ -407,9 +453,12 @@ const UpdateModal = ({ open, onClose, job }) => {
                 className="w-full border rounded-lg p-2"
                 placeholder="Enter maximum salary"
               />
-              {formik.touched.expectedSalary?.maxSalary && formik.errors.expectedSalary?.maxSalary && (
-                <p className="text-red-500 text-sm">{formik.errors.expectedSalary.maxSalary}</p>
-              )}
+              {formik.touched.expectedSalary?.maxSalary &&
+                formik.errors.expectedSalary?.maxSalary && (
+                  <p className="text-red-500 text-sm">
+                    {formik.errors.expectedSalary.maxSalary}
+                  </p>
+                )}
             </div>
           </div>
           <div>
@@ -417,9 +466,9 @@ const UpdateModal = ({ open, onClose, job }) => {
             <input
               type="text"
               name="locations"
-              value={formik.values.locations.replace(/["[\]]/g, "")} 
+              value={formik.values.locations.replace(/["[\]]/g, "")}
               onChange={(e) => {
-                const sanitizedValue = e.target.value.replace(/["[\]]/g, ""); 
+                const sanitizedValue = e.target.value.replace(/["[\]]/g, "");
                 formik.setFieldValue("locations", sanitizedValue);
                 console.log("Locations:", sanitizedValue);
               }}
@@ -427,7 +476,9 @@ const UpdateModal = ({ open, onClose, job }) => {
               className="block w-full mt-1 text-sm text-gray-600 border border-gray-300 rounded-md p-2"
             />
             {formik.touched.locations && formik.errors.locations && (
-              <div className="text-red-500 text-sm">{formik.errors.locations}</div>
+              <div className="text-red-500 text-sm">
+                {formik.errors.locations}
+              </div>
             )}
           </div>
           <div>
@@ -442,7 +493,10 @@ const UpdateModal = ({ open, onClose, job }) => {
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
               {formik.values.jobSkills.map((skill, index) => (
-                <div key={index} className="flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                <div
+                  key={index}
+                  className="flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium"
+                >
                   {skill.replace(/["[\]]/g, "")}
                   <button
                     type="button"
@@ -459,10 +513,14 @@ const UpdateModal = ({ open, onClose, job }) => {
             )}
           </div>
           <div>
-            <label className="text-sm font-medium block mb-2">Job Attachment</label>
+            <label className="text-sm font-medium block mb-2">
+              Job Attachment
+            </label>
             {formik.values.previousAttachment && !showFileInput && (
               <div className="mt-2 flex items-center">
-                <span className="text-sm text-gray-600">Previously attached:</span>
+                <span className="text-sm text-gray-600">
+                  Previously attached:
+                </span>
                 <a
                   href={formik.values.previousAttachment}
                   target="_blank"
@@ -474,8 +532,8 @@ const UpdateModal = ({ open, onClose, job }) => {
                 <button
                   type="button"
                   onClick={() => {
-                    setShowFileInput(true); 
-                    setKeepPreviousAttachment(false); 
+                    setShowFileInput(true);
+                    setKeepPreviousAttachment(false);
                   }}
                   className="ml-2 text-red-500 hover:text-red-700 text-sm"
                 >
@@ -499,24 +557,26 @@ const UpdateModal = ({ open, onClose, job }) => {
               />
             )} */}
             {showFileInput && (
-            <input
-              type="file"
-              name="jobAttachment"
-              onChange={(e) => {
-                const newFile = e.currentTarget.files[0];
-                if (newFile) {
-                  formik.setFieldValue("jobAttachment", newFile);
-                  console.log("New Job Attachment set:", newFile);
-                } else {
-                  console.log("No new file selected");
-                }
-              }}
-              onBlur={formik.handleBlur}
-              className="block w-full mt-1 text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 focus:outline-none"
-            />
-          )}
+              <input
+                type="file"
+                name="jobAttachment"
+                onChange={(e) => {
+                  const newFile = e.currentTarget.files[0];
+                  if (newFile) {
+                    formik.setFieldValue("jobAttachment", newFile);
+                    console.log("New Job Attachment set:", newFile);
+                  } else {
+                    console.log("No new file selected");
+                  }
+                }}
+                onBlur={formik.handleBlur}
+                className="block w-full mt-1 text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 focus:outline-none"
+              />
+            )}
             {formik.touched.jobAttachment && formik.errors.jobAttachment && (
-              <div className="text-red-500 text-sm">{formik.errors.jobAttachment}</div>
+              <div className="text-red-500 text-sm">
+                {formik.errors.jobAttachment}
+              </div>
             )}
           </div>
 
@@ -552,9 +612,12 @@ const UpdateModal = ({ open, onClose, job }) => {
                   className="w-full border rounded-lg p-2"
                   placeholder="Enter apply link"
                 />
-                {formik.touched.applyWithLink && formik.errors.applyWithLink && (
-                  <p className="text-red-500 text-sm">{formik.errors.applyWithLink}</p>
-                )}
+                {formik.touched.applyWithLink &&
+                  formik.errors.applyWithLink && (
+                    <p className="text-red-500 text-sm">
+                      {formik.errors.applyWithLink}
+                    </p>
+                  )}
               </div>
             )}
           </div>

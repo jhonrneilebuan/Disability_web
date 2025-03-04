@@ -361,7 +361,7 @@ const Navbar = () => {
                 <li
                   key={notif._id || index}
                   className={`px-4 py-2 text-sm border-b hover:bg-gray-100 ${
-                    notif.isRead ? "text-gray-500" : "text-black"
+                    notif.isRead ? "text-gray-500 font-poppins" : "text-black font-poppins font-semibold"
                   }`}
                 >
                   {notif?.message || notif}

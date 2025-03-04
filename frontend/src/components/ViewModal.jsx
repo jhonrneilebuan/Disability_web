@@ -1,4 +1,4 @@
-import React from "react";
+import "react";
 import Modal from "./Modal";
 
 const toPascalCase = (input) => {
@@ -14,12 +14,12 @@ const ViewModal = ({ open, onClose, job }) => {
   if (!job) return null;
 
   const cleanJobSkills = job.jobSkills
-    .map((skill) => skill.replace(/[\[\]"]/g, "").trim())
+    .map((skill) => skill.replace(/[[\]"]/g, "").trim())
     .filter((skill) => skill !== "")
     .join(", ");
 
   const cleanLocations = job.locations
-    .map((location) => location.replace(/[\[\]"]/g, "").trim())
+    .map((location) => location.replace(/[[\]"]/g, "").trim())
     .filter((location) => location !== "")
     .join(", ");
 
@@ -34,6 +34,11 @@ const ViewModal = ({ open, onClose, job }) => {
     const formattedPreferredDisabilities = job.preferredDisabilities
     .map((disability) => toPascalCase(disability))
     .join(", ");
+
+    const formattedPreferredLanguages = Array.isArray(job.preferredLanguages) 
+    ? job.preferredLanguages.join(", ") 
+    : job.preferredLanguages || "No Preferred Language Specified";
+
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -75,7 +80,7 @@ const ViewModal = ({ open, onClose, job }) => {
 
           <div className="flex items-center bg-gray-50 p-4 rounded-lg">
             <p className="font-semibold text-gray-800 w-1/3">Preferred Language:</p>
-            <p className="text-gray-900 font-medium">{job.preferredLanguage}</p>
+            <p className="text-gray-900 font-medium">{formattedPreferredLanguages}</p>
           </div>
 
           <div className="flex items-center bg-gray-50 p-4 rounded-lg">

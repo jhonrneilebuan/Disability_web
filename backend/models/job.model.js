@@ -56,9 +56,8 @@ const jobSchema = new mongoose.Schema(
       type: [String],
       required: true,
     },
-    preferredLanguage: {
-      type: String,
-      required: true,
+    preferredLanguages: {
+      type: [String],
     },
     jobQualifications: {
       type: String,

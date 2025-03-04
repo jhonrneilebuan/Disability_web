@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
-
+import { authStore } from "../stores/authStore";
 const Footer = () => {
+  const { user } = authStore();
+
   return (
     <div>
       <footer className="bg-white text-gray-600 font-poppins text-xl py-12 mt-20">
@@ -10,29 +12,49 @@ const Footer = () => {
               <h3 className="text-2xl text-black font-semibold mb-4">Job Seekers</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link to="/job-search" className="hover:underline">
-                    Job Search
-                  </Link>
+                  {user?.role === "Applicant" ? (
+                    <Link to="/jobs" className="hover:underline">
+                      Job Search
+                    </Link>
+                  ) : (
+                    <span className="text-gray-400">Job Search</span>
+                  )}
                 </li>
                 <li>
-                  <Link to="/profile" className="hover:underline">
-                    Profile
-                  </Link>
+                  {user?.role === "Applicant" ? (
+                    <Link to="/profile-info" className="hover:underline">
+                      Profile
+                    </Link>
+                  ) : (
+                    <span className="text-gray-400">Profile</span>
+                  )}
                 </li>
                 <li>
-                  <Link to="/recommended-jobs" className="hover:underline">
-                    Recommended Jobs
-                  </Link>
+                  {user?.role === "Applicant" ? (
+                    <Link to="/jobs" className="hover:underline">
+                      Recommended Jobs
+                    </Link>
+                  ) : (
+                    <span className="text-gray-400">Recommended Jobs</span>
+                  )}
                 </li>
                 <li>
-                  <Link to="/saved-jobs" className="hover:underline">
-                    Saved Jobs
-                  </Link>
+                  {user?.role === "Applicant" ? (
+                    <Link to="/job" className="hover:underline">
+                      Saved Jobs
+                    </Link>
+                  ) : (
+                    <span className="text-gray-400">Saved Jobs</span>
+                  )}
                 </li>
                 <li>
-                  <Link to="/job-applications" className="hover:underline">
-                    Job Applications
-                  </Link>
+                  {user?.role === "Applicant" ? (
+                    <Link to="/job" className="hover:underline">
+                      Job Applications
+                    </Link>
+                  ) : (
+                    <span className="text-gray-400">Job Applications</span>
+                  )}
                 </li>
               </ul>
             </div>
@@ -41,19 +63,31 @@ const Footer = () => {
               <h3 className="text-2xl text-black font-semibold mb-4">Employers</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link to="/register" className="hover:underline">
-                    Register
-                  </Link>
+                  {user?.role === "Employer" ? (
+                    <Link to="/sign-up" className="hover:underline">
+                      Register
+                    </Link>
+                  ) : (
+                    <span className="text-gray-400">Register</span>
+                  )}
                 </li>
                 <li>
-                  <Link to="/post-job" className="hover:underline">
-                    Post a Job
-                  </Link>
+                  {user?.role === "Employer" ? (
+                    <Link to="/post-job" className="hover:underline">
+                      Post a Job
+                    </Link>
+                  ) : (
+                    <span className="text-gray-400">Post a Job</span>
+                  )}
                 </li>
                 <li>
-                  <Link to="/hiring-advice" className="hover:underline">
-                    Hiring Advice
-                  </Link>
+                  {user?.role === "Employer" ? (
+                    <Link to="/hiring-advice" className="hover:underline">
+                      Hiring Advice
+                    </Link>
+                  ) : (
+                    <span className="text-gray-400">Hiring Advice</span>
+                  )}
                 </li>
               </ul>
             </div>
@@ -64,13 +98,13 @@ const Footer = () => {
               </Link>
               <ul className="space-y-2">
                 <li>
-                  <Link to="/careers" className="hover:underline">
-                    Careers
+                  <Link to="/about-us" className="hover:underline">
+                    About Us
                   </Link>
                 </li>
                 <li>
-                  <Link to="/help-center" className="hover:underline">
-                    Help Center
+                  <Link to="/howitworks" className="hover:underline">
+                  How It Works
                   </Link>
                 </li>
                 <li>

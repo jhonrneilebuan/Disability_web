@@ -14,11 +14,11 @@ const ApplicantPage = () => {
   const [showAllJobs, setShowAllJobs] = useState(false);
   const navigate = useNavigate();
 
-  const { getAllJobs, jobPosts, error, isLoading } = jobStore();
+  const { getJobPosts, jobPosts, error, isLoading } = jobStore();
 
   useEffect(() => {
-    getAllJobs();
-  }, [getAllJobs]);
+    getJobPosts();
+  }, [getJobPosts]);
 
   const filteredJobPosts = jobPosts.filter((job) => {
     const matchesKeyword =

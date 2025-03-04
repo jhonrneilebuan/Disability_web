@@ -44,7 +44,18 @@ const applicationSchema = new mongoose.Schema(
         enum: ["In-Person", "Online"],
         required: false,
       },
-      location: String,
+      location: {
+        type: String,
+        required: function() {
+          return this.interview_type === "In-Person";
+        }
+      },
+      platformLink: {  
+        type: String,
+        required: function() {
+          return this.interview_type === "Online";
+        }
+      },
       status: {
         type: String,
         enum: [

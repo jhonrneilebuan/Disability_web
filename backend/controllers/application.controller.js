@@ -1,10 +1,9 @@
+import { getReceiverSocketId, io } from "../db/socket.js";
 import { sendConfirmationEmail } from "../mailtrap/gmail.js";
 import Application from "../models/application.model.js";
 import Job from "../models/job.model.js";
-import User from "../models/user.model.js";
 import Notification from "../models/notification.model.js";
-import { io, getReceiverSocketId } from "../db/socket.js";
-import { format } from "date-fns"; 
+import User from "../models/user.model.js";
 
 export const applyJobs = async (req, res) => {
   try {
@@ -21,11 +20,11 @@ export const applyJobs = async (req, res) => {
       return res.status(400).json({ error: "Resume is required." });
     }
 
-    const job = await Job.findById(jobId).populate("employer"); 
+    const job = await Job.findById(jobId).populate("employer");
     if (!job) {
       return res.status(404).json({ error: "Job not found." });
     }
-    const employerId = job.employer._id; 
+    const employerId = job.employer._id;
 
     const applicant = await User.findById(applicantId);
     if (!applicant) {
@@ -41,11 +40,13 @@ export const applyJobs = async (req, res) => {
     }
 
     if (!job.preferredDisabilities.includes("Any")) {
-      const isEligible = job.preferredDisabilities.includes(applicantDisability);
+      const isEligible =
+        job.preferredDisabilities.includes(applicantDisability);
 
       if (!isEligible) {
         return res.status(403).json({
-          error: "You do not meet the preferred disability criteria for this job.",
+          error:
+            "You do not meet the preferred disability criteria for this job.",
         });
       }
     }
@@ -84,7 +85,7 @@ export const applyJobs = async (req, res) => {
       type: "newJobApplication",
       isRead: false,
     });
-    await notification.save(); 
+    await notification.save();
 
     const employerSocketId = getReceiverSocketId(employerId.toString());
     console.log(`Employer Socket ID:`, employerSocketId);
@@ -106,7 +107,6 @@ export const applyJobs = async (req, res) => {
     });
   }
 };
-
 
 export const getApplications = async (req, res) => {
   try {
@@ -292,13 +292,16 @@ export const shortlistApplication = async (req, res) => {
       return res.status(400).json({ error: "Application ID is required." });
     }
 
-    const application = await Application.findById(applicationId);
-    
+    const application = await Application.findById(applicationId).populate(
+      "jobId",
+      "jobTitle"
+    );
+
     if (!application) {
       return res.status(404).json({ error: "Application not found." });
     }
 
-    const applicantId = application.applicantId; 
+    const applicantId = application.applicantId;
 
     application.status = "Shortlisted";
     await application.save();
@@ -334,8 +337,6 @@ export const shortlistApplication = async (req, res) => {
     });
   }
 };
-
-
 
 export const interviewApplication = async (req, res) => {
   try {
@@ -440,7 +441,8 @@ export const hireApplication = async (req, res) => {
   } catch (error) {
     console.error("Error updating application to hired stage:", error);
     res.status(500).json({
-      error: "An error occurred while updating the application status to hired.",
+      error:
+        "An error occurred while updating the application status to hired.",
     });
   }
 };
@@ -449,13 +451,16 @@ export const rejectApplication = async (req, res) => {
   try {
     const { id: applicationId } = req.params;
 
-    const application = await Application.findById(applicationId);
+    const application = await Application.findById(applicationId).populate(
+      "jobId",
+      "jobTitle"
+    );
 
     if (!application) {
       return res.status(404).json({ error: "Application not found." });
     }
 
-    const applicantId = application.applicantId; 
+    const applicantId = application.applicantId;
 
     application.status = "Rejected";
     await application.save();
@@ -467,9 +472,9 @@ export const rejectApplication = async (req, res) => {
       isRead: false,
     });
     await notification.save();
-    
+
     const applicantSocketId = getReceiverSocketId(applicantId.toString());
-    
+
     if (applicantSocketId) {
       io.to(applicantSocketId).emit("applicationRejected", {
         message: notification.message,
@@ -478,7 +483,7 @@ export const rejectApplication = async (req, res) => {
       });
     } else {
       console.log(`Applicant ${applicantId} is offline. Notification saved.`);
-    }    
+    }
 
     res.status(200).json({
       message: "Application successfully rejected.",
@@ -535,17 +540,15 @@ export const getTotalShortlist = async (req, res) => {
 
     const totalShortlist = await Application.countDocuments({
       jobId: { $in: jobIds },
-      status: "Shortlisted", 
+      status: "Shortlisted",
     });
 
     return res.status(200).json({ totalShortlist });
   } catch (error) {
     console.error("Error fetching shortlisted applications:", error);
-    return res
-      .status(500)
-      .json({
-        error: "An error occurred while fetching the shortlisted applications.",
-      });
+    return res.status(500).json({
+      error: "An error occurred while fetching the shortlisted applications.",
+    });
   }
 };
 
@@ -564,17 +567,15 @@ export const getTotalInterview = async (req, res) => {
 
     const TotalInterview = await Application.countDocuments({
       jobId: { $in: jobIds },
-      status: "Interview Scheduled", 
+      status: "Interview Scheduled",
     });
 
     return res.status(200).json({ TotalInterview });
   } catch (error) {
     console.error("Error fetching Interview applications:", error);
-    return res
-      .status(500)
-      .json({
-        error: "An error occurred while fetching the Interview applications.",
-      });
+    return res.status(500).json({
+      error: "An error occurred while fetching the Interview applications.",
+    });
   }
 };
 
@@ -593,17 +594,15 @@ export const getTotalHired = async (req, res) => {
 
     const totalHired = await Application.countDocuments({
       jobId: { $in: jobIds },
-      status: "Hired", 
+      status: "Hired",
     });
 
     return res.status(200).json({ totalHired });
   } catch (error) {
     console.error("Error fetching Hired applications:", error);
-    return res
-      .status(500)
-      .json({
-        error: "An error occurred while fetching the Hired applications.",
-      });
+    return res.status(500).json({
+      error: "An error occurred while fetching the Hired applications.",
+    });
   }
 };
 
@@ -665,7 +664,6 @@ export const getShortlistedApplicants = async (req, res) => {
   }
 };
 
-
 export const getTotalApplicant = async (req, res) => {
   const employerId = req.userId;
 
@@ -673,7 +671,9 @@ export const getTotalApplicant = async (req, res) => {
     const jobs = await Job.find({ employer: employerId });
 
     if (jobs.length === 0) {
-      return res.status(404).json({ message: "No jobs found for this employer." });
+      return res
+        .status(404)
+        .json({ message: "No jobs found for this employer." });
     }
 
     const jobIds = jobs.map((job) => job._id);
@@ -682,7 +682,7 @@ export const getTotalApplicant = async (req, res) => {
       { $match: { jobId: { $in: jobIds } } },
       {
         $group: {
-          _id:  {$dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, 
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
           count: { $sum: 1 },
         },
       },
@@ -690,13 +690,13 @@ export const getTotalApplicant = async (req, res) => {
     ]);
 
     const chartData = {
-      labels: totalApplicants.map(applicant => applicant._id),  
+      labels: totalApplicants.map((applicant) => applicant._id),
       datasets: [
         {
           label: "Total Applicants",
-          data: totalApplicants.map(applicant => applicant.count),  
+          data: totalApplicants.map((applicant) => applicant.count),
           fill: false,
-          borderColor: 'rgb(75, 192, 192)',
+          borderColor: "rgb(75, 192, 192)",
           tension: 0.1,
         },
       ],
@@ -718,19 +718,23 @@ export const getJobApplicantsCount = async (req, res) => {
     const employerJobs = await Job.find({ employer: employerId });
 
     if (!employerJobs.length) {
-      return res.status(403).json({ message: "No jobs found for this employer" });
+      return res
+        .status(403)
+        .json({ message: "No jobs found for this employer" });
     }
 
     const jobCounts = await Application.aggregate([
-      { $match: { jobId: { $in: employerJobs.map(job => job._id) } } },
-      { $group: { _id: "$jobId", applicantCount: { $sum: 1 } } }
+      { $match: { jobId: { $in: employerJobs.map((job) => job._id) } } },
+      { $group: { _id: "$jobId", applicantCount: { $sum: 1 } } },
     ]);
 
-    const jobStats = employerJobs.map(job => {
-      const count = jobCounts.find(j => j._id.toString() === job._id.toString());
+    const jobStats = employerJobs.map((job) => {
+      const count = jobCounts.find(
+        (j) => j._id.toString() === job._id.toString()
+      );
       return {
         jobTitle: job.jobTitle,
-        applicantCount: count ? count.applicantCount : 0
+        applicantCount: count ? count.applicantCount : 0,
       };
     });
 
@@ -750,7 +754,9 @@ export const getJobPreferences = async (req, res) => {
     }
 
     if (user.role !== "Applicant") {
-      return res.status(403).json({ message: "Access denied. Only applicants can view job preferences." });
+      return res.status(403).json({
+        message: "Access denied. Only applicants can view job preferences.",
+      });
     }
 
     const jobPreferences = {
@@ -775,29 +781,65 @@ export const getJobPreferences = async (req, res) => {
 
 export const updateJobPreferences = async (req, res) => {
   try {
-    let { jobCategories, jobTypes, preferredLocations, preferredDisability, expectedSalary, jobQualifications, jobLevel } = req.body;
+    let {
+      jobCategories,
+      jobTypes,
+      preferredLocations,
+      preferredDisability,
+      expectedSalary,
+      jobQualifications,
+      jobLevel,
+    } = req.body;
 
-    if (!jobCategories || !jobTypes || !preferredLocations || !expectedSalary || !jobQualifications || !jobLevel) {
+    if (
+      !jobCategories ||
+      !jobTypes ||
+      !preferredLocations ||
+      !expectedSalary ||
+      !jobQualifications ||
+      !jobLevel
+    ) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    if (!Array.isArray(jobCategories) || jobCategories.length === 0 || jobCategories.length > 3) {
-      return res.status(400).json({ message: "You must select 1 to 3 job categories" });
+    if (
+      !Array.isArray(jobCategories) ||
+      jobCategories.length === 0 ||
+      jobCategories.length > 3
+    ) {
+      return res
+        .status(400)
+        .json({ message: "You must select 1 to 3 job categories" });
     }
 
-    if (!Array.isArray(jobTypes) || jobTypes.length === 0 || jobTypes.length > 3) {
-      return res.status(400).json({ message: "You must select 1 to 3 job types" });
+    if (
+      !Array.isArray(jobTypes) ||
+      jobTypes.length === 0 ||
+      jobTypes.length > 3
+    ) {
+      return res
+        .status(400)
+        .json({ message: "You must select 1 to 3 job types" });
     }
 
-    if (typeof expectedSalary !== "object" || !expectedSalary.minSalary || !expectedSalary.maxSalary) {
-      return res.status(400).json({ message: "Expected salary must be an object with minSalary and maxSalary" });
+    if (
+      typeof expectedSalary !== "object" ||
+      !expectedSalary.minSalary ||
+      !expectedSalary.maxSalary
+    ) {
+      return res.status(400).json({
+        message:
+          "Expected salary must be an object with minSalary and maxSalary",
+      });
     }
 
     expectedSalary.minSalary = Number(expectedSalary.minSalary);
     expectedSalary.maxSalary = Number(expectedSalary.maxSalary);
 
     if (isNaN(expectedSalary.minSalary) || isNaN(expectedSalary.maxSalary)) {
-      return res.status(400).json({ message: "Expected salary values must be numbers" });
+      return res
+        .status(400)
+        .json({ message: "Expected salary values must be numbers" });
     }
 
     const user = await User.findById(req.userId);
@@ -807,7 +849,9 @@ export const updateJobPreferences = async (req, res) => {
     }
 
     if (user.role !== "Applicant") {
-      return res.status(403).json({ message: "Access denied. Only applicants can update job preferences." });
+      return res.status(403).json({
+        message: "Access denied. Only applicants can update job preferences.",
+      });
     }
 
     user.jobPreferences = {
@@ -849,9 +893,6 @@ export const updateJobPreferences = async (req, res) => {
   }
 };
 
-
-
-
 export const clearJobPreferences = async (req, res) => {
   try {
     const user = await User.findById(req.userId);
@@ -861,16 +902,18 @@ export const clearJobPreferences = async (req, res) => {
     }
 
     if (user.role !== "Applicant") {
-      return res.status(403).json({ message: "Access denied. Only applicants can clear job preferences." });
+      return res.status(403).json({
+        message: "Access denied. Only applicants can clear job preferences.",
+      });
     }
 
-    user.jobPreferences = {}; 
+    user.jobPreferences = {};
 
     await user.save();
 
     return res.status(200).json({
       message: "Job preferences cleared successfully",
-      jobPreferences: user.jobPreferences, 
+      jobPreferences: user.jobPreferences,
     });
   } catch (err) {
     console.error(err);
@@ -881,12 +924,24 @@ export const clearJobPreferences = async (req, res) => {
 export const scheduleInterview = async (req, res) => {
   try {
     const { applicationId } = req.params;
-    const { scheduled_time, interview_type, location } = req.body;
+    const { scheduled_time, interview_type, location, platformLink } = req.body;
 
-    if (!scheduled_time || !interview_type || !location) {
+    if (!scheduled_time || !interview_type) {
       return res
         .status(400)
-        .json({ error: "All interview details are required." });
+        .json({ error: "Interview type and scheduled time are required." });
+    }
+
+    if (interview_type === "In-Person" && !location) {
+      return res
+        .status(400)
+        .json({ error: "Location is required for In-Person interviews." });
+    }
+
+    if (interview_type === "Online" && !platformLink) {
+      return res.status(400).json({
+        error: "Platform link (e.g., Zoom) is required for Online interviews.",
+      });
     }
 
     const application = await Application.findById(applicationId);
@@ -899,18 +954,29 @@ export const scheduleInterview = async (req, res) => {
       timeStyle: "short",
     }).format(new Date(scheduled_time));
 
-    application.interview = {
+    const interviewDetails = {
       scheduled_time,
       interview_type,
-      location,
       status: "Scheduled",
     };
+
+    if (interview_type === "In-Person") {
+      interviewDetails.location = location;
+    } else if (interview_type === "Online") {
+      interviewDetails.platformLink = platformLink;
+    }
+
+    application.interview = interviewDetails;
     application.status = "Interview Scheduled";
     await application.save();
 
     const notification = new Notification({
       user: application.applicantId,
-      message: `Your interview for the job has been scheduled. Interview Type: ${interview_type}, Date: ${formattedTime}, Location: ${location}`,
+      message: `Your interview for the job has been scheduled. Interview Type: ${interview_type}, Date: ${formattedTime}, ${
+        interview_type === "In-Person"
+          ? `Location: ${location}`
+          : `Platform: ${platformLink}`
+      }`,
       type: "interviewScheduled",
       isRead: false,
     });
@@ -926,6 +992,7 @@ export const scheduleInterview = async (req, res) => {
         scheduled_time: application.interview.scheduled_time,
         interview_type: application.interview.interview_type,
         location: application.interview.location,
+        platformLink: application.interview.platformLink,
       });
     } else {
       console.log(
@@ -944,8 +1011,6 @@ export const scheduleInterview = async (req, res) => {
     });
   }
 };
-
-
 
 export const requestReschedule = async (req, res) => {
   try {
@@ -1001,7 +1066,6 @@ export const requestReschedule = async (req, res) => {
     });
   }
 };
-
 
 export const getInterviewDetails = async (req, res) => {
   try {
@@ -1083,7 +1147,6 @@ export const getCompleteInterview = async (req, res) => {
   }
 };
 
-
 export const getInteviewedScheduledApplicants = async (req, res) => {
   try {
     const employerId = req.userId;
@@ -1099,7 +1162,6 @@ export const getInteviewedScheduledApplicants = async (req, res) => {
     const interviewScheduledApplicants = await Application.find({
       jobId: { $in: employerJobs.map((job) => job._id) },
       status: "Interview Scheduled",
-
     })
       .populate("jobId", "jobTitle jobCategory jobType")
       .populate("applicantId", "fullName profilePicture")
@@ -1109,35 +1171,38 @@ export const getInteviewedScheduledApplicants = async (req, res) => {
       .exec();
 
     if (!interviewScheduledApplicants.length) {
-      return res
-        .status(404)
-        .json({ message: "No interview-scheduled applicants found for your jobs." });
+      return res.status(404).json({
+        message: "No interview-scheduled applicants found for your jobs.",
+      });
     }
 
-    const interviewScheduledInfo = interviewScheduledApplicants.map((applicant) => ({
-      id: applicant._id,
-      applicantName: applicant.applicantId
-        ? applicant.applicantId.fullName
-        : "No name provided",
-      applicantProfilePicture: applicant.applicantId
-        ? applicant.applicantId.profilePicture || "No profile picture available"
-        : "No profile picture available",
-      jobTitle: applicant.jobId.jobTitle,
-      jobCategory: applicant.jobId.jobCategory,
-      jobType: applicant.jobId.jobType,
-      appliedAt: applicant.createdAt,
-      status: applicant.status,
-      coverLetter: applicant.coverLetter || "No cover letter provided",
-      resume: applicant.resume,
-      additionalFiles: applicant.additionalFiles || [],
-      accessibilityNeeds: applicant.accessibilityNeeds || "None",
-      interview: applicant.interview || {
-        scheduled_time: null,
-        interview_type: "Not scheduled",
-        location: "No location provided",
-        status: "Not scheduled",
-      },
-    }));
+    const interviewScheduledInfo = interviewScheduledApplicants.map(
+      (applicant) => ({
+        id: applicant._id,
+        applicantName: applicant.applicantId
+          ? applicant.applicantId.fullName
+          : "No name provided",
+        applicantProfilePicture: applicant.applicantId
+          ? applicant.applicantId.profilePicture ||
+            "No profile picture available"
+          : "No profile picture available",
+        jobTitle: applicant.jobId.jobTitle,
+        jobCategory: applicant.jobId.jobCategory,
+        jobType: applicant.jobId.jobType,
+        appliedAt: applicant.createdAt,
+        status: applicant.status,
+        coverLetter: applicant.coverLetter || "No cover letter provided",
+        resume: applicant.resume,
+        additionalFiles: applicant.additionalFiles || [],
+        accessibilityNeeds: applicant.accessibilityNeeds || "None",
+        interview: applicant.interview || {
+          scheduled_time: null,
+          interview_type: "Not scheduled",
+          location: "No location provided",
+          status: "Not scheduled",
+        },
+      })
+    );
 
     res.status(200).json({
       message: "Interview-scheduled applicants retrieved successfully.",
@@ -1148,7 +1213,6 @@ export const getInteviewedScheduledApplicants = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 
 export const getCompleteInterviewedApplicants = async (req, res) => {
   try {
@@ -1161,7 +1225,9 @@ export const getCompleteInterviewedApplicants = async (req, res) => {
     const employerJobs = await Job.find({ employer: employerId });
 
     if (!employerJobs || employerJobs.length === 0) {
-      return res.status(404).json({ message: "No jobs found for this employer." });
+      return res
+        .status(404)
+        .json({ message: "No jobs found for this employer." });
     }
 
     const interviewScheduledApplicants = await Application.find({
@@ -1175,30 +1241,39 @@ export const getCompleteInterviewedApplicants = async (req, res) => {
       )
       .exec();
 
-    if (!interviewScheduledApplicants || interviewScheduledApplicants.length === 0) {
-      return res.status(404).json({ message: "No completed interview applicants found for your jobs." });
+    if (
+      !interviewScheduledApplicants ||
+      interviewScheduledApplicants.length === 0
+    ) {
+      return res.status(404).json({
+        message: "No completed interview applicants found for your jobs.",
+      });
     }
 
-    const interviewScheduledInfo = interviewScheduledApplicants.map((applicant) => ({
-      id: applicant._id,
-      applicantName: applicant.applicantId?.fullName || "No name provided",
-      applicantProfilePicture: applicant.applicantId?.profilePicture || "No profile picture available",
-      jobTitle: applicant.jobId?.jobTitle || "No job title provided",
-      jobCategory: applicant.jobId?.jobCategory || "No job category provided",
-      jobType: applicant.jobId?.jobType || "No job type provided",
-      appliedAt: applicant.createdAt,
-      status: applicant.status,
-      coverLetter: applicant.coverLetter || "No cover letter provided",
-      resume: applicant.resume || "No resume provided",
-      additionalFiles: applicant.additionalFiles || [],
-      accessibilityNeeds: applicant.accessibilityNeeds || "None",
-      interview: applicant.interview || {
-        scheduled_time: null,
-        interview_type: "Not scheduled",
-        location: "No location provided",
-        status: "Not scheduled",
-      },
-    }));
+    const interviewScheduledInfo = interviewScheduledApplicants.map(
+      (applicant) => ({
+        id: applicant._id,
+        applicantName: applicant.applicantId?.fullName || "No name provided",
+        applicantProfilePicture:
+          applicant.applicantId?.profilePicture ||
+          "No profile picture available",
+        jobTitle: applicant.jobId?.jobTitle || "No job title provided",
+        jobCategory: applicant.jobId?.jobCategory || "No job category provided",
+        jobType: applicant.jobId?.jobType || "No job type provided",
+        appliedAt: applicant.createdAt,
+        status: applicant.status,
+        coverLetter: applicant.coverLetter || "No cover letter provided",
+        resume: applicant.resume || "No resume provided",
+        additionalFiles: applicant.additionalFiles || [],
+        accessibilityNeeds: applicant.accessibilityNeeds || "None",
+        interview: applicant.interview || {
+          scheduled_time: null,
+          interview_type: "Not scheduled",
+          location: "No location provided",
+          status: "Not scheduled",
+        },
+      })
+    );
 
     res.status(200).json({
       message: "Completed interview applicants retrieved successfully.",
@@ -1217,13 +1292,15 @@ export const completeInterview = async (req, res) => {
       return res.status(400).json({ error: "Application ID is required." });
     }
 
-    const application = await Application.findById(applicationId).populate('jobId');;
-    
+    const application = await Application.findById(applicationId).populate(
+      "jobId"
+    );
+
     if (!application) {
       return res.status(404).json({ error: "Application not found." });
     }
 
-    const applicantId = application.applicantId; 
+    const applicantId = application.applicantId;
 
     application.interview.status = "Completed";
     application.status = "Interview Completed";
@@ -1257,7 +1334,6 @@ export const completeInterview = async (req, res) => {
   }
 };
 
-
 export const confirmInterview = async (req, res) => {
   try {
     const { id: applicationId } = req.params;
@@ -1265,35 +1341,44 @@ export const confirmInterview = async (req, res) => {
       return res.status(400).json({ error: "Application ID is required." });
     }
 
-    const application = await Application.findById(applicationId).populate('applicantId'); ;
+    const application = await Application.findById(applicationId).populate(
+      "applicantId"
+    ) .populate("jobId");
 
     if (!application) {
       return res.status(404).json({ error: "Application not found." });
     }
 
-    if (!application.interview || application.interview.status !== "Scheduled") {
+    if (
+      !application.interview ||
+      application.interview.status !== "Scheduled"
+    ) {
       return res.status(400).json({ error: "Interview is not scheduled." });
     }
 
     application.interview.status = "Confirmed";
     await application.save();
 
+    const employerId = application.jobId.employer._id;
+
     const notification = new Notification({
-      user: application.jobId,
+      user: employerId,
       message: `The applicant ${application.applicantId.fullName} has confirmed the interview schedule.`,
       type: "interviewConfirmed",
       isRead: false,
     });
     await notification.save();
 
-    const employerSocketId = getReceiverSocketId(application.jobId.toString());
+    const employerSocketId = getReceiverSocketId(employerId.toString());
+    console.log(`Employer Socket ID:`, employerSocketId);
+
     if (employerSocketId) {
       io.to(employerSocketId).emit("interviewConfirmed", {
         message: notification.message,
         applicationId: application._id,
       });
     } else {
-      console.log(`Employer ${application.jobId} is offline. Notification saved.`);
+      console.log(`Employer ${employerId} is offline. Notification saved.`);
     }
 
     res.status(200).json({
@@ -1306,7 +1391,6 @@ export const confirmInterview = async (req, res) => {
   }
 };
 
-
 export const declineInterview = async (req, res) => {
   try {
     const { id: applicationId } = req.params;
@@ -1314,35 +1398,44 @@ export const declineInterview = async (req, res) => {
       return res.status(400).json({ error: "Application ID is required." });
     }
 
-    const application = await Application.findById(applicationId);
+    const application = await Application.findById(applicationId).populate(
+      "applicantId"
+    ) .populate("jobId");
 
     if (!application) {
       return res.status(404).json({ error: "Application not found." });
     }
 
-    if (!application.interview || application.interview.status !== "Scheduled") {
+    if (
+      !application.interview ||
+      application.interview.status !== "Scheduled"
+    ) {
       return res.status(400).json({ error: "Interview is not scheduled." });
     }
 
     application.interview.status = "Declined";
     await application.save();
 
+    const employerId = application.jobId.employer._id;
+
     const notification = new Notification({
-      user: application.jobId,
+      user: employerId,
       message: `The applicant ${application.applicantId.fullName} has declined the interview schedule.`,
-      type: "interviewConfirmed",
+      type: "interviewDeclined",
       isRead: false,
     });
     await notification.save();
 
-    const employerSocketId = getReceiverSocketId(application.jobId.toString());
+    const employerSocketId = getReceiverSocketId(employerId.toString());
+    console.log(`Employer Socket ID:`, employerSocketId);
+
     if (employerSocketId) {
-      io.to(employerSocketId).emit("interviewConfirmed", {
+      io.to(employerSocketId).emit("interviewDeclined", {
         message: notification.message,
         applicationId: application._id,
       });
     } else {
-      console.log(`Employer ${application.jobId} is offline. Notification saved.`);
+      console.log(`Employer ${employerId} is offline. Notification saved.`);
     }
 
     res.status(200).json({

@@ -11,6 +11,7 @@ export const jobStore = create((set, get) => ({
   jobPreferences: null,
   isjobPreferencesLoading: false,
   jobPosts: [],
+  jobposted: [],
   applications: [],
   employerApplicants: [],
   totalApplicantCount: [],
@@ -44,9 +45,6 @@ export const jobStore = create((set, get) => ({
       set({ jobPreferences: response.data, isjobPreferencesLoading: false });
     } catch (error) {
       console.error("Error fetching job preferences:", error);
-      toast.error(
-        error.response?.data?.message || "Error fetching job preferences"
-      );
       set({
         error:
           error.response?.data?.message || "Error fetching job preferences",
@@ -88,11 +86,6 @@ export const jobStore = create((set, get) => ({
       toast.success("Job preferences updated successfully");
     } catch (error) {
       console.error("Error updating job preferences:", error);
-
-      toast.error(
-        error.response?.data?.message || "Error updating job preferences"
-      );
-
       set({
         error:
           error.response?.data?.message || "Error updating job preferences",
@@ -113,9 +106,6 @@ export const jobStore = create((set, get) => ({
       });
     } catch (error) {
       console.error("Error fetching total applicants:", error);
-      toast.error(
-        error.response?.data?.message || "Error fetching total applicants"
-      );
       set({
         error:
           error.response?.data?.message || "Error fetching total applicants",
@@ -136,9 +126,6 @@ export const jobStore = create((set, get) => ({
       });
     } catch (error) {
       console.error("Error fetching job applicants count:", error);
-      toast.error(
-        error.response?.data?.message || "Error fetching job applicants count"
-      );
       set({
         error:
           error.response?.data?.message ||
@@ -158,7 +145,6 @@ export const jobStore = create((set, get) => ({
       });
     } catch (error) {
       console.error("Error fetching job posts:", error);
-      toast.error(error.response?.data?.message || "Error fetching job posts");
       set({
         isError: error.response?.data?.message || "Error fetching job posts",
         isjobLoading: false,
@@ -177,7 +163,6 @@ export const jobStore = create((set, get) => ({
       });
     } catch (error) {
       console.error("Error fetching job posts:", error);
-      toast.error(error.response?.data?.message || "Error fetching job posts");
       set({
         error: error.response?.data?.message || "Error fetching job posts",
         isLoading: false,
@@ -196,7 +181,6 @@ export const jobStore = create((set, get) => ({
       });
     } catch (error) {
       console.error("Error fetching job posts:", error);
-      toast.error(error.response?.data?.message || "Error fetching job posts");
       set({
         jobpostError:
           error.response?.data?.message || "Error fetching job posts",
@@ -219,7 +203,6 @@ export const jobStore = create((set, get) => ({
       );
     } catch (error) {
       console.error("Error deleting job post:", error);
-      toast.error(error.response?.data?.message || "Error deleting job post");
       set({
         error: error.response?.data?.message || "Error deleting job post",
         isLoading: false,
@@ -252,10 +235,9 @@ export const jobStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axios.get(`${API_URL}/jobs/post-job`);
-      set({ jobPosts: response.data, isLoading: false });
+      set({ jobposted: response.data, isLoading: false });
     } catch (error) {
       console.error("Error fetching job posts for employer:", error);
-      toast.error(error.response?.data?.message || "Error fetching job posts");
       set({
         error: error.response?.data?.message || "Error fetching job posts",
         isLoading: false,
@@ -374,7 +356,6 @@ export const jobStore = create((set, get) => ({
       });
     } catch (error) {
       console.error("Error fetching applicants:", error);
-      toast.error(error.response?.data?.message || "Error fetching applicants");
       set({
         error: error.response?.data?.message || "Error fetching applicants",
         isLoading: false,
@@ -399,9 +380,7 @@ export const jobStore = create((set, get) => ({
       );
     } catch (error) {
       console.error("Error withdrawing application:", error);
-      toast.error(
-        error.response?.data?.message || "Error withdrawing application."
-      );
+
       set({
         error:
           error.response?.data?.message || "Error withdrawing application.",
@@ -420,7 +399,6 @@ export const jobStore = create((set, get) => ({
     } catch (error) {
       console.error("Error fetching saved jobs:", error);
       set({ error: error.message, isLoading: false });
-      toast.error("Failed to fetch saved jobs.");
     }
   },
 
@@ -436,7 +414,7 @@ export const jobStore = create((set, get) => ({
 
       get().getSavedJobs();
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to save job.");
+      console.error("Error saving job:", error);
     }
   },
 
@@ -504,9 +482,6 @@ export const jobStore = create((set, get) => ({
       );
     } catch (error) {
       console.error("Error shortlisting application:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to shortlist the application."
-      );
       set({
         error:
           error.response?.data?.message || "Error shortlisting application",
@@ -542,9 +517,6 @@ export const jobStore = create((set, get) => ({
       );
     } catch (error) {
       console.error("Error rejecting application:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to reject the application."
-      );
       set({
         error: error.response?.data?.message || "Error rejecting application",
         isLoading: false,
@@ -579,9 +551,6 @@ export const jobStore = create((set, get) => ({
       );
     } catch (error) {
       console.error("Error completing interview:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to complete the interview."
-      );
       set({
         error: error.response?.data?.message || "Error completing interview",
         isLoading: false,
@@ -614,9 +583,6 @@ export const jobStore = create((set, get) => ({
       toast.success(response.data.message || "Application hired successfully.");
     } catch (error) {
       console.error("Error hiring application:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to hire the application."
-      );
       set({
         error: error.response?.data?.message || "Error hiring application",
         isLoading: false,
@@ -653,10 +619,12 @@ export const jobStore = create((set, get) => ({
         response.data.message || "Interview confirmed successfully."
       );
     } catch (error) {
-      console.error("Error confirming application:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to confirm the interview."
+      console.error(
+        "Error confirming application:",
+        error.response?.data || error.message
       );
+
+      console.error("Error confirming application:", error);
       set({
         error: error.response?.data?.message || "Error confirming application",
         isLoading: false,
@@ -694,9 +662,6 @@ export const jobStore = create((set, get) => ({
       );
     } catch (error) {
       console.error("Error declining application:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to decline the interview."
-      );
       set({
         error: error.response?.data?.message || "Error declining application",
         isLoading: false,
@@ -751,7 +716,6 @@ export const jobStore = create((set, get) => ({
         throw new Error("You have already applied for this job.");
       } else {
         console.error("Error applying for job:", error);
-        toast.error(error.response?.data?.error || "Error applying for job");
         set({
           error: error.response?.data?.error || "Error applying for job",
           isLoading: false,
@@ -768,7 +732,7 @@ export const jobStore = create((set, get) => ({
     jobDescription,
     jobCategory,
     locations,
-    preferredLanguage,
+    preferredLanguages, 
     jobQualifications,
     jobType,
     jobShift,
@@ -788,13 +752,24 @@ export const jobStore = create((set, get) => ({
       formData.append("jobTitle", jobTitle);
       formData.append("jobDescription", jobDescription);
       formData.append("jobCategory", jobCategory);
-      formData.append("preferredLanguage", preferredLanguage);
+
+      if (preferredLanguages && preferredLanguages.length > 0) {
+        formData.append("preferredLanguages", JSON.stringify(preferredLanguages));
+      } else {
+        formData.append("preferredLanguages", JSON.stringify(["Any"])); // Default value
+      }
+
       formData.append("jobQualifications", jobQualifications);
       formData.append("jobType", jobType);
       formData.append("jobShift", jobShift);
       formData.append("jobLevel", jobLevel);
       formData.append("applyWithLink", applyWithLink);
-      formData.append("preferredDisabilities", preferredDisabilities);
+
+      if (preferredDisabilities && preferredDisabilities.length > 0) {
+        formData.append("preferredDisabilities", JSON.stringify(preferredDisabilities));
+      } else {
+        formData.append("preferredDisabilities", JSON.stringify([])); // Default empty array
+      }
 
       if (locations) {
         formData.append("locations", JSON.stringify(locations));
@@ -802,11 +777,9 @@ export const jobStore = create((set, get) => ({
       if (jobSkills) {
         formData.append("jobSkills", JSON.stringify(jobSkills));
       }
-
       if (expectedSalary) {
         formData.append("expectedSalary", JSON.stringify(expectedSalary));
       }
-
       if (jobAttachment) {
         formData.append("jobAttachment", jobAttachment);
       }
@@ -824,8 +797,6 @@ export const jobStore = create((set, get) => ({
       });
     } catch (error) {
       console.error("Error creating job:", error);
-
-      toast.error(error.response?.data?.message || "Error creating job");
       set({
         error: error.response?.data?.message || "Error creating job",
         isLoading: false,
@@ -848,7 +819,6 @@ export const jobStore = create((set, get) => ({
       });
     } catch (error) {
       console.error("Error fetching applicants:", error);
-      toast.error(error.response?.data?.message || "Error fetching applicants");
       set({
         error: error.response?.data?.message || "Error fetching applicants",
         isLoading: false,
@@ -889,14 +859,12 @@ export const jobStore = create((set, get) => ({
       set({ message: response.data.message, interviewLoading: false });
     } catch (error) {
       console.error("Error scheduling interview:", error);
-      toast.error(
+
+      const errorMessage =
         error.response?.data?.error ||
-          "An error occurred while scheduling the interview."
-      );
+        "An error occurred while scheduling the interview.";
       set({
-        error:
-          error.response?.data?.error ||
-          "An error occurred while scheduling the interview.",
+        error: errorMessage,
         interviewLoading: false,
       });
     }
@@ -968,7 +936,6 @@ export const jobStore = create((set, get) => ({
       return response.data;
     } catch (error) {
       console.error("Error updating job:", error);
-      toast.error(error.response?.data?.message || "Error updating job");
       set({
         error: error.response?.data?.message || "Error updating job",
         isLoading: false,

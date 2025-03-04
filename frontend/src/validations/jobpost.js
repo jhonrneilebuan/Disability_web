@@ -39,13 +39,12 @@ export default (keepPreviousAttachment) =>
         const locations = value.split(",").map((loc) => loc.trim());
         return locations.some((loc) => loc.length > 0);
       }),
-    preferredLanguage: yup
-      .object()
-      .shape({
-        value: yup.string().required("Preferred language is required"),
-        label: yup.string().required("Preferred language is required"),
-      })
-      .required("Preferred language is required"),
+      preferredLanguages: yup.array().of(
+        yup.object().shape({
+          value: yup.string().required("Preferred language is required"),
+          label: yup.string().required("Preferred language is required"),
+        })
+      ).min(1, "At least one preferred language is required"),
     jobQualifications: yup.string().required("Job qualifications are required"),
     jobType: yup.string().required("Job type is required"),
     jobShift: yup.string().required("Job shift is required"),
@@ -85,7 +84,7 @@ export default (keepPreviousAttachment) =>
     //     "file-type",
     //     "Invalid file type. Only PDF, DOC, and DOCX files are allowed.",
     //     (value) => {
-    //       if (!value) return true; 
+    //       if (!value) return true;
     //       const allowedExtensions = ["pdf", "doc", "docx"];
     //       const fileExtension = value.name.split(".").pop().toLowerCase();
     //       return allowedExtensions.includes(fileExtension);

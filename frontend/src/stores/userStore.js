@@ -74,7 +74,6 @@ export const userStore = create((set) => ({
 
     if (!name || !email || !subject || !message) {
       set({ error: "All fields are required." });
-      toast.error("All fields are required.");
       return;
     }
 
@@ -105,7 +104,6 @@ export const userStore = create((set) => ({
         error: error.response?.data?.error || "Failed to send message",
         isLoading: false,
       });
-      toast.error("Failed to send message.");
     }
   },
 
@@ -123,7 +121,8 @@ export const userStore = create((set) => ({
       if (error.response && error.response.data.message) {
         toast.error(error.response.data.message);
       } else {
-        toast.error("An unexpected error occurred. Please try again.");
+        console.log("An unexpected error occurred. Please try again.");
+
       }
     } finally {
       set({ isuploadDisabilityId: false });
@@ -141,7 +140,6 @@ export const userStore = create((set) => ({
       toast.success("Employer ID updated successfully");
     } catch (error) {
       console.log("error in Employer ID:", error);
-      toast.error(error.response.data.message);
     } finally {
       set({ isuploadEmployerId: false });
     }

@@ -5,16 +5,16 @@ import FormatTimeDate from "../components/FormatTimeDate";
 import Modal from "../components/Modal";
 import NavbarEmployer from "../components/NavbarEmployer";
 import Sidebar from "../components/Sidebar";
+import SkeletonLoader from "../components/SkeletonLoader";
+import UpdateModal from "../components/UpdateModal";
+import ViewModal from "../components/ViewModal";
 import { authStore } from "../stores/authStore";
 import { jobStore } from "../stores/jobStore";
-import ViewModal from "../components/ViewModal";
-import UpdateModal from "../components/UpdateModal"; 
-import SkeletonLoader from "../components/SkeletonLoader";
 
 const EmployerJobPage = () => {
   const [open, setOpen] = useState(false);
   const [openViewModal, setOpenViewModal] = useState(false);
-  const [openUpdateModal, setOpenUpdateModal] = useState(false); 
+  const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchSubmitted, setIsSearchSubmitted] = useState(false);
@@ -28,12 +28,11 @@ const EmployerJobPage = () => {
     } else {
       setIsDropdownOpen(jobId);
       console.log("iesefsd", jobId);
-      
     }
   };
 
   const {
-    jobPosts,
+    jobposted,
     isLoading,
     //error,
     getEmployerJobs,
@@ -60,25 +59,20 @@ const EmployerJobPage = () => {
     }
   };
 
-  // const filteredJobs = jobPosts.filter((job) => {
-  //   if (isSearchSubmitted) {
-  //     return job.jobTitle.toLowerCase().includes(searchQuery.toLowerCase());
-  //   }
-  //   return true;
-  // });
-  const filteredJobs = jobPosts
-  .filter((job) => {
-    return isSearchSubmitted
-      ? job.jobTitle.toLowerCase().includes(searchQuery.toLowerCase())
-      : true;
-  })
-  .filter((job) => job.employer);
+  const filteredJobs = jobposted
+    .filter((job) => {
+      return isSearchSubmitted
+        ? job.jobTitle.toLowerCase().includes(searchQuery.toLowerCase())
+        : true;
+    })
+    .filter((job) => job.employer);
 
   const handleDeleteJob = async () => {
     if (!selectedJob) return;
     try {
       await deleteJobPost(selectedJob._id);
       console.log("Job deleted successfully");
+      await getEmployerJobs();
       setOpen(false);
       toggleDropdown(selectedJob._id, true);
     } catch (error) {
@@ -94,14 +88,19 @@ const EmployerJobPage = () => {
 
   const handleUpdate = async (updatedJobData) => {
     if (!selectedJob) return;
-  
+
     try {
-      console.log("Updating job with ID:", selectedJob._id, "Data:", updatedJobData);
+      console.log(
+        "Updating job with ID:",
+        selectedJob._id,
+        "Data:",
+        updatedJobData
+      );
       await jobStore.updateJob(selectedJob._id, updatedJobData);
-  
+
       console.log("Fetching latest job posts...");
       await getEmployerJobs();
-  
+
       console.log("Closing update modal...");
       setOpenUpdateModal(false);
       toggleDropdown(selectedJob._id, true);
@@ -147,15 +146,21 @@ const EmployerJobPage = () => {
             >
               <BriefcaseBusiness className="w-4 h-4 me-2" />
               {user.employerInformation.isIdVerified
-                      ? "Post a Job"
-                      : "Upload ID First"}            
-                      </Link>
+                ? "Post a Job"
+                : "Upload ID First"}
+            </Link>
           </div>
           <hr />
-          <div key={filteredJobs.length} className="overflow-y-auto max-h-[80vh] pb-5">
-            {isLoading ? ( 
+          <div
+            key={filteredJobs.length}
+            className="overflow-y-auto max-h-[80vh] pb-5"
+          >
+            {isLoading ? (
               [...Array(5)].map((_, index) => (
-                <div key={index} className="p-4 bg-white shadow-md m-2 relative">
+                <div
+                  key={index}
+                  className="p-4 bg-white shadow-md m-2 relative"
+                >
                   <SkeletonLoader className="h-6 w-1/2 mb-2" />
                   <SkeletonLoader className="h-4 w-1/3 mb-2" />
                   <div className="flex items-center mt-2 justify-between">
@@ -185,9 +190,8 @@ const EmployerJobPage = () => {
                   </h3>
                   <div className="flex items-center mt-2">
                     <span className="text-sm text-gray-600 font-poppins font-semibold">
-                    {/* {job.employer ? job.employer.fullName : "N/A"} |{" "} */}
-                    {job.employer.fullName || "N/A"} |{" "}
-                    {job.companyName || "N/A"}
+                      {job.employer.fullName || "N/A"} |{" "}
+                      {job.companyName || "N/A"}
                     </span>
                   </div>
                   <div className="flex items-center mt-2 justify-between">
@@ -222,9 +226,22 @@ const EmployerJobPage = () => {
                       <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full mr-2 font-poppins font-semibold">
                         {job.jobCategory || "N/A"}
                       </span>
-                      <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full mr-2 font-poppins font-semibold">
-                        {job.preferredLanguage || "N/A"}
-                      </span>
+                      {Array.isArray(job.preferredLanguages) &&
+                      job.preferredLanguages.length > 0 ? (
+                        job.preferredLanguages.map((lang, index) => (
+                          <span
+                            key={index}
+                            className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full mr-2 font-poppins font-semibold"
+                          >
+                            {lang}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full font-poppins font-semibold">
+                          N/A
+                        </span>
+                      )}
+
                       <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full mr-2 font-poppins font-semibold">
                         {job.jobType || "N/A"}
                       </span>
@@ -256,8 +273,8 @@ const EmployerJobPage = () => {
                             className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                             onClick={() => {
                               setSelectedJob(job);
-                              setOpenUpdateModal(true); 
-                              toggleDropdown(job._id, true); 
+                              setOpenUpdateModal(true);
+                              toggleDropdown(job._id, true);
                             }}
                           >
                             Update
@@ -267,7 +284,7 @@ const EmployerJobPage = () => {
                             onClick={() => {
                               setSelectedJob(job);
                               setOpen(true);
-                              toggleDropdown(job._id, true); 
+                              toggleDropdown(job._id, true);
                             }}
                           >
                             Delete
@@ -324,7 +341,7 @@ const EmployerJobPage = () => {
             open={openUpdateModal}
             onClose={() => setOpenUpdateModal(false)}
             job={selectedJob}
-            onUpdate={handleUpdate} 
+            onUpdate={handleUpdate}
           />
         )}
       </div>

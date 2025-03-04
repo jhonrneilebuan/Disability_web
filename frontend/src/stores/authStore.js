@@ -35,8 +35,10 @@ export const authStore = create((set, get) => ({
 
   markAllNotificationsAsRead: async () => {
     try {
-      const response = await axios.patch(`${API_URL}/notifications/mark-all-read`);
-      console.log(response.data); 
+      const response = await axios.patch(
+        `${API_URL}/notifications/mark-all-read`
+      );
+      console.log(response.data);
       set((state) => ({
         notifications: state.notifications.map((notif) => ({
           ...notif,
@@ -48,7 +50,6 @@ export const authStore = create((set, get) => ({
       console.error("Error marking all notifications as read:", error);
     }
   },
-  
 
   signup: async (email, password, fullName, role, privacyAgreement) => {
     set({ isLoading: true, error: null });
@@ -198,7 +199,6 @@ export const authStore = create((set, get) => ({
       toast.success("Profile updated successfully");
     } catch (error) {
       console.log("error in update profile:", error);
-      toast.error(error.response.data.message);
     } finally {
       set({ isUpdatingProfile: false });
     }
@@ -215,7 +215,6 @@ export const authStore = create((set, get) => ({
       toast.success("Cover Photo updated successfully");
     } catch (error) {
       console.log("error in update cover photo:", error);
-      toast.error(error.response.data.message);
     } finally {
       set({ isUpdatingCoverPhoto: false });
     }
@@ -231,7 +230,6 @@ export const authStore = create((set, get) => ({
       set({ user: response.data });
     } catch (error) {
       console.log("Error in uploading certificates", error);
-      toast.error(error.response?.data || "An error occurred");
     } finally {
       set({ isUpdatingCertificates: false });
     }
@@ -244,7 +242,6 @@ export const authStore = create((set, get) => ({
       set({ user: response.data });
     } catch (error) {
       console.log("Error in uploading resume", error);
-      toast.error(error.response?.data || "An error occurred");
     } finally {
       set({ isUpdatingResume: false });
     }
@@ -265,7 +262,6 @@ export const authStore = create((set, get) => ({
       const errorMessage =
         error.response?.data?.message || "Failed to update profile.";
       set({ error: errorMessage });
-      toast.error(errorMessage);
     } finally {
       set({ isUpdatingProfileInfo: false });
     }
@@ -291,7 +287,6 @@ export const authStore = create((set, get) => ({
         errorMessage = "Network error. Please check your connection.";
       }
       set({ error: errorMessage });
-      toast.error(errorMessage);
     } finally {
       set({ isUpdatingProfileInfo: false });
     }
@@ -311,7 +306,6 @@ export const authStore = create((set, get) => ({
       const errorMessage =
         error.response?.data?.message || "Failed to update profile.";
       set({ error: errorMessage });
-      toast.error(errorMessage);
     } finally {
       set({ isUpdatingProfileInfo: false });
     }
@@ -336,7 +330,7 @@ export const authStore = create((set, get) => ({
     newSocket.off("newJobApplication");
     newSocket.off("verificationUpdate");
     newSocket.off("interviewConfirmed");
-    newSocket.off("verificationUpdate");
+    newSocket.off("interviewDeclined");
 
     newSocket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
@@ -396,6 +390,12 @@ export const authStore = create((set, get) => ({
       }));
     });
 
+    newSocket.on("interviewDeclined", (data) => {
+      set((state) => ({
+        notifications: [...state.notifications, data.message],
+      }));
+    });
+
     newSocket.on("disconnect", () => {
       console.log("Socket disconnected");
     });
@@ -414,6 +414,7 @@ export const authStore = create((set, get) => ({
       socket.off("newJobApplication");
       socket.off("verificationUpdate");
       socket.off("interviewConfirmed");
+      socket.off("interviewDeclined");
       socket.disconnect();
     }
   },

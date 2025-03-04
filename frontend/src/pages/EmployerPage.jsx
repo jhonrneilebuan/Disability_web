@@ -74,22 +74,26 @@ const EmployerPage = () => {
     getJobApplicantsCount,
   ]);
 
-  const chartData = {
-    labels: totalApplicantCount.map((job) => job.jobTitle),
-    datasets: [
-      {
-        label: "Number of Applicants",
-        data: totalApplicantCount.map((job) => job.applicantCount),
-        backgroundColor: totalApplicantCount.map(
-          (_, index) => `hsl(${(index * 40) % 360}, 70%, 60%)`
-        ),
-        borderColor: totalApplicantCount.map(
-          (_, index) => `hsl(${(index * 40) % 360}, 70%, 40%)`
-        ),
-        borderWidth: 1,
-      },
-    ],
-  };
+  const hasData = totalApplicantCount.length > 0;
+
+  const chartData = hasData
+    ? {
+        labels: totalApplicantCount.map((job) => job.jobTitle),
+        datasets: [
+          {
+            label: "Number of Applicants",
+            data: totalApplicantCount.map((job) => job.applicantCount),
+            backgroundColor: totalApplicantCount.map(
+              (_, index) => `hsl(${(index * 40) % 360}, 70%, 60%)`
+            ),
+            borderColor: totalApplicantCount.map(
+              (_, index) => `hsl(${(index * 40) % 360}, 70%, 40%)`
+            ),
+            borderWidth: 1,
+          },
+        ],
+      }
+    : null;
 
   const maxValue =
     Math.max(...totalApplicantCount.map((job) => job.applicantCount)) + 2;
@@ -233,7 +237,7 @@ const EmployerPage = () => {
                     }}
                   />
                 ) : (
-                  <p>No data available</p>
+                  <p className="text-center text-gray-500 font-poppins">No data available</p>
                 )}
               </div>
 
@@ -243,7 +247,9 @@ const EmployerPage = () => {
                 </h3>
                 {isChartLoading ? (
                   <SkeletonLoader className="h-48" />
-                ) : chartData?.datasets?.length > 0 ? (
+                ) : !chartData ? ( 
+                  <p className="text-center text-gray-500 font-poppins">No data available</p>
+                ) : (
                   <Bar
                     data={chartData}
                     options={{
@@ -264,8 +270,6 @@ const EmployerPage = () => {
                       },
                     }}
                   />
-                ) : (
-                  <p>No data available</p>
                 )}
               </div>
             </div>

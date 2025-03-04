@@ -13,6 +13,7 @@ const JobPosts = () => {
   const navigate = useNavigate();
   const [isSuccess, setIsSuccess] = useState(false);
   const { createJob } = jobStore();
+  const [inputValue, setInputValue] = useState("");
 
   const formik = useFormik({
     initialValues: {
@@ -22,7 +23,7 @@ const JobPosts = () => {
       jobCategory: "",
       applicationDeadline: "",
       locations: "",
-      preferredLanguage: null,
+      preferredLanguages: [],
       jobQualifications: "",
       jobType: "",
       jobShift: "",
@@ -43,8 +44,12 @@ const JobPosts = () => {
       try {
         const jobData = {
           ...values,
-          preferredLanguage: values.preferredLanguage ? values.preferredLanguage.value : "Any",
-          preferredDisabilities: values.preferredDisabilities.map((disability) => disability.value),
+          preferredLanguages: values.preferredLanguages
+            ? values.preferredLanguages.map((language) => language.value)
+            : ["Any"],
+          preferredDisabilities: values.preferredDisabilities.map(
+            (disability) => disability.value
+          ),
         };
         console.log("Prepared jobData for submission:", jobData);
         await createJob(jobData);
@@ -52,6 +57,7 @@ const JobPosts = () => {
         setIsSuccess(true);
       } catch (error) {
         console.error("Error creating job:", error);
+        console.error("Response data:", error.response?.data);
         alert("There was an error creating your job. Please try again.");
       }
     },
@@ -62,23 +68,70 @@ const JobPosts = () => {
   console.log("Formik touched:", formik.touched);
 
   const handleSkillInputChange = (e) => {
-    if ((e.key === "," || e.key === "Enter") && e.target.value.trim()) {
-      const newSkill = e.target.value.trim();
-      console.log("Adding new skill:", newSkill);
-      if (!formik.values.jobSkills.includes(newSkill)) {
-        formik.setFieldValue("jobSkills", [...formik.values.jobSkills, newSkill]);
-      }
-      e.target.value = "";
+    if ((e.key === "," || e.key === "Enter") && inputValue.trim()) {
+      addSkill(inputValue);
     }
   };
 
+  const handleDropdownChange = (e) => {
+    const selectedSkill = e.target.value;
+    if (selectedSkill) addSkill(selectedSkill);
+  };
+
+  const addSkill = (skill) => {
+    if (skill && !formik.values.jobSkills.includes(skill)) {
+      formik.setFieldValue("jobSkills", [...formik.values.jobSkills, skill]);
+    }
+    setInputValue(""); // Clear input
+  };
+
   const removeSkill = (skillToRemove) => {
-    console.log("Removing skill:", skillToRemove);
     formik.setFieldValue(
       "jobSkills",
       formik.values.jobSkills.filter((skill) => skill !== skillToRemove)
     );
   };
+
+  const predefinedSkills = [
+    "Software Development (e.g., Java, Python)",
+    "Cybersecurity",
+    "Cloud Computing (e.g., AWS, Azure)",
+    "Data Analysis & Visualization",
+    "System Administration",
+    "Patient Care & Safety",
+    "Medical Coding & Billing",
+    "Healthcare Administration",
+    "Clinical Research",
+    "Nursing & Clinical Support",
+    "Financial Analysis",
+    "Accounting & Bookkeeping",
+    "Budgeting & Forecasting",
+    "Investment Management",
+    "Risk Management",
+    "Project Management (e.g., Agile, Scrum)",
+    "Team Leadership",
+    "Strategic Planning",
+    "Operations Management",
+    "Performance Evaluation",
+    "Curriculum Development",
+    "Classroom Management",
+    "E-Learning & Educational Technology",
+    "Instructional Design",
+    "Student Assessment",
+    "Graphic Design (e.g., Adobe Creative Suite)",
+    "UI/UX Design",
+    "Product & Industrial Design",
+    "Web & Mobile Design",
+    "Animation & Motion Graphics",
+    "Digital Marketing (SEO, SEM)",
+    "Content Marketing",
+    "Social Media Marketing",
+    "Market Research & Analysis",
+    "Email Marketing & Automation",
+    "B2B/B2C Sales Strategies",
+    "Lead Generation & Prospecting",
+    "Negotiation & Closing",
+  ];
 
   if (isSuccess) {
     console.log("Success screen rendered");
@@ -86,7 +139,10 @@ const JobPosts = () => {
       <div className="h-screen font-poppins flex">
         <Sidebar />
         <div className="w-full bg-gray-50 p-8">
-          <button onClick={() => navigate(-1)} className="flex items-center text-black mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center text-black mb-6"
+          >
             <Undo2 className="w-5 h-5 mr-2" />
             Go Back
           </button>
@@ -122,12 +178,19 @@ const JobPosts = () => {
     <div className="h-screen font-poppins flex">
       <Sidebar />
       <div className="w-full bg-gray-50 p-8">
-        <button onClick={() => navigate(-1)} className="flex items-center text-black mb-6">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center text-black mb-6"
+        >
           <Undo2 className="w-5 h-5 mr-2" />
           Go Back
         </button>
         <div className="bg-white shadow-lg rounded-lg p-6 mx-auto max-w-7xl overflow-auto h-[85vh]">
-          <form onSubmit={formik.handleSubmit} className="space-y-6 w-full" encType="multipart/form-data">
+          <form
+            onSubmit={formik.handleSubmit}
+            className="space-y-6 w-full"
+            encType="multipart/form-data"
+          >
             <div className="flex gap-4">
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
@@ -143,7 +206,9 @@ const JobPosts = () => {
                   placeholder="Enter company name"
                 />
                 {formik.touched.companyName && formik.errors.companyName && (
-                  <p className="text-red-500 text-sm">{formik.errors.companyName}</p>
+                  <p className="text-red-500 text-sm">
+                    {formik.errors.companyName}
+                  </p>
                 )}
               </div>
               <div className="flex-1">
@@ -160,7 +225,9 @@ const JobPosts = () => {
                   placeholder="Enter job title"
                 />
                 {formik.touched.jobTitle && formik.errors.jobTitle && (
-                  <p className="text-red-500 text-sm">{formik.errors.jobTitle}</p>
+                  <p className="text-red-500 text-sm">
+                    {formik.errors.jobTitle}
+                  </p>
                 )}
               </div>
             </div>
@@ -178,9 +245,12 @@ const JobPosts = () => {
                 rows="4"
                 placeholder="Enter job description"
               />
-              {formik.touched.jobDescription && formik.errors.jobDescription && (
-                <p className="text-red-500 text-sm">{formik.errors.jobDescription}</p>
-              )}
+              {formik.touched.jobDescription &&
+                formik.errors.jobDescription && (
+                  <p className="text-red-500 text-sm">
+                    {formik.errors.jobDescription}
+                  </p>
+                )}
             </div>
 
             <div className="flex gap-4">
@@ -199,24 +269,51 @@ const JobPosts = () => {
                   <option value="DESIGN">Design</option>
                   <option value="DEVELOPMENT">Development</option>
                   <option value="MARKETING">Marketing</option>
+                  <option value="SALES">Sales</option>
+                  <option value="ENGINEERING">Engineering</option>
+                  <option value="HR">HR</option>
+                  <option value="FINANCE">Finance</option>
+                  <option value="MANAGEMENT">Management</option>
+                  <option value="PRODUCT">Product</option>
+                  <option value="CUSTOMER_SUPPORT">Customer Support</option>
+                  <option value="OPERATIONS">Operations</option>
+                  <option value="RESEARCH">Research</option>
+                  <option value="EDUCATION">Education</option>
+                  <option value="ADMINISTRATION">Administration</option>
+                  <option value="IT">IT</option>
+                  <option value="CONSULTING">Consulting</option>
+                  <option value="HEALTHCARE">Healthcare</option>
+                  <option value="CONSTRUCTION">Construction</option>
+                  <option value="LEGAL">Legal</option>
+                  <option value="ART">Art</option>
+                  <option value="MEDIA">Media</option>
                 </select>
                 {formik.touched.jobCategory && formik.errors.jobCategory && (
-                  <p className="text-red-500 text-sm">{formik.errors.jobCategory}</p>
+                  <p className="text-red-500 text-sm">
+                    {formik.errors.jobCategory}
+                  </p>
                 )}
               </div>
               <div className="flex-1">
-                <label className="text-sm font-medium block mb-2">Preferred Disabilities<span className="text-red-500">*</span></label>
+                <label className="text-sm font-medium block mb-2">
+                  Preferred Disabilities<span className="text-red-500">*</span>
+                </label>
                 <Select
                   options={disabilityOptions}
                   isMulti
                   value={formik.values.preferredDisabilities}
-                  onChange={(selected) => formik.setFieldValue("preferredDisabilities", selected)}
+                  onChange={(selected) =>
+                    formik.setFieldValue("preferredDisabilities", selected)
+                  }
                   onBlur={formik.handleBlur}
                   className="w-full"
                 />
-                {formik.touched.preferredDisabilities && formik.errors.preferredDisabilities && (
-                  <p className="text-red-500 text-sm">{formik.errors.preferredDisabilities}</p>
-                )}
+                {formik.touched.preferredDisabilities &&
+                  formik.errors.preferredDisabilities && (
+                    <p className="text-red-500 text-sm">
+                      {formik.errors.preferredDisabilities}
+                    </p>
+                  )}
               </div>
             </div>
 
@@ -233,25 +330,35 @@ const JobPosts = () => {
                   onBlur={formik.handleBlur}
                   className="w-full border rounded-lg p-2"
                 />
-                {formik.touched.applicationDeadline && formik.errors.applicationDeadline && (
-                  <p className="text-red-500 text-sm">{formik.errors.applicationDeadline}</p>
-                )}
+                {formik.touched.applicationDeadline &&
+                  formik.errors.applicationDeadline && (
+                    <p className="text-red-500 text-sm">
+                      {formik.errors.applicationDeadline}
+                    </p>
+                  )}
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
-                  Preferred Language <span className="text-red-500">*</span>
+                  Preferred Languages<span className="text-red-500">*</span>
                 </label>
                 <Select
                   options={languageOptions}
-                  value={formik.values.preferredLanguage}
-                  onChange={(selected) => formik.setFieldValue("preferredLanguage", selected)}
-                  onBlur={formik.handleBlur}
-                  isClearable
+                  isMulti
+                  value={formik.values.preferredLanguages}
+                  onChange={(selected) =>
+                    formik.setFieldValue("preferredLanguages", selected)
+                  }
+                  onBlur={() =>
+                    formik.setFieldTouched("preferredLanguages", true)
+                  }
                   className="w-full"
                 />
-                {formik.touched.preferredLanguage && formik.errors.preferredLanguage && (
-                  <p className="text-red-500 text-sm">{formik.errors.preferredLanguage}</p>
-                )}
+                {formik.touched.preferredLanguages &&
+                  formik.errors.preferredLanguages && (
+                    <p className="text-red-500 text-sm">
+                      {formik.errors.preferredLanguages}
+                    </p>
+                  )}
               </div>
             </div>
 
@@ -275,7 +382,9 @@ const JobPosts = () => {
                   <option value="Internship">Internship</option>
                 </select>
                 {formik.touched.jobType && formik.errors.jobType && (
-                  <p className="text-red-500 text-sm">{formik.errors.jobType}</p>
+                  <p className="text-red-500 text-sm">
+                    {formik.errors.jobType}
+                  </p>
                 )}
               </div>
               <div className="flex-1">
@@ -297,7 +406,9 @@ const JobPosts = () => {
                   <option value="Day-Shift">Day-Shift</option>
                 </select>
                 {formik.touched.jobShift && formik.errors.jobShift && (
-                  <p className="text-red-500 text-sm">{formik.errors.jobShift}</p>
+                  <p className="text-red-500 text-sm">
+                    {formik.errors.jobShift}
+                  </p>
                 )}
               </div>
             </div>
@@ -315,13 +426,26 @@ const JobPosts = () => {
                   className="w-full border rounded-lg p-2"
                 >
                   <option value="">Select qualification</option>
-                  <option value="Bachelor's Degree">Bachelor&apos;s Degree</option>
-                  <option value="High School Diploma">High School Diploma</option>
+                  <option value="">Select Education Level</option>
+                  <option value="Bachelor's Degree">
+                    Bachelor&apos;s Degree
+                  </option>
+                  <option value="High School Diploma">
+                    High School Diploma
+                  </option>
                   <option value="Technical Training">Technical Training</option>
+                  <option value="College Undergraduate">
+                    College Undergraduate
+                  </option>
+                  <option value="Master's Degree">Master&apos;s Degree</option>
+                  <option value="Doctorate Degree">Doctorate Degree</option>
                 </select>
-                {formik.touched.jobQualifications && formik.errors.jobQualifications && (
-                  <p className="text-red-500 text-sm">{formik.errors.jobQualifications}</p>
-                )}
+                {formik.touched.jobQualifications &&
+                  formik.errors.jobQualifications && (
+                    <p className="text-red-500 text-sm">
+                      {formik.errors.jobQualifications}
+                    </p>
+                  )}
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
@@ -336,11 +460,16 @@ const JobPosts = () => {
                 >
                   <option value="">Select level</option>
                   <option value="Entry">Entry</option>
-                  <option value="Mid">Mid</option>
+                  <option value="Mid">Mid-Level</option>
                   <option value="Senior">Senior</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Officer">Officer</option>
+                  <option value="Student">Student</option>
                 </select>
                 {formik.touched.jobLevel && formik.errors.jobLevel && (
-                  <p className="text-red-500 text-sm">{formik.errors.jobLevel}</p>
+                  <p className="text-red-500 text-sm">
+                    {formik.errors.jobLevel}
+                  </p>
                 )}
               </div>
             </div>
@@ -359,9 +488,12 @@ const JobPosts = () => {
                   className="w-full border rounded-lg p-2"
                   placeholder="Enter minimum salary"
                 />
-                {formik.touched.expectedSalary?.minSalary && formik.errors.expectedSalary?.minSalary && (
-                  <p className="text-red-500 text-sm">{formik.errors.expectedSalary.minSalary}</p>
-                )}
+                {formik.touched.expectedSalary?.minSalary &&
+                  formik.errors.expectedSalary?.minSalary && (
+                    <p className="text-red-500 text-sm">
+                      {formik.errors.expectedSalary.minSalary}
+                    </p>
+                  )}
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
@@ -376,9 +508,12 @@ const JobPosts = () => {
                   className="w-full border rounded-lg p-2"
                   placeholder="Enter maximum salary"
                 />
-                {formik.touched.expectedSalary?.maxSalary && formik.errors.expectedSalary?.maxSalary && (
-                  <p className="text-red-500 text-sm">{formik.errors.expectedSalary.maxSalary}</p>
-                )}
+                {formik.touched.expectedSalary?.maxSalary &&
+                  formik.errors.expectedSalary?.maxSalary && (
+                    <p className="text-red-500 text-sm">
+                      {formik.errors.expectedSalary.maxSalary}
+                    </p>
+                  )}
               </div>
             </div>
 
@@ -396,7 +531,9 @@ const JobPosts = () => {
                 placeholder="Enter location(s)"
               />
               {formik.touched.locations && formik.errors.locations && (
-                <p className="text-red-500 text-sm">{formik.errors.locations}</p>
+                <p className="text-red-500 text-sm">
+                  {formik.errors.locations}
+                </p>
               )}
             </div>
 
@@ -404,17 +541,43 @@ const JobPosts = () => {
               <label className="text-sm font-medium block mb-2">
                 Job Skills <span className="text-red-500">*</span>
               </label>
-              <div className="w-full border rounded-lg p-2">
+
+              <div className="flex w-full gap-2">
                 <input
                   type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleSkillInputChange}
-                  className="w-full border-none outline-none"
-                  placeholder="Enter skills (press ',' or 'Enter' to add)"
+                  className="flex-1 border rounded-lg p-2 outline-none"
+                  placeholder="Input skills"
                 />
+                <button
+                  type="button"
+                  onClick={() => addSkill(inputValue)}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600"
+                >
+                  Add
+                </button>
               </div>
+
+              <select
+                onChange={handleDropdownChange}
+                className="w-full mt-2 p-2 border rounded-lg"
+              >
+                <option value="">Select a skill</option>
+                {predefinedSkills.map((skill) => (
+                  <option key={skill} value={skill}>
+                    {skill}
+                  </option>
+                ))}
+              </select>
+
               {formik.touched.jobSkills && formik.errors.jobSkills && (
-                <p className="text-red-500 text-sm">{formik.errors.jobSkills}</p>
+                <p className="text-red-500 text-sm">
+                  {formik.errors.jobSkills}
+                </p>
               )}
+
               <div className="flex flex-wrap gap-2 mt-2">
                 {formik.values.jobSkills.map((skill, index) => (
                   <div
@@ -442,24 +605,36 @@ const JobPosts = () => {
                 <input
                   type="file"
                   name="jobAttachment"
-                  onChange={(e) => formik.setFieldValue("jobAttachment", e.currentTarget.files[0])}
+                  onChange={(e) =>
+                    formik.setFieldValue(
+                      "jobAttachment",
+                      e.currentTarget.files[0]
+                    )
+                  }
                   onBlur={formik.handleBlur}
                   className="block w-full mt-1 text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 focus:outline-none"
                 />
-                {formik.touched.jobAttachment && formik.errors.jobAttachment && (
-                  <p className="text-red-500 text-sm">{formik.errors.jobAttachment}</p>
-                )}
+                {formik.touched.jobAttachment &&
+                  formik.errors.jobAttachment && (
+                    <p className="text-red-500 text-sm">
+                      {formik.errors.jobAttachment}
+                    </p>
+                  )}
               </div>
 
               <div className="flex-1">
                 <label className="flex items-center gap-4">
-                  <span className="text-sm font-medium">Add &quot;Apply with Link&quot; Field</span>
+                  <span className="text-sm font-medium">
+                    Add &quot;Apply with Link&quot; Field
+                  </span>
                   <div className="relative inline-block w-10 h-6">
                     <input
                       type="checkbox"
                       name="showApplyLink"
                       checked={formik.values.showApplyLink}
-                      onChange={(e) => formik.setFieldValue("showApplyLink", e.target.checked)}
+                      onChange={(e) =>
+                        formik.setFieldValue("showApplyLink", e.target.checked)
+                      }
                       className="opacity-0 w-0 h-0 peer"
                     />
                     <span className="absolute cursor-pointer inset-0 bg-gray-300 rounded-full transition peer-checked:bg-blue-600"></span>
@@ -478,9 +653,12 @@ const JobPosts = () => {
                       className="w-full border rounded-lg p-2"
                       placeholder="Enter application link"
                     />
-                    {formik.touched.applyWithLink && formik.errors.applyWithLink && (
-                      <p className="text-red-500 text-sm">{formik.errors.applyWithLink}</p>
-                    )}
+                    {formik.touched.applyWithLink &&
+                      formik.errors.applyWithLink && (
+                        <p className="text-red-500 text-sm">
+                          {formik.errors.applyWithLink}
+                        </p>
+                      )}
                   </div>
                 )}
               </div>

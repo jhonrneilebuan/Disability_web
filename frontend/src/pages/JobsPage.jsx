@@ -399,7 +399,9 @@ const JobsPage = () => {
                   <div className="flex items-center space-x-2">
                     <MapPinned className="h-5 w-5 text-gray-500" />
                     <p className="text-xl font-normal">
-                      {selectedJob.locations.join(", ").replace(/[\\[\]"]+/g, "")}
+                      {selectedJob.locations
+                        .join(", ")
+                        .replace(/[\\[\]"]+/g, "")}
                     </p>
                   </div>
                 )}
@@ -515,7 +517,14 @@ const JobsPage = () => {
                           Preferred Language:
                         </p>
                         <span className="text-base">
-                          {selectedJob.preferredLanguage || "Not specified"}
+                          {Array.isArray(selectedJob.preferredLanguages) &&
+                          selectedJob.preferredLanguages.length > 0
+                            ? selectedJob.preferredLanguages
+                                .map((language) =>
+                                  language.replace(/['"]+/g, "")
+                                )
+                                .join(", ")
+                            : "Not specified"}
                         </span>
                       </div>
                     </li>
@@ -525,16 +534,35 @@ const JobsPage = () => {
                           Job Skills:
                         </p>
                         <ul className="flex flex-wrap gap-4">
-                          {selectedJob.jobSkills &&
-                          selectedJob.jobSkills.length > 0 ? (
-                            selectedJob.jobSkills.map((skill, index) => (
-                              <li
-                                key={index}
-                                className="text-base text-black bg-gray-200 px-4 py-2 rounded-full"
-                              >
-                                {skill.replace(/[\\[\]"]+/g, "")}
-                              </li>
-                            ))
+                          {selectedJob.jobSkills ? (
+                            (() => {
+                              let skillsArray = [];
+
+                              // Check if jobSkills is an array or a string
+                              if (Array.isArray(selectedJob.jobSkills)) {
+                                skillsArray = selectedJob.jobSkills; // Use directly if it's an array
+                              } else if (
+                                typeof selectedJob.jobSkills === "string"
+                              ) {
+                                try {
+                                  skillsArray = JSON.parse(
+                                    selectedJob.jobSkills
+                                  ); // Convert string to array
+                                } catch (error) {
+                                  console.error("Parsing error:", error);
+                                  skillsArray = []; // Fallback to empty array
+                                }
+                              }
+
+                              return skillsArray.map((skill, index) => (
+                                <li
+                                  key={index}
+                                  className="text-base text-black bg-gray-200 px-4 py-2 rounded-full"
+                                >
+                                  {skill}
+                                </li>
+                              ));
+                            })()
                           ) : (
                             <li className="text-gray-500 bg-gray-200 px-4 py-2 rounded-full">
                               No skills listed.

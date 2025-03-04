@@ -1,11 +1,11 @@
-import { transporter } from "./gmail.config.js";
-import Job from "../models/job.model.js"
-import User from "../models/user.model.js"
+import Job from "../models/job.model.js";
+import User from "../models/user.model.js";
 import {
-  VERIFICATION_EMAIL_TEMPLATE,
   PASSWORD_RESET_REQUEST_TEMPLATE,
   PASSWORD_RESET_SUCCESS_TEMPLATE,
+  VERIFICATION_EMAIL_TEMPLATE,
 } from "./emailTemplates.js";
+import { transporter } from "./gmail.config.js";
 
 export const sendVerificationEmail = async (email, verificationToken) => {
   try {
@@ -99,13 +99,26 @@ export const sendContactUsEmail = async (name, email, subject, message) => {
       from: email,
       to: process.env.EMAIL_USER,
       subject: `Contact Us: ${subject}`,
-      html: `
-        <h3>Contact Form Submission</h3>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Subject:</strong> ${subject}</p>
-        <p><strong>Message:</strong></p>
-        <p>${message}</p>
+      html: `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Contact Form Submission</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20; color: #333;">
+        <div style="width: 100%; max-width: 600px; margin: 20px auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+          <h3 style="text-align: center; color: #333; font-size: 24px; margin-bottom: 20px;">Contact Form Submission</h3>
+          <div style="font-size: 16px; line-height: 1.6; color: #555;">
+            <p style="margin: 10px 0;"><strong style="color: #333;">Name:</strong> ${name}</p>
+            <p style="margin: 10px 0;"><strong style="color: #333;">Email:</strong> ${email}</p>
+            <p style="margin: 10px 0;"><strong style="color: #333;">Subject:</strong> ${subject}</p>
+            <p style="margin: 10px 0;"><strong style="color: #333;">Message:</strong></p>
+            <p style="margin: 10px 0;">${message}</p>
+          </div>
+        </div>
+      </body>
+      </html>
       `,
     };
 

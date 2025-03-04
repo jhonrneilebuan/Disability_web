@@ -40,11 +40,13 @@ const NavbarEmployer = () => {
     navigate("/employer-profile");
   };
 
-
   return (
     <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-4 shadow-lg relative">
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/employer" className="text-2xl font-bold hover:text-gray-300 transition-colors">
+        <Link
+          to="/employer"
+          className="text-2xl font-bold hover:text-gray-300 transition-colors"
+        >
           Employer Panel
         </Link>
         <div className="relative w-full max-w-screen-md mx-4">
@@ -139,7 +141,11 @@ const NavbarEmployer = () => {
               notifications.map((notif, index) => (
                 <div
                   key={notif._id || index}
-                  className="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className={`px-4 py-2 text-sm border-b hover:bg-gray-100 ${
+                    notif.isRead
+                      ? "text-gray-500 font-poppins"
+                      : "text-black font-poppins font-semibold"
+                  }`}
                 >
                   <div className="w-full ps-3">
                     <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400 font-poppins">

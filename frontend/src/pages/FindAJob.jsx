@@ -164,8 +164,7 @@ const FindAJob = () => {
       </section>
 
       <div className="mx-28 mt-4">
-
-      <hr className="border-t-2 border-browny w-full my-10" />
+        <hr className="border-t-2 border-browny w-full my-10" />
 
         {error && (
           <p className="text-red-500 text-center">
@@ -191,7 +190,14 @@ const FindAJob = () => {
                 <div className="flex items-center gap-2 text-gray-500 mt-2">
                   <MapPin className="h-5 w-5" />
                   <p className="text-base font-poppins">
-                    {job.locations || "Location not specified"}
+                    {Array.isArray(job.locations) && job.locations.length > 0
+                      ? job.locations.map((loc, index) => (
+                          <span key={index}>
+                            {loc.replace(/["']/g, "")}
+                            {index !== job.locations.length - 1 ? ", " : ""}
+                          </span>
+                        ))
+                      : "Location not specified"}
                   </p>
                 </div>
 

@@ -61,14 +61,6 @@ const disabilities = [
   "Schizophrenia",
 ].map((disability) => ({ value: disability, label: disability }));
 
-const jobShifts = [
-  "Part-Time",
-  "Full-Time",
-  "Fixed",
-  "Night-Shift",
-  "Day-Shift",
-].map((shift) => ({ value: shift, label: shift }));
-
 const jobLevels = [
   "Entry",
   "Mid",
@@ -83,17 +75,17 @@ const JobPreferencesModal = ({ isOpen, onClose }) => {
     jobPreferences,
     getJobPreferences,
     updateJobPreferences,
-    isjobPreferencesLoading,
+    isJobPreferencesLoading,
   } = jobStore();
 
   const [formData, setFormData] = useState({
-    jobCategory: null,
-    jobType: null,
+    jobCategories: [],
+    jobTypes: [],
     preferredLocations: "",
     preferredDisability: null,
-    jobShift: null,
-    jobLevel: null,
     expectedSalary: { minSalary: "", maxSalary: "" },
+    jobQualifications: "",
+    jobLevel: null,
   });
 
   useEffect(() => {
@@ -105,12 +97,17 @@ const JobPreferencesModal = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (jobPreferences) {
       setFormData({
-        jobCategory: jobCategories.find((c) => c.value === jobPreferences.jobCategory) || null,
-        jobType: jobTypes.find((t) => t.value === jobPreferences.jobType) || null,
+        jobCategories: jobPreferences.jobCategories?.map((c) =>
+          jobCategories.find((item) => item.value === c)
+        ) || [],
+        jobTypes: jobPreferences.jobTypes?.map((t) =>
+          jobTypes.find((item) => item.value === t)
+        ) || [],
         preferredLocations: jobPreferences.preferredLocations || "",
-        preferredDisability: disabilities.find((d) => d.value === jobPreferences.preferredDisability) || null,
-        jobShift: jobShifts.find((s) => s.value === jobPreferences.jobShift) || null,
+        preferredDisability:
+          disabilities.find((d) => d.value === jobPreferences.preferredDisability) || null,
         jobLevel: jobLevels.find((l) => l.value === jobPreferences.jobLevel) || null,
+        jobQualifications: jobPreferences.jobQualifications || "",
         expectedSalary: jobPreferences.expectedSalary || { minSalary: "", maxSalary: "" },
       });
     }
@@ -118,6 +115,10 @@ const JobPreferencesModal = ({ isOpen, onClose }) => {
 
   const handleChange = (selectedOption, { name }) => {
     setFormData({ ...formData, [name]: selectedOption });
+  };
+
+  const handleMultiChange = (selectedOptions, { name }) => {
+    setFormData({ ...formData, [name]: selectedOptions || [] });
   };
 
   const handleInputChange = (e) => {
@@ -136,13 +137,16 @@ const JobPreferencesModal = ({ isOpen, onClose }) => {
     e.preventDefault();
 
     const preparedData = {
-      jobCategory: formData.jobCategory?.value || "",
-      jobType: formData.jobType?.value || "",
+      jobCategories: formData.jobCategories?.map((c) => c.value) || [],
+      jobTypes: formData.jobTypes?.map((t) => t.value) || [],
       preferredLocations: formData.preferredLocations,
       preferredDisability: formData.preferredDisability?.value || "",
-      jobShift: formData.jobShift?.value || "",
+      expectedSalary: {
+        minSalary: Number(formData.expectedSalary.minSalary) || 0,
+        maxSalary: Number(formData.expectedSalary.maxSalary) || 0,
+      },
+      jobQualifications: formData.jobQualifications,
       jobLevel: formData.jobLevel?.value || "",
-      expectedSalary: formData.expectedSalary,
     };
 
     await updateJobPreferences(preparedData);
@@ -152,32 +156,32 @@ const JobPreferencesModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 shadow-lg">
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg w-1/3 shadow-lg">
-        <h2 className="text-lg font-semibold mb-4 text-center font-poppins">
-          Edit Job Preferences
-        </h2>
+        <h2 className="text-lg font-semibold mb-4 text-center">Edit Job Preferences</h2>
 
-        {isjobPreferencesLoading ? (
+        {isJobPreferencesLoading ? (
           <p>Loading...</p>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4 font-poppins">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex space-x-2 w-full">
               <Select
-                name="jobCategory"
+                name="jobCategories"
                 options={jobCategories}
-                onChange={handleChange}
-                value={formData.jobCategory}
-                placeholder="Select Job Category"
+                onChange={handleMultiChange}
+                value={formData.jobCategories}
+                placeholder="Select Job Categories"
                 className="w-full flex-1"
+                isMulti
               />
               <Select
-                name="jobType"
+                name="jobTypes"
                 options={jobTypes}
-                onChange={handleChange}
-                value={formData.jobType}
-                placeholder="Select Job Type"
+                onChange={handleMultiChange}
+                value={formData.jobTypes}
+                placeholder="Select Job Types"
                 className="w-full flex-1"
+                isMulti
               />
             </div>
 
@@ -198,24 +202,22 @@ const JobPreferencesModal = ({ isOpen, onClose }) => {
               placeholder="Select Preferred Disability"
             />
 
-            <div className="flex space-x-2 w-full">
-              <Select
-                name="jobShift"
-                options={jobShifts}
-                onChange={handleChange}
-                value={formData.jobShift}
-                placeholder="Select Job Shift"
-                className="w-full flex-1"
-              />
-              <Select
-                name="jobLevel"
-                options={jobLevels}
-                onChange={handleChange}
-                value={formData.jobLevel}
-                placeholder="Select Job Level"
-                className="w-full flex-1"
-              />
-            </div>
+            <Select
+              name="jobLevel"
+              options={jobLevels}
+              onChange={handleChange}
+              value={formData.jobLevel}
+              placeholder="Select Job Level"
+            />
+
+            <input
+              type="text"
+              name="jobQualifications"
+              placeholder="Job Qualifications"
+              value={formData.jobQualifications}
+              onChange={handleInputChange}
+              className="w-full border p-2 rounded"
+            />
 
             <div className="flex space-x-2">
               <input

@@ -4,6 +4,7 @@ import {
   Calendar,
   CheckCircle,
   Clock,
+  Link,
   MapPin,
   Search,
   X,
@@ -11,12 +12,12 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import AppliedJobSkeleton from "../components/AppliedJobSkeleton";
 import Footer from "../components/Footer";
 import FormatTimeDate from "../components/FormatTimeDate";
 import Modal from "../components/Modal";
 import Navbar from "../components/Navbar";
 import { jobStore } from "../stores/jobStore";
-import AppliedJobSkeleton from "../components/AppliedJobSkeleton";
 
 const AppliedJobs = () => {
   const [open, setOpen] = useState(false);
@@ -182,6 +183,15 @@ const AppliedJobs = () => {
     }
   };
 
+  const toPascalCase = (input) => {
+    const str = typeof input === "string" ? input : String(input || "");
+    return str
+      .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())
+      .replace(/^[a-z]/, (char) => char.toUpperCase())
+      .replace(/([A-Z])/g, " $1")
+      .trim();
+  };
+
   return (
     <main className="min-h-screen flex flex-col">
       <Navbar />
@@ -337,6 +347,7 @@ const AppliedJobs = () => {
                               {currentApplication.interview.interview_type ||
                                 "Not specified"}
                             </p>
+
                             <p className="text-lg flex items-center">
                               <Calendar className="w-5 h-5 text-browny mr-2" />
                               <span className="font-semibold">Date:</span>{" "}
@@ -351,6 +362,7 @@ const AppliedJobs = () => {
                                   })
                                 : "Not set"}
                             </p>
+
                             <p className="text-lg flex items-center mt-2">
                               <Clock className="w-5 h-5 text-browny mr-2" />
                               <span className="font-semibold">Time:</span>{" "}
@@ -365,15 +377,31 @@ const AppliedJobs = () => {
                                 : "Not set"}
                             </p>
 
-                            <p className="text-lg flex items-center">
-                              <MapPin className="w-5 h-5 text-browny mr-2" />
-                              <span className="font-semibold">
-                                Location:
-                              </span>{" "}
-                              {currentApplication.interview.location ||
-                                "To be announced"}
-                            </p>
+                            {currentApplication.interview.interview_type ===
+                            "In-Person" ? (
+                              <p className="text-lg flex items-center">
+                                <MapPin className="w-5 h-5 text-browny mr-2" />
+                                <span className="font-semibold">
+                                  Location:
+                                </span>{" "}
+                                {currentApplication.interview.location ||
+                                  "To be announced"}
+                              </p>
+                            ) : (
+                              currentApplication.interview.interview_type ===
+                                "Online" && (
+                                <p className="text-lg flex items-center">
+                                  <Link className="w-5 h-5 text-browny mr-2" />
+                                  <span className="font-semibold">
+                                    Platform Link:
+                                  </span>{" "}
+                                  {currentApplication.interview.platformLink ||
+                                    "To be announced"}
+                                </p>
+                              )
+                            )}
                           </div>
+
                           {currentApplication.interview.status ===
                             "Scheduled" && (
                             <div className="flex justify-end space-x-4 mt-8">
@@ -403,14 +431,15 @@ const AppliedJobs = () => {
                       View Details
                     </button>
 
-                    {application.status !== "Rejected" && application.status !== "Hired"&& (
-                      <button
-                        onClick={() => handleWithdraw(application._id)}
-                        className="px-6 py-3 text-base font-poppins bg-red-500 text-white rounded-md shadow-md hover:bg-red-600 transition"
-                      >
-                        Withdraw Application
-                      </button>
-                    )}
+                    {application.status !== "Rejected" &&
+                      application.status !== "Hired" && (
+                        <button
+                          onClick={() => handleWithdraw(application._id)}
+                          className="px-6 py-3 text-base font-poppins bg-red-500 text-white rounded-md shadow-md hover:bg-red-600 transition"
+                        >
+                          Withdraw Application
+                        </button>
+                      )}
 
                     {(application.status === "Interview Scheduled" ||
                       application.status === "Interview Completed") &&
@@ -560,8 +589,9 @@ const AppliedJobs = () => {
                   </p>
                   <p className="text-gray-600">
                     <strong>Location(s):</strong>{" "}
-                    {selectedApplication.jobId?.locations?.join(", ") ||
-                      "Not specified"}
+                    {selectedApplication.jobId?.locations
+                      ?.map((location) => location.replace(/['"]+/g, ""))
+                      .join(", ") || "Not specified"}
                   </p>
                 </div>
                 <div className="text-right">
@@ -590,22 +620,37 @@ const AppliedJobs = () => {
                   </p>
                   <p className="mb-2">
                     <strong>Preferred Language:</strong>{" "}
-                    {selectedApplication.jobId?.preferredLanguage || "N/A"}
+                    {Array.isArray(
+                      selectedApplication.jobId?.preferredLanguages
+                    ) &&
+                    selectedApplication.jobId?.preferredLanguages.length > 0
+                      ? selectedApplication.jobId.preferredLanguages.join(", ")
+                      : "N/A"}
                   </p>
+
                   <p className="mb-2">
                     <strong>Qualifications:</strong>{" "}
                     {selectedApplication.jobId?.jobQualifications || "N/A"}
-                  </p>
-                  <p className="mb-2">
-                    <strong>Experience:</strong>{" "}
-                    {selectedApplication.jobId?.jobExperience || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="mb-2">
                     <strong>Skills:</strong>{" "}
-                    {selectedApplication.jobId?.jobSkills?.join(", ") || "N/A"}
+                    {Array.isArray(selectedApplication.jobId?.jobSkills) &&
+                    selectedApplication.jobId.jobSkills.length > 0
+                      ? selectedApplication.jobId.jobSkills
+                          .map((skill) =>
+                            toPascalCase(
+                              String(skill)
+                                .replace(/[[\]"]/g, "")
+                                .trim()
+                            )
+                          )
+                          .filter((skill) => skill !== "")
+                          .join(", ")
+                      : "N/A"}
                   </p>
+
                   <p className="mb-4">
                     <strong>Job Description:</strong>{" "}
                     {selectedApplication.jobId?.jobDescription ||

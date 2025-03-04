@@ -11,9 +11,8 @@ export const createJob = async (req, res) => {
       jobDescription,
       jobCategory,
       locations,
-      preferredLanguage,
+      preferredLanguages,
       jobQualifications,
-      // jobExperience,
       jobType,
       jobShift,
       jobLevel,
@@ -73,14 +72,26 @@ export const createJob = async (req, res) => {
     ];
 
     let sanitizedPreferredDisabilities = [];
+
     if (preferredDisabilities) {
-      sanitizedPreferredDisabilities = preferredDisabilities
-        .split(",")
-        .map((disability) => disability.trim());
+      if (typeof preferredDisabilities === "string") {
+        try {
+          sanitizedPreferredDisabilities = JSON.parse(preferredDisabilities);
+        } catch (error) {
+          sanitizedPreferredDisabilities = preferredDisabilities
+            .split(",")
+            .map((disability) => disability.trim());
+        }
+      } else if (Array.isArray(preferredDisabilities)) {
+        sanitizedPreferredDisabilities = preferredDisabilities;
+      }
+
       sanitizedPreferredDisabilities = sanitizedPreferredDisabilities.filter(
         (disability) => validDisabilities.includes(disability)
       );
     }
+
+    console.log("Sanitized Disabilities:", sanitizedPreferredDisabilities);
 
     const jobAttachmentPath = req.files?.jobAttachment?.[0]?.filename
       ? `http://localhost:8080/uploads/${req.files.jobAttachment[0].filename}`
@@ -92,9 +103,12 @@ export const createJob = async (req, res) => {
       employer.employerInformation?.companyAddress,
     ];
 
-    // const finalPreferredDisabilities = preferredDisabilities?.length
-    // ? preferredDisabilities
-    // : []; //inalis ko lang yung "Any" saglit
+    const finalPreferredLanguages =
+      typeof preferredLanguages === "string"
+        ? JSON.parse(preferredLanguages)
+        : Array.isArray(preferredLanguages)
+        ? preferredLanguages
+        : [];
 
     const job = await Job.create({
       employer: req.userId,
@@ -104,9 +118,8 @@ export const createJob = async (req, res) => {
       jobDescription,
       jobCategory,
       locations: finalLocations,
-      preferredLanguage,
+      preferredLanguages: finalPreferredLanguages,
       jobQualifications,
-      // jobExperience,
       jobType,
       jobShift,
       jobLevel,
@@ -185,9 +198,11 @@ export const getAllJobs = async (req, res) => {
 
     if (user.jobPreferences.preferredDisability?.length > 0) {
       filterCriteria.preferredDisabilities = {
-        $in: user.jobPreferences.preferredDisability.map(
-          (dis) => new RegExp(dis.trim(), "i")
-        ),
+        $elemMatch: {
+          $in: user.jobPreferences.preferredDisability.map(
+            (dis) => new RegExp(dis.trim(), "i")
+          ),
+        },
       };
     }
 
@@ -338,7 +353,6 @@ export const updateJob = async (req, res) => {
     console.log("Job ID:", jobId);
     console.log("Employer ID:", employerId);
 
- 
     const job = await Job.findOne({ _id: jobId, employer: employerId });
 
     if (!job) {
@@ -354,7 +368,7 @@ export const updateJob = async (req, res) => {
       jobDescription,
       jobCategory,
       locations,
-      preferredLanguage,
+      preferredLanguages,
       jobQualifications,
       jobType,
       jobShift,
@@ -366,12 +380,14 @@ export const updateJob = async (req, res) => {
 
     let expectedSalary;
     if (req.body.expectedSalary) {
-      if (typeof req.body.expectedSalary === 'string') {
+      if (typeof req.body.expectedSalary === "string") {
         try {
           expectedSalary = JSON.parse(req.body.expectedSalary);
         } catch (error) {
           console.error("Error parsing expectedSalary:", error);
-          return res.status(400).json({ message: "Invalid expectedSalary format" });
+          return res
+            .status(400)
+            .json({ message: "Invalid expectedSalary format" });
         }
       } else {
         expectedSalary = req.body.expectedSalary;
@@ -399,7 +415,7 @@ export const updateJob = async (req, res) => {
     job.jobDescription = jobDescription || job.jobDescription;
     job.jobCategory = jobCategory || job.jobCategory;
     job.locations = locations || job.locations;
-    job.preferredLanguage = preferredLanguage || job.preferredLanguage;
+    job.preferredLanguages = preferredLanguages || job.preferredLanguages;
     job.jobQualifications = jobQualifications || job.jobQualifications;
     job.jobType = jobType || job.jobType;
     job.jobShift = jobShift || job.jobShift;

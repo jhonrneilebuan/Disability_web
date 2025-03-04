@@ -153,7 +153,10 @@ const JobDetailsPage = () => {
             <div className="flex items-center space-x-2 mt-4">
               <Accessibility className="h-5 w-5 text-gray-500" />
               <p className="text-xl font-normal font-poppins">
-                {jobDetails?.preferredDisabilities}
+                {Array.isArray(jobDetails?.preferredDisabilities) &&
+                jobDetails.preferredDisabilities.length > 0
+                  ? jobDetails.preferredDisabilities.join(", ") 
+                  : "Not specified"}
               </p>
             </div>
 
@@ -238,9 +241,12 @@ const JobDetailsPage = () => {
 
                 <li className="border-b pb-4">
                   <div className="flex justify-between items-center">
-                    <p className="text-lg font-medium">Preferred Language:</p>
-                    <span className="text-lg">
-                      {jobDetails?.preferredLanguage || "Not specified"}
+                    <p className="text-base font-medium">Preferred Language:</p>
+                    <span className="text-base">
+                      {Array.isArray(jobDetails?.preferredLanguages) &&
+                      jobDetails?.preferredLanguages.length > 0
+                        ? jobDetails?.preferredLanguages.join(", ")
+                        : "Not specified"}
                     </span>
                   </div>
                 </li>

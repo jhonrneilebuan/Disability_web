@@ -24,7 +24,7 @@ const EmployerInterviewPage = () => {
     useState(false);
   const [selectedCompleteInterviewApplicant, setCompleteInterviewApplicant] =
     useState(null);
-    const [hasRefreshed, setHasRefreshed] = useState(false);
+  const [hasRefreshed, setHasRefreshed] = useState(false);
 
   const [interviewDetails, setInterviewDetails] = useState({
     scheduled_time: "",
@@ -38,13 +38,18 @@ const EmployerInterviewPage = () => {
   useEffect(() => {
     if (activeTab === "create" && !hasRefreshed) {
       refreshData();
-      setHasRefreshed(true); 
+      setHasRefreshed(true);
     } else if (activeTab !== "create") {
-      setHasRefreshed(false); 
+      setHasRefreshed(false);
     }
     getShortlistedApplicant();
     getscheduledInterviewStatus();
-  }, [activeTab, getShortlistedApplicant, getscheduledInterviewStatus, hasRefreshed]);
+  }, [
+    activeTab,
+    getShortlistedApplicant,
+    getscheduledInterviewStatus,
+    hasRefreshed,
+  ]);
 
   console.log("Scheduled Interview Applicants:", scheduledInterviewApplicants);
 
@@ -102,18 +107,29 @@ const EmployerInterviewPage = () => {
   };
 
   const handleSubmit = async () => {
+    if (!interviewDetails.scheduled_time || !interviewDetails.interview_type) {
+      setFormError("Interview type and scheduled time are required.");
+      return;
+    }
+
     if (
-      !interviewDetails.scheduled_time ||
-      !interviewDetails.interview_type ||
+      interviewDetails.interview_type === "In-Person" &&
       !interviewDetails.location
     ) {
-      setFormError("All fields are required.");
+      setFormError("Location is required for In-Person interviews.");
+      return;
+    }
+
+    if (
+      interviewDetails.interview_type === "Online" &&
+      !interviewDetails.platformLink
+    ) {
+      setFormError("Platform link is required for Online interviews.");
       return;
     }
 
     try {
       await scheduleInterview(selectedApplicant.id, interviewDetails);
-
       closeModal();
     } catch (error) {
       setFormError(error || "Failed to schedule interview. Please try again.");
@@ -124,11 +140,7 @@ const EmployerInterviewPage = () => {
     setActiveTab(tab);
   };
 
-
-  const refreshData = () => {
- 
-  };
-
+  const refreshData = () => {};
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -456,19 +468,37 @@ const EmployerInterviewPage = () => {
                 </select>
               </div>
 
-              <div className="relative">
-                <label className="block text-sm text-gray-600 font-poppins mb-1">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  name="location"
-                  placeholder="Enter location"
-                  value={interviewDetails.location}
-                  onChange={handleInputChange}
-                  className="w-full p-3 rounded-lg border border-gray-300 shadow-sm outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 font-poppins"
-                />
-              </div>
+              {interviewDetails.interview_type === "In-Person" && (
+                <div className="relative">
+                  <label className="block text-sm text-gray-600 font-poppins mb-1">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    name="location"
+                    placeholder="Enter location"
+                    value={interviewDetails.location}
+                    onChange={handleInputChange}
+                    className="w-full p-3 rounded-lg border border-gray-300 shadow-sm outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 font-poppins"
+                  />
+                </div>
+              )}
+
+              {interviewDetails.interview_type === "Online" && (
+                <div className="relative">
+                  <label className="block text-sm text-gray-600 font-poppins mb-1">
+                    Platform Link
+                  </label>
+                  <input
+                    type="text"
+                    name="platformLink"
+                    placeholder="Enter platform link (e.g., Zoom)"
+                    value={interviewDetails.platformLink}
+                    onChange={handleInputChange}
+                    className="w-full p-3 rounded-lg border border-gray-300 shadow-sm outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 font-poppins"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end space-x-3 mt-6">
@@ -526,9 +556,15 @@ const EmployerInterviewPage = () => {
               </p>
               <p>
                 <span className="font-semibold text-gray-900">
-                  📍 Location:
+                  📍{" "}
+                  {selectedApplicant.interview.interview_type === "Online"
+                    ? "Platform"
+                    : "Location"}
+                  :
                 </span>{" "}
-                {selectedApplicant.interview.location}
+                {selectedApplicant.interview.interview_type === "Online"
+                  ? selectedApplicant.interview.platformLink || "Not provided"
+                  : selectedApplicant.interview.location || "Not provided"}
               </p>
               <p>
                 <span className="font-semibold text-gray-900">
@@ -564,7 +600,7 @@ const EmployerInterviewPage = () => {
 
             <div className="flex justify-end mt-6">
               <button
-                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-all duration-200 font-poppins w-full"
+                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 hover:shadow-lg transition-all duration-200 font-poppins w-full"
                 onClick={closeDetailsModal}
               >
                 Close
@@ -573,6 +609,7 @@ const EmployerInterviewPage = () => {
           </div>
         </div>
       )}
+
       {openCompleteInterviewModal && (
         <Modal
           open={openCompleteInterviewModal}

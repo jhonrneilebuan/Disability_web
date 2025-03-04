@@ -167,7 +167,7 @@ const Sidebar = () => {
               />
               {!isSidebarCollapsed && (
                 <span className="text-lg text-white hover:text-blue-400 transition-colors duration-300">
-                  Interview Management
+                  Hiring Management
                 </span>
               )}
             </Link>
