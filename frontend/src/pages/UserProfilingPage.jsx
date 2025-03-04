@@ -188,10 +188,9 @@ const UserProfilingPage = () => {
 
   const handleFinishProfiling = () => {
     navigate("/applicant");
-  }
+  };
 
   const disabilities = [
-    "Any",
     "Mobility Impairment",
     "Amputation",
     "Cerebral Palsy",
@@ -209,11 +208,28 @@ const UserProfilingPage = () => {
     "Autism Spectrum Disorder (ASD)",
     "Intellectual Disability",
     "Learning Disability (Dyslexia, Dyscalculia, Dysgraphia)",
-    "ADHD",
+    "ADHD (Attention Deficit Hyperactivity Disorder)",
+    "Dyslexia",
+    "Dyspraxia",
+    "Tourette Syndrome",
     "Anxiety Disorder",
     "Depression",
     "Bipolar Disorder",
     "Schizophrenia",
+    "Post-Traumatic Stress Disorder (PTSD)",
+    "Obsessive-Compulsive Disorder (OCD)",
+    "Epilepsy",
+    "Chronic Fatigue Syndrome (CFS)",
+    "Fibromyalgia",
+    "Lupus",
+    "Diabetes-related Disability",
+    "Chronic Pain",
+    "Speech Impairment (Stuttering, Apraxia)",
+    "Nonverbal Communication Disabilities",
+    "Rare Genetic Disorders",
+    "Autoimmune Disorders affecting mobility or cognition",
+    "Traumatic Brain Injury (TBI)",
+    "Physical Disability",
   ].map((disability) => ({ value: disability, label: disability }));
 
   return (
