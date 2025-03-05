@@ -57,7 +57,7 @@ const JobDetailsPage = () => {
   const handleApply = async (event) => {
     event.preventDefault();
 
-    if (!jobId) {
+    if (!jobDetails?._id) {
       alert("Job ID is missing. Please select a job and try again.");
       return;
     }
@@ -99,9 +99,7 @@ const JobDetailsPage = () => {
         setOpen(false);
       } else {
         console.error("Error submitting application:", error);
-        alert(
-          "There was an error submitting your application. Please try again."
-        );
+        alert("There was an error submitting your application. Please try again.");
       }
     }
   };

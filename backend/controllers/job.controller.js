@@ -93,9 +93,8 @@ export const createJob = async (req, res) => {
 
     console.log("Sanitized Disabilities:", sanitizedPreferredDisabilities);
 
-    const jobAttachmentPath = req.files?.jobAttachment?.[0]?.filename
-      ? `http://localhost:8080/uploads/${req.files.jobAttachment[0].filename}`
-      : null;
+    const jobAttachmentPath = req.files?.jobAttachment?.[0]?.path || null;
+
 
     const finalCompanyName =
       companyName || employer.employerInformation?.companyName;

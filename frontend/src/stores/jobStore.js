@@ -670,56 +670,39 @@ export const jobStore = create((set, get) => ({
     }
   },
 
-  applyJobs: async ({
-    jobId,
-    coverLetter,
-    accessibilityNeeds,
-    resume,
-    additionalFiles,
-  }) => {
+  applyJobs: async ({ jobId, coverLetter, accessibilityNeeds, resume, additionalFiles }) => {
     set({ isLoading: true, error: null });
     try {
       const formData = new FormData();
       formData.append("jobId", jobId);
       formData.append("coverLetter", coverLetter);
       formData.append("accessibilityNeeds", accessibilityNeeds);
-
+      
       if (resume) {
         formData.append("resume", resume);
       }
-
+      
       if (additionalFiles && additionalFiles.length > 0) {
         additionalFiles.forEach((file) => {
           formData.append("additionalFiles", file);
         });
       }
-
-      const response = await axios.post(
-        `${API_URL}/applications/apply`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      toast.success(
-        response.data.message || "Application submitted successfully."
-      );
-      set({
-        message: response.data.message || "Application submitted successfully.",
-        isLoading: false,
+      
+      const response = await axios.post(`${API_URL}/applications/apply`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
+      
+      toast.success(response.data.message || "Application submitted successfully.");
+      set({ message: response.data.message || "Application submitted successfully.", isLoading: false });
     } catch (error) {
       if (error.response && error.response.status === 409) {
         throw new Error("You have already applied for this job.");
       } else {
         console.error("Error applying for job:", error);
-        set({
-          error: error.response?.data?.error || "Error applying for job",
-          isLoading: false,
-        });
+        console.error("Error applying for job:", JSON.stringify(error, null, 2));
+        set({ error: error.response?.data?.error || "Error applying for job", isLoading: false });
         throw error;
       }
     }
@@ -756,7 +739,7 @@ export const jobStore = create((set, get) => ({
       if (preferredLanguages && preferredLanguages.length > 0) {
         formData.append("preferredLanguages", JSON.stringify(preferredLanguages));
       } else {
-        formData.append("preferredLanguages", JSON.stringify(["Any"])); // Default value
+        formData.append("preferredLanguages", JSON.stringify(["Any"])); 
       }
 
       formData.append("jobQualifications", jobQualifications);
@@ -768,7 +751,7 @@ export const jobStore = create((set, get) => ({
       if (preferredDisabilities && preferredDisabilities.length > 0) {
         formData.append("preferredDisabilities", JSON.stringify(preferredDisabilities));
       } else {
-        formData.append("preferredDisabilities", JSON.stringify([])); // Default empty array
+        formData.append("preferredDisabilities", JSON.stringify([])); 
       }
 
       if (locations) {

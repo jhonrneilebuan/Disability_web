@@ -11,9 +11,7 @@ export const applyJobs = async (req, res) => {
     const { jobId, coverLetter, accessibilityNeeds } = req.body;
 
     if (!jobId || !applicantId) {
-      return res
-        .status(400)
-        .json({ error: "Job ID and applicant ID are required." });
+      return res.status(400).json({ error: "Job ID and applicant ID are required." });
     }
 
     if (!req.files || !req.files.resume) {
@@ -32,51 +30,40 @@ export const applyJobs = async (req, res) => {
     }
 
     const applicantDisability = applicant.disabilityInformation?.disabilityType;
-
     if (!applicantDisability) {
-      return res
-        .status(400)
-        .json({ error: "Applicant disability information is required." });
+      return res.status(400).json({ error: "Applicant disability information is required." });
     }
 
     if (!job.preferredDisabilities.includes("Any")) {
-      const isEligible =
-        job.preferredDisabilities.includes(applicantDisability);
-
+      const isEligible = job.preferredDisabilities.includes(applicantDisability);
       if (!isEligible) {
         return res.status(403).json({
-          error:
-            "You do not meet the preferred disability criteria for this job.",
+          error: "You do not meet the preferred disability criteria for this job.",
         });
       }
     }
 
-    const resumePath = req.files.resume ? req.files.resume[0].path : null;
-    const additionalFilesPaths = req.files.additionalFiles
+    const resumeUrl = req.files.resume ? req.files.resume[0].path : null;
+    const additionalFilesUrls = req.files.additionalFiles
       ? req.files.additionalFiles.map((file) => file.path)
       : [];
 
-    const existingApplication = await Application.findOne({
-      jobId,
-      applicantId,
-    });
-
+    const existingApplication = await Application.findOne({ jobId, applicantId });
     if (existingApplication) {
-      return res
-        .status(409)
-        .json({ error: "You have already applied for this job." });
+      return res.status(409).json({ error: "You have already applied for this job." });
     }
 
     const application = new Application({
       jobId,
       applicantId,
       coverLetter,
-      resume: resumePath,
-      additionalFiles: additionalFilesPaths,
+      resume: resumeUrl, 
+      additionalFiles: additionalFilesUrls, 
       accessibilityNeeds,
     });
 
     await application.save();
+
     await sendConfirmationEmail(applicantId, jobId);
 
     const notification = new Notification({
@@ -88,7 +75,7 @@ export const applyJobs = async (req, res) => {
     await notification.save();
 
     const employerSocketId = getReceiverSocketId(employerId.toString());
-    console.log(`Employer Socket ID:`, employerSocketId);
+    console.log("Employer Socket ID:", employerSocketId);
     if (employerSocketId) {
       io.to(employerSocketId).emit("newJobApplication", {
         message: notification.message,
@@ -107,6 +94,7 @@ export const applyJobs = async (req, res) => {
     });
   }
 };
+
 
 export const getApplications = async (req, res) => {
   try {
@@ -1341,9 +1329,9 @@ export const confirmInterview = async (req, res) => {
       return res.status(400).json({ error: "Application ID is required." });
     }
 
-    const application = await Application.findById(applicationId).populate(
-      "applicantId"
-    ) .populate("jobId");
+    const application = await Application.findById(applicationId)
+      .populate("applicantId")
+      .populate("jobId");
 
     if (!application) {
       return res.status(404).json({ error: "Application not found." });
@@ -1398,9 +1386,9 @@ export const declineInterview = async (req, res) => {
       return res.status(400).json({ error: "Application ID is required." });
     }
 
-    const application = await Application.findById(applicationId).populate(
-      "applicantId"
-    ) .populate("jobId");
+    const application = await Application.findById(applicationId)
+      .populate("applicantId")
+      .populate("jobId");
 
     if (!application) {
       return res.status(404).json({ error: "Application not found." });
