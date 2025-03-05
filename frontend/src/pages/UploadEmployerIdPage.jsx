@@ -52,7 +52,7 @@ const UploadEmployerIdPage = () => {
       setSelectedEmployerID(null);
       setPreviewUrl("/upload.png");
 
-      let timeLeft = 30;
+      let timeLeft = 10;
       setCountdown(timeLeft);
 
       const interval = setInterval(() => {
