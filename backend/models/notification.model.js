@@ -20,7 +20,6 @@ const NotificationSchema = new mongoose.Schema(
     userRole: { 
       type: String,
       enum: ["Employer", "Applicant"],
-      required: true
     },
     isRead: 
     { 
