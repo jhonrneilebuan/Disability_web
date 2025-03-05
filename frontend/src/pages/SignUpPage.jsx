@@ -7,6 +7,7 @@ import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 import PrivacyAgreementCheckbox from "../components/PrivacyAgreementCheckbox ";
 import RoleDropdown from "../components/RoleDropdown";
 import { authStore } from "../stores/authStore";
+import Navbar from "../components/Navbar";
 
 const SignUpPage = () => {
   const [name, setName] = useState("");
@@ -32,89 +33,96 @@ const SignUpPage = () => {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-200">
-      <motion.div
-        initial={{ opacity: 0, x: 100 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-        className="flex max-w-full w-[calc(100vh)] bg-white bg-opacity-50 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden h-[70vh]"
-      >
-        <div className="w-1/2 p-8 h-full flex justify-center items-center">
-          <div className="w-full max-w-sm">
-            <h2 className="text-3xl font-bold mb-6 text-center text-black">Sign Up</h2>
-            <form onSubmit={handleSignUp}>
+    <div className="min-h-screen flex flex-col bg-applicant-nbg-3 bg-no-repeat bg-cover bg-center overflow-auto">
+      <Navbar />
+
+      <main className="flex-grow flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md bg-white bg-opacity-30 backdrop-blur-sm rounded-xl shadow-lg p-8"
+        >
+          <h2 className="text-3xl font-bold text-start font-poppins text-white mb-2">
+            Create Your Account
+          </h2>
+          <h6 className="text-sm text-start font-poppins text-gray-200 mb-6">
+            Unlock more Inclusive Job Opportunities
+          </h6>
+          <form onSubmit={handleSignUp} className="space-y-6">
+            <Input
+              icon={User}
+              type="text"
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <Input
+              icon={Mail}
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <RoleDropdown role={role} setRole={setRole} />
+
+            <div className="relative">
               <Input
-                icon={User}
-                type="text"
-                placeholder="Full Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                icon={Lock}
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
-              <Input
-                icon={Mail}
-                type="email"
-                placeholder="Email Address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <RoleDropdown role={role} setRole={setRole} />
-
-              <div className="relative">
-                <Input
-                  icon={Lock}
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-yellow-600 hover:text-yellow-500"
-                >
-                  {showPassword ? <EyeClosed /> : <Eye />}
-                </button>
-              </div>
-
-              {error && <p className="text-red-500 font-semibold mt-2">{error}</p>}
-
-              {password.length > 0 && <PasswordStrengthMeter password={password} />}
-
-              <motion.button
-                className="mt-5 w-full py-3 px-4 bg-transparent text-black font-bold border-2 border-gray-400 rounded-lg shadow-lg hover:border-black hover:text-black focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                disabled={isLoading}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
-                {isLoading ? (
-                  <Loader className="w-6 h-6 animate-spin mx-auto" />
-                ) : (
-                  "Sign Up"
-                )}
-              </motion.button>
-
-              <PrivacyAgreementCheckbox
-                agreedToPrivacy={agreedToPrivacy}
-                setAgreedToPrivacy={setAgreedToPrivacy}
-                className="mt-3"
-              />
-            </form>
-
-            <div className="px-8 py-4 bg-opacity-50 flex justify-center">
-              <p className="text-sm text-gray-500 flex items-center">
-                Already have an account?
-                <Link to={"/login"} className="text-yellow-600 hover:underline ml-2">
-                  Login
-                </Link>
-              </p>
+                {showPassword ? <EyeClosed size={18} /> : <Eye size={18} />}
+              </button>
             </div>
+
+            {password.length > 0 && <PasswordStrengthMeter password={password} />}
+
+            <PrivacyAgreementCheckbox
+              agreedToPrivacy={agreedToPrivacy}
+              setAgreedToPrivacy={setAgreedToPrivacy}
+              className="mt-3"
+            />
+
+            {error && (
+              <p className="text-sm text-red-500 text-center mt-2">{error}</p>
+            )}
+
+            <motion.button
+              className="w-full py-2.5 px-4 bg-yellow-600 text-white font-semibold rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              type="submit"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader className="w-5 h-5 animate-spin mx-auto" />
+              ) : (
+                "Sign Up"
+              )}
+            </motion.button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-200">
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="text-yellow-600 font-medium hover:underline"
+              >
+                Login
+              </Link>
+            </p>
           </div>
-        </div>
-        
-        {/* temp img */}
-        <div className="w-1/2 bg-applicant-bg-1 bg-cover h-full"></div>
-      </motion.div>
+        </motion.div>
+      </main>
     </div>
   );
 };

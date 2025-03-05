@@ -38,7 +38,7 @@ const PrivacyAgreementCheckbox = ({ agreedToPrivacy, setAgreedToPrivacy }) => {
           onChange={() => setIsModalOpen(true)}
           className="text-yellow-500 focus:ring-2 focus:ring-yellow-600 focus:ring-offset-2"
         />
-        <label htmlFor="privacyAgreement" className="ml-2 text-sm text-gray-400">
+        <label htmlFor="privacyAgreement" className="ml-2 text-sm text-gray-200">
           I agree to the{" "}
           <button
             type="button"

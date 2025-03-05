@@ -71,7 +71,7 @@ const PrivacyPolicy = () => {
 
         <div className="mt-6 text-center">
           <Link
-            to="/"
+            to="/sign-up"
             className="text-yellow-600 hover:underline font-semibold"
           >
             Back to Sign Up

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { authStore } from "../stores/authStore";
 import toast from "react-hot-toast";
 import { FaSpinner } from "react-icons/fa";
+// import Navbar from "../components/Navbar";
 
 const EmailVerificationPage = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
@@ -17,7 +18,6 @@ const EmailVerificationPage = () => {
     if (value.length > 1) {
       const pastedCode = value.slice(0, 6).split("");
       let pasteIndex = index;
-      123
       for (let char of pastedCode) {
         if (pasteIndex < 6 && !newcode[pasteIndex]) {
           newcode[pasteIndex] = char;
@@ -71,61 +71,64 @@ const EmailVerificationPage = () => {
   }, [code]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-200">
-      <motion.div
-        initial={{ opacity: 0, x: 100 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md bg-white bg-opacity-50 backdrop-blur-xl rounded-2xl shadow-xl p-8"
-      >
-        <h2 className="text-3xl font-bold mb-6 text-center text-black">
-          Verify Your Email
-        </h2>
-        <p className="text-center text-gray-500 mb-8">
-          Enter the 6-digit code sent to your email to continue your job search.
-        </p>
-        <form onSubmit={handleSubmit}>
-          <div className="flex justify-between gap-3">
-            {code.map((digit, index) => (
-              <input
-                key={index}
-                ref={(el) => (inputRefs.current[index] = el)}
-                type="text"
-                maxLength="1"
-                value={digit}
-                onChange={(e) => handleChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(index, e)}
-                className="w-14 h-14 text-center text-3xl font-bold bg-gray-100 text-gray-800 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all duration-200 ease-in-out transform hover:scale-105"
-                aria-label={`Digit ${index + 1}`}
-              />
-            ))}
-          </div>
+    <div className="min-h-screen flex flex-col bg-applicant-nbg-3 bg-no-repeat bg-cover bg-center overflow-auto">
 
-          {error && (
-            <p className="text-red-500 font-semibold text-center mt-4">
-              {error}
-            </p>
-          )}
+      <main className="flex-grow flex items-center justify-center p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-md w-full bg-white bg-opacity-30 backdrop-blur-sm rounded-xl shadow-lg p-8"
+        >
+          <h2 className="text-3xl font-extrabold text-start font-poppins text-white mb-2 drop-shadow-lg">
+            Verify Your Email
+          </h2>
+          <p className="text-start text-gray-200 mb-8">
+            Enter the 6-digit code sent to your email to continue your job search.
+          </p>
+          <form onSubmit={handleSubmit}>
+            <div className="flex justify-between gap-3">
+              {code.map((digit, index) => (
+                <input
+                  key={index}
+                  ref={(el) => (inputRefs.current[index] = el)}
+                  type="text"
+                  maxLength="1"
+                  value={digit}
+                  onChange={(e) => handleChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(index, e)}
+                  className="w-14 h-14 text-center text-3xl font-bold bg-gray-100 text-gray-800 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all duration-200 ease-in-out transform hover:scale-105"
+                  aria-label={`Digit ${index + 1}`}
+                />
+              ))}
+            </div>
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            type="submit"
-            disabled={isLoading || code.some((digit) => !digit)}
-            className="mt-5 w-full py-3 px-4 bg-transparent text-black font-bold border-2 border-gray-400 rounded-lg shadow-lg hover:border-black hover:text-black focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200"
-            aria-label="Verify Email"
-          >
-            {isLoading ? (
-              <>
-                <FaSpinner className="animate-spin inline-block mr-2" />
-                Verifying...
-              </>
-            ) : (
-              "Verify Email"
+            {error && (
+              <p className="text-red-500 font-semibold text-center mt-4">
+                {error}
+              </p>
             )}
-          </motion.button>
-        </form>
-      </motion.div>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              type="submit"
+              disabled={isLoading || code.some((digit) => !digit)}
+              className="mt-5 w-full py-3 px-4 bg-yellow-600 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-700 transition duration-200"
+              aria-label="Verify Email"
+            >
+              {isLoading ? (
+                <>
+                  <FaSpinner className="animate-spin inline-block mr-2" />
+                  Verifying...
+                </>
+              ) : (
+                "Verify Email"
+              )}
+            </motion.button>
+          </form>
+        </motion.div>
+      </main>
     </div>
   );
 };

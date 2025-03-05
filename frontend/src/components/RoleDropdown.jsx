@@ -5,7 +5,7 @@ const RoleDropdown = ({ role, setRole }) => {
     <div className="relative mb-3">
       <label
         htmlFor="role"
-        className="block text-sm font-medium text-gray-400"
+        className="block text-sm font-medium text-gray-200"
       >
         Select Role
       </label>
