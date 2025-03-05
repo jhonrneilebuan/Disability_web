@@ -1,5 +1,3 @@
-import React from "react";
-
 const AdminListSkeletonLoader = () => {
   return (
     <div className="p-6 bg--100 min-h-screen">

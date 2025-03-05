@@ -106,8 +106,22 @@ const JobDetailsPage = () => {
     }
   };
 
+  const toPascalCase = (input) => {
+    const str = typeof input === "string" ? input : String(input || "");
+    return str
+      .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())
+      .replace(/^[a-z]/, (char) => char.toUpperCase())
+      .replace(/([A-Z])/g, " $1")
+      .trim();
+  };
+
+  const cleanJobSkills = jobDetails?.jobSkills
+    .map((skill) => skill.replace(/[[\]"]/g, "").trim())
+    .filter((skill) => skill !== "")
+    .join(", ");
+
   return (
-    <main className="min-h-screen mb-5">
+    <main className="min-h-screen mb-5 bg-gray-100">
       <Navbar />
       <button
         onClick={() => navigate(-1)}
@@ -155,7 +169,7 @@ const JobDetailsPage = () => {
               <p className="text-xl font-normal font-poppins">
                 {Array.isArray(jobDetails?.preferredDisabilities) &&
                 jobDetails.preferredDisabilities.length > 0
-                  ? jobDetails.preferredDisabilities.join(", ") 
+                  ? jobDetails.preferredDisabilities.join(", ")
                   : "Not specified"}
               </p>
             </div>
@@ -254,20 +268,18 @@ const JobDetailsPage = () => {
                 <li className="border-b pb-4">
                   <div>
                     <p className="text-lg font-medium mb-2">Job Skills:</p>
-                    <ul className="flex flex-wrap gap-4">
-                      {jobDetails?.jobSkills?.length > 0 ? (
-                        jobDetails.jobSkills.map((skill, index) => (
+                    <ul className="flex flex-wrap gap-2">
+                      {cleanJobSkills ? (
+                        cleanJobSkills.split(",").map((skill, index) => (
                           <li
                             key={index}
-                            className="text-lg text-black bg-gray-200 px-4 py-2 rounded-full"
+                            className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-poppins font-semibold"
                           >
-                            {skill.replace(/[\\[\]"]+/g, "")}
+                            {toPascalCase(skill.trim())}
                           </li>
                         ))
                       ) : (
-                        <li className="text-gray-500 bg-gray-200 px-4 py-2 rounded-full">
-                          No skills listed.
-                        </li>
+                        <li className="text-gray-500">No Skills Specified</li>
                       )}
                     </ul>
                   </div>

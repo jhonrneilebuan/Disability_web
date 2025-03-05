@@ -331,6 +331,7 @@ export const authStore = create((set, get) => ({
     newSocket.off("verificationUpdate");
     newSocket.off("interviewConfirmed");
     newSocket.off("interviewDeclined");
+    newSocket.off("interviewScheduled");
 
     newSocket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
@@ -352,6 +353,13 @@ export const authStore = create((set, get) => ({
 
     newSocket.on("receiveMessage", (message) => {
       console.log("New message received:", message);
+    });
+
+    newSocket.on("interviewScheduled", (data) => {
+      toast.success(data.message);
+      set((state) => ({
+        notifications: [...state.notifications, data.message],
+      }));
     });
 
     newSocket.on("applicationShortlisted", (data) => {
@@ -415,6 +423,7 @@ export const authStore = create((set, get) => ({
       socket.off("verificationUpdate");
       socket.off("interviewConfirmed");
       socket.off("interviewDeclined");
+      socket.off("interviewScheduled");
       socket.disconnect();
     }
   },

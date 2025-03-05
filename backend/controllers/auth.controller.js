@@ -62,10 +62,12 @@ export const signup = async (req, res) => {
       const admins = await User.find({ role: "Admin" });
 
       const notifications = admins.map((admin) => ({
+        
         user: admin._id,
         message: `New user registered: ${fullName} (${email})`,
         type: "newUserRegistration",
         isRead: false,
+        userRole: newUser.role,
       }));
 
       await Notification.insertMany(notifications);

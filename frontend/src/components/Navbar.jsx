@@ -7,8 +7,8 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState,  } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { authStore } from "../stores/authStore";
 import { FaBell } from 'react-icons/fa';
 const Navbar = () => {
@@ -25,7 +25,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isMenuOpen, setMenuOpen] = useState(false);
-
+  const navigate = useNavigate();
   const isActive = (path) => location.pathname === path;
   const unreadCount = notifications.filter((notif) => !notif.isRead).length;
 
@@ -46,6 +46,28 @@ const Navbar = () => {
 
     if (!isMenuOpen) {
       setDropdownOpen(false);
+    }
+  };
+
+  const handleNotificationClick = (notif) => {
+    switch (notif.type) {
+      case "interviewScheduled":
+        navigate(`/job`);
+        break;
+      case "interviewCompleted":
+        navigate(`/job`);
+        break;
+        case "applicationShortlisted":
+        navigate(`/job`);
+        break;
+        case "applicationRejected":
+          navigate(`/job`);
+          break;
+      case "verification":
+        navigate(`/profile-info"`);
+        break;
+      default:
+        console.log("Unknown notification type:", notif.type);
     }
   };
 
@@ -360,7 +382,8 @@ const Navbar = () => {
               {notifications.map((notif, index) => (
                 <li
                   key={notif._id || index}
-                  className={`px-4 py-2 text-sm border-b hover:bg-gray-100 ${
+                  onClick={() => handleNotificationClick(notif)}
+                  className={`px-4 py-2 text-sm border-b hover:bg-gray-100 cursor-pointer ${
                     notif.isRead ? "text-gray-500 font-poppins" : "text-black font-poppins font-semibold"
                   }`}
                 >

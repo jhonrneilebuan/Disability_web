@@ -153,7 +153,7 @@ const EmployerJobPage = () => {
           <hr />
           <div
             key={filteredJobs.length}
-            className="overflow-y-auto max-h-[80vh] pb-5"
+            className="pb-5"
           >
             {isLoading ? (
               [...Array(5)].map((_, index) => (

@@ -258,6 +258,22 @@ const JobsPage = () => {
     }
   };
 
+  const toPascalCase = (input) => {
+    const str = typeof input === "string" ? input : String(input || "");
+    return str
+      .replace(/[^a-zA-Z0-9]+(.)/g, (_, char) => char.toUpperCase())
+      .replace(/^[a-z]/, (char) => char.toUpperCase())
+      .replace(/([A-Z])/g, " $1")
+      .trim();
+  };
+
+  const cleanJobSkills = Array.isArray(selectedJob?.jobSkills)
+    ? selectedJob.jobSkills
+        .map((skill) => skill.replace(/[[\]"]/g, "").trim())
+        .filter((skill) => skill !== "")
+        .join(", ")
+    : "";
+
   return (
     <main className="min-h-screen flex flex-col overflow-auto">
       <Navbar />
@@ -503,14 +519,7 @@ const JobsPage = () => {
                         </span>
                       </div>
                     </li>
-                    {/* <li className="border-b pb-4">
-                      <div className="flex justify-between items-center">
-                        <p className="text-base font-medium">Job Experience:</p>
-                        <span className="text-base">
-                          {selectedJob.jobExperience || "Not specified"}
-                        </span>
-                      </div>
-                    </li> */}
+
                     <li className="border-b pb-4">
                       <div className="flex justify-between items-center">
                         <p className="text-base font-medium">
@@ -534,38 +543,18 @@ const JobsPage = () => {
                           Job Skills:
                         </p>
                         <ul className="flex flex-wrap gap-4">
-                          {selectedJob.jobSkills ? (
-                            (() => {
-                              let skillsArray = [];
-
-                              // Check if jobSkills is an array or a string
-                              if (Array.isArray(selectedJob.jobSkills)) {
-                                skillsArray = selectedJob.jobSkills; // Use directly if it's an array
-                              } else if (
-                                typeof selectedJob.jobSkills === "string"
-                              ) {
-                                try {
-                                  skillsArray = JSON.parse(
-                                    selectedJob.jobSkills
-                                  ); // Convert string to array
-                                } catch (error) {
-                                  console.error("Parsing error:", error);
-                                  skillsArray = []; // Fallback to empty array
-                                }
-                              }
-
-                              return skillsArray.map((skill, index) => (
-                                <li
-                                  key={index}
-                                  className="text-base text-black bg-gray-200 px-4 py-2 rounded-full"
-                                >
-                                  {skill}
-                                </li>
-                              ));
-                            })()
+                          {cleanJobSkills ? (
+                            cleanJobSkills.split(",").map((skill, index) => (
+                              <li
+                                key={index}
+                                className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-poppins font-semibold"
+                              >
+                                {toPascalCase(skill.trim())}
+                              </li>
+                            ))
                           ) : (
-                            <li className="text-gray-500 bg-gray-200 px-4 py-2 rounded-full">
-                              No skills listed.
+                            <li className="text-gray-500">
+                              No Skills Specified
                             </li>
                           )}
                         </ul>

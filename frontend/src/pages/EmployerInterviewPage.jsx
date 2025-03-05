@@ -4,6 +4,8 @@ import Modal from "../components/Modal";
 import NavbarEmployer from "../components/NavbarEmployer";
 import Sidebar from "../components/Sidebar";
 import { jobStore } from "../stores/jobStore";
+import { useSearchParams } from "react-router-dom";
+
 const EmployerInterviewPage = () => {
   const {
     getShortlistedApplicant,
@@ -33,7 +35,10 @@ const EmployerInterviewPage = () => {
   });
   const [selectedApplicant, setSelectedApplicant] = useState(null);
   const [formError, setFormError] = useState("");
-  const [activeTab, setActiveTab] = useState("create");
+  const [searchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState(tabFromUrl || "create");
+  
 
   useEffect(() => {
     if (activeTab === "create" && !hasRefreshed) {
@@ -135,6 +140,12 @@ const EmployerInterviewPage = () => {
       setFormError(error || "Failed to schedule interview. Please try again.");
     }
   };
+
+  useEffect(() => {
+    if (tabFromUrl) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl]);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);

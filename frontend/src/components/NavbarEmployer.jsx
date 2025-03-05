@@ -40,6 +40,26 @@ const NavbarEmployer = () => {
     navigate("/employer-profile");
   };
 
+  const handleNotificationClick = (notif) => {
+    switch (notif.type) {
+      case "newJobApplication":
+        navigate(`/applicant-list`);
+        break;
+      case "interviewConfirmed":
+        navigate(`/employer-interview?tab=scheduled`);
+        break;
+        case "interviewDeclined":
+          navigate(`/employer-interview?tab=scheduled`);
+          break;
+      case "verification":
+        navigate(`/employer-profile"`);
+        break;
+      default:
+        console.log("Unknown notification type:", notif.type);
+    }
+  };
+  
+
   return (
     <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-4 shadow-lg relative">
       <div className="container mx-auto flex justify-between items-center">
@@ -136,7 +156,8 @@ const NavbarEmployer = () => {
               notifications.map((notif, index) => (
                 <div
                   key={notif._id || index}
-                  className={`px-4 py-2 text-sm border-b hover:bg-gray-100 ${
+                  onClick={() => handleNotificationClick(notif)}
+                  className={`px-4 py-2 text-sm border-b hover:bg-gray-100  cursor-pointer${
                     notif.isRead
                       ? "text-gray-500 font-poppins"
                       : "text-black font-poppins font-semibold"

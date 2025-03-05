@@ -16,6 +16,7 @@ import { FaBell, FaBriefcase, FaClock, FaUsers } from "react-icons/fa";
 import AdminDashboardSkeletonLoader from "../components/AdminDashboardSkeletonLoader";
 import { adminStore } from "../stores/adminApi";
 import { authStore } from "../stores/authStore";
+import { useNavigate } from "react-router-dom";
 
 ChartJS.register(
   CategoryScale,
@@ -31,6 +32,7 @@ ChartJS.register(
 
 const AdminDashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const {
     totalUsers,
@@ -187,6 +189,32 @@ const AdminDashboard = () => {
     );
   }
 
+  const handleNotificationClick = (notif) => {
+    switch (notif.type) {
+      case "newUserRegistration":
+        if (notif.userRole === "Applicant") {
+          navigate(`/admin/ApplicantList`);
+        } else if (notif.userRole === "Employer") {
+          navigate(`/admin/EmployerList`);
+        } else {
+          console.log("Unknown user role:", notif.userRole);
+        }
+        break;
+      case "disabilityIdUpload":
+        navigate(`/admin/disabilityVerification`);
+        break;
+        case "interviewDeclined":
+          navigate(`/employer-interview?tab=scheduled`);
+          break;
+      case "employerIdUpload":
+        navigate(`/admin/AdminEmployerVerifyId`);
+        break;
+      default:
+        console.log("Unknown notification type:", notif.type);
+    }
+  };
+  
+
   return (
     <div className="bg-gradient-to-r from-indigo-100 to-blue-200 p-8 rounded-lg shadow-xl">
       <div className="relative">
@@ -210,6 +238,7 @@ const AdminDashboard = () => {
                 {notifications.map((notif, index) => (
                   <li
                     key={notif._id || index}
+                    onClick={() => handleNotificationClick(notif)}
                     className={`px-4 py-2 text-sm border-b hover:bg-gray-100 ${
                       notif.isRead ? "text-gray-500" : "text-black"
                     }`}
