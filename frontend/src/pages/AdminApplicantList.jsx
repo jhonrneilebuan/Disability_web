@@ -117,10 +117,10 @@ const ApplicantList = () => {
 
   return (
     <div className="p-6 bg--100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">APPLICANT LIST</h1>
-      {error && <p className="text-center text-red-500">{error}</p>}
+      <h1 className="text-2xl font-bold mb-4 font-poppins">APPLICANT LIST</h1>
+      {error && <p className="text-center text-red-500 font-poppins">{error}</p>}
 
-      <div className="flex space-x-4 mb-6">
+      <div className="flex space-x-4 mb-6 font-poppins">
         <input
           type="text"
           placeholder="Search by name"
@@ -131,7 +131,7 @@ const ApplicantList = () => {
         <select
           value={filterBanned}
           onChange={(e) => setFilterBanned(e.target.value)}
-          className="p-2 border rounded-md"
+          className="p-2 px-6 border rounded-md appearance-none font-poppins"
         >
           <option value="All">All Status</option>
           <option value="true">Banned</option>
@@ -139,10 +139,10 @@ const ApplicantList = () => {
         </select>
       </div>
 
-      <div className="bg-white p-4 shadow rounded-md">
+      <div>
         <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-gray-200">
+            <tr className="bg-gray-200 font-poppins">
               <th className="p-2 border">Full Name</th>
               <th className="p-2 border">Email</th>
               <th className="p-2 border">Banned</th>
@@ -151,13 +151,13 @@ const ApplicantList = () => {
           </thead>
           <tbody>
             {[...filteredApplicants].reverse().map((user) => (
-              <tr key={user._id} className="text-center border">
-                <td className="p-2 border">{user.fullName}</td>
-                <td className="p-2 border">{user.email}</td>
-                <td className="p-2 border">{user.banned ? "Yes" : "No"}</td>
-                <td className="p-2 border space-x-2">
+              <tr key={user._id} className="border font-poppins">
+                <td className="p-2 border text-left">{user.fullName}</td>
+                <td className="p-2 border text-left">{user.email}</td>
+                <td className="p-2 border text-center">{user.banned ? "Yes" : "No"}</td>
+                <td className="p-2 border space-x-2 text-center">
                   <button
-                    className="bg-blue-500 text-white p-1 rounded"
+                    className="bg-blue-500 text-white p-2 px-4 rounded"
                     onClick={() => {
                       setSelectedUser(user);
                       setFormData({ ...user, password: "" });
@@ -167,7 +167,7 @@ const ApplicantList = () => {
                     View
                   </button>
                   <button
-                    className="bg-red-500 text-white p-1 rounded"
+                    className="bg-red-500 text-white p-2 px-4 rounded"
                     onClick={() => {
                       setUserToDelete(user._id);
                       setIsDeleteModalOpen(true);
@@ -176,7 +176,7 @@ const ApplicantList = () => {
                     Delete
                   </button>
                   <button
-                    className={`p-1 rounded ${
+                    className={`p-2 px-4 rounded ${
                       user.banned ? "bg-yellow-500" : "bg-gray-500"
                     } text-white`}
                     onClick={() => handleBanToggle(user)}

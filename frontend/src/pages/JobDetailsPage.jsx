@@ -130,7 +130,7 @@ const JobDetailsPage = () => {
       </button>
       <section className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
         {jobpostError && (
-          <p className="text-red-500 text-lg font-semibold">{jobpostError}</p>
+          <p className="text-red-500 text-lg font-semibold text-center">{jobpostError}</p>
         )}
         {!jobDetails ? (
           <p className="text-gray-500 text-lg">No job details available.</p>

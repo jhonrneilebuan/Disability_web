@@ -22,19 +22,19 @@ const AdminSidebarNav = ({ handleNavigation }) => {
   };
 
   return (
-    <aside className="w-full md:w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col p-6 shadow-xl">
+    <aside className="w-full md:w-64 bg-gray-800 text-white flex flex-col p-6  ">
       <div className="flex flex-col items-center mb-6">
         <img
           src="/sample-logo.png"
           alt="Admin Logo"
           className="w-20 h-20 mb-2"
         />
-        <h1 className="text-2xl font-semibold text-center text-gray-100">
+        <h1 className="text-2xl font-semibold text-center text-gray-100 font-poppins">
           Admin Panel
         </h1>
       </div>
 
-      <nav className="flex-1 space-y-2">
+      <nav className="flex-1 space-y-2 font-poppins">
         {[
           {
             id: "dashboard",
@@ -87,7 +87,7 @@ const AdminSidebarNav = ({ handleNavigation }) => {
 
       <button
         onClick={handleLogout}
-        className="mt-8 flex items-center justify-center md:justify-start gap-2 py-3 px-4 bg-red-600 rounded-lg hover:bg-red-700 transition-all duration-300"
+        className="font-poppins mt-8 flex items-center justify-center md:justify-start gap-2 py-3 px-4 bg-red-600 rounded-lg hover:bg-red-700 transition-all duration-300"
       >
         <MdLogout className="w-6 h-6" />
         <span>Logout</span>

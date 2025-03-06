@@ -12,11 +12,9 @@ import {
 } from "chart.js";
 import { useEffect, useState } from "react";
 import { Bar, Line, Pie } from "react-chartjs-2";
-import { FaBell, FaBriefcase, FaClock, FaUsers } from "react-icons/fa";
+import { FaBriefcase, FaClock, FaUsers } from "react-icons/fa";
 import AdminDashboardSkeletonLoader from "../components/AdminDashboardSkeletonLoader";
 import { adminStore } from "../stores/adminApi";
-import { authStore } from "../stores/authStore";
-import { useNavigate } from "react-router-dom";
 
 ChartJS.register(
   CategoryScale,
@@ -31,8 +29,6 @@ ChartJS.register(
 );
 
 const AdminDashboard = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
 
   const {
     totalUsers,
@@ -49,13 +45,6 @@ const AdminDashboard = () => {
     error,
   } = adminStore();
 
-  const {
-    notifications,
-    clearNotifications,
-    fetchNotifications,
-    markAllNotificationsAsRead,
-  } = authStore();
-  const unreadCount = notifications.filter((notif) => !notif.isRead).length;
 
   const [barData, setBarData] = useState({
     labels: ["Applicants", "Employers", "Users"],
@@ -121,7 +110,6 @@ const AdminDashboard = () => {
     getTotalApplicants();
     getEmployerVerificationId();
     getPWDVerificationId();
-    fetchNotifications();
     getDisabilityCounts();
   }, [
     getTotalUsers,
@@ -129,7 +117,6 @@ const AdminDashboard = () => {
     getTotalApplicants,
     getEmployerVerificationId,
     getPWDVerificationId,
-    fetchNotifications,
     getDisabilityCounts,
   ]);
 
@@ -188,123 +175,46 @@ const AdminDashboard = () => {
       <div className="text-center text-xl font-semibold">{`Error: ${error}`}</div>
     );
   }
-
-  const handleNotificationClick = (notif) => {
-    switch (notif.type) {
-      case "newUserRegistration":
-        if (notif.userRole === "Applicant") {
-          navigate(`/admin/ApplicantList`);
-        } else if (notif.userRole === "Employer") {
-          navigate(`/admin/EmployerList`);
-        } else {
-          console.log("Unknown user role:", notif.userRole);
-        }
-        break;
-      case "disabilityIdUpload":
-        navigate(`/admin/disabilityVerification`);
-        break;
-        case "interviewDeclined":
-          navigate(`/employer-interview?tab=scheduled`);
-          break;
-      case "employerIdUpload":
-        navigate(`/admin/AdminEmployerVerifyId`);
-        break;
-      default:
-        console.log("Unknown notification type:", notif.type);
-    }
-  };
   
 
   return (
     <div className="bg-gradient-to-r from-indigo-100 to-blue-200 p-8 rounded-lg shadow-xl">
-      <div className="relative">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="relative p-2 text-gray-700 hover:text-gray-900 focus:outline-none"
-        >
-          <FaBell className="w-6 h-6" />
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-              {unreadCount}
-            </span>
-          )}
-        </button>
-
-        {isOpen && (
-          <div className="absolute left-0 w-64 bg-white shadow-lg rounded-lg overflow-hidden z-50">
-            <div className="p-3 text-gray-700 font-semibold">Notifications</div>
-            {notifications.length > 0 ? (
-              <ul className="max-h-48 overflow-y-scroll no-scrollbar">
-                {notifications.map((notif, index) => (
-                  <li
-                    key={notif._id || index}
-                    onClick={() => handleNotificationClick(notif)}
-                    className={`px-4 py-2 text-sm border-b hover:bg-gray-100 ${
-                      notif.isRead ? "text-gray-500" : "text-black"
-                    }`}
-                  >
-                    {notif?.message || notif}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="p-4 text-sm text-gray-500">
-                No new notifications
-              </div>
-            )}
-
-            {notifications.length > 0 && (
-              <button
-                onClick={() => {
-                  markAllNotificationsAsRead();
-                  fetchNotifications();
-                  clearNotifications();
-                  setIsOpen(false);
-                }}
-                className="w-full py-2 text-center text-red-600 hover:bg-gray-100"
-              >
-                Clear All
-              </button>
-            )}
-          </div>
-        )}
-      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
         <div className="bg-gradient-to-t from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-md flex items-center gap-4 hover:scale-105 transform transition duration-300">
           <FaUsers size={32} />
           <div>
-            <h3 className="text-lg font-semibold">Total Applicants</h3>
-            <p className="text-xl font-bold">{totalApplicants}</p>
+            <h3 className="text-lg font-semibold font-poppins">Total Applicants</h3>
+            <p className="text-xl font-bold text-center font-poppins">{totalApplicants}</p>
           </div>
         </div>
         <div className="bg-gradient-to-t from-green-500 to-green-600 text-white p-6 rounded-lg shadow-md flex items-center gap-4 hover:scale-105 transform transition duration-300">
           <FaBriefcase size={32} />
           <div>
-            <h3 className="text-lg font-semibold">Total Employers</h3>
-            <p className="text-xl font-bold">{totalEmployers}</p>
+            <h3 className="text-lg font-semibold font-poppins">Total Employers</h3>
+            <p className="text-xl font-bold text-center font-poppins">{totalEmployers}</p>
           </div>
         </div>
         <div className="bg-gradient-to-t from-orange-500 to-orange-600 text-white p-6 rounded-lg shadow-md flex items-center gap-4 hover:scale-105 transform transition duration-300">
           <FaClock size={32} />
           <div>
-            <h3 className="text-lg font-semibold">Request Employer</h3>
-            <p className="text-xl font-bold">{pendingEmployerID}</p>
+            <h3 className="text-lg font-semibold font-poppins">Request Employer</h3>
+            <p className="text-xl font-bold text-center font-poppins">{pendingEmployerID}</p>
           </div>
         </div>
         <div className="bg-gradient-to-t from-orange-500 to-orange-600 text-white p-6 rounded-lg shadow-md flex items-center gap-4 hover:scale-105 transform transition duration-300">
           <FaClock size={32} />
           <div>
-            <h3 className="text-lg font-semibold">Request PWD</h3>
-            <p className="text-xl font-bold">{pendingPwdID}</p>
+            <h3 className="text-lg font-semibold font-poppins">Request PWD</h3>
+            <p className="text-xl font-bold text-center font-poppins">{pendingPwdID}</p>
           </div>
         </div>
       </div>
 
-      <h3 className="text-2xl font-semibold mb-6 text-center">
-        User Statistics Overview (Bar Chart)
+      <h3 className="text-2xl font-semibold mb-6 text-center font-poppins">
+        User Statistics Overview
       </h3>
-      <div className="flex justify-center items-center w-full h-64 md:h-96 bg-white p-6 rounded-lg shadow-lg overflow-auto mb-8">
+      <div className="flex justify-center items-center w-full h-64 md:h-96 bg-white p-6 rounded-lg shadow-lg overflow-auto mb-8 font-poppins">
         <Bar
           data={barData}
           options={{
@@ -333,10 +243,10 @@ const AdminDashboard = () => {
         />
       </div>
 
-      <h3 className="text-2xl font-semibold mb-6 text-center">
-        Disability Statistics Overview (Bar Chart)
+      <h3 className="text-2xl font-semibold mb-6 text-center font-poppins ">
+        Disability Statistics Overview
       </h3>
-      <div className="flex justify-center items-center w-full h-64 md:h-96 bg-white p-6 rounded-lg shadow-lg overflow-auto mb-8">
+      <div className="flex justify-center items-center w-full h-64 md:h-96 bg-white p-6 rounded-lg shadow-lg overflow-auto mb-8 font-poppins">
         <Bar
           data={disabilityChartData}
           options={{
@@ -375,7 +285,7 @@ const AdminDashboard = () => {
           style={{ maxWidth: "550px", height: "400px" }}
         >
           <div className="flex justify-center mb-6">
-            <h3 className="text-2xl font-semibold text-center">
+            <h3 className="text-2xl font-semibold text-center font-poppins">
               User Distribution (Pie Chart)
             </h3>
           </div>
@@ -399,8 +309,8 @@ const AdminDashboard = () => {
         </div>
 
         <div className="flex-1 bg-white p-6 rounded-lg shadow-lg overflow-auto">
-          <h3 className="text-2xl font-semibold mb-6 text-center">
-            User Trends Over Time (Line Graph)
+          <h3 className="text-2xl font-semibold mb-6 text-center font-poppins">
+            User Trends Over Time 
           </h3>
           <Line
             data={lineData}

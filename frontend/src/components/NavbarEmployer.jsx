@@ -1,5 +1,6 @@
-import { Bell, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
+import { FaBell } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { authStore } from "../stores/authStore";
 import { userStore } from "../stores/userStore";
@@ -48,9 +49,9 @@ const NavbarEmployer = () => {
       case "interviewConfirmed":
         navigate(`/employer-interview?tab=scheduled`);
         break;
-        case "interviewDeclined":
-          navigate(`/employer-interview?tab=scheduled`);
-          break;
+      case "interviewDeclined":
+        navigate(`/employer-interview?tab=scheduled`);
+        break;
       case "verification":
         navigate(`/employer-profile"`);
         break;
@@ -58,7 +59,6 @@ const NavbarEmployer = () => {
         console.log("Unknown notification type:", notif.type);
     }
   };
-  
 
   return (
     <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-4 shadow-lg relative">
@@ -121,10 +121,13 @@ const NavbarEmployer = () => {
         </div>
         <div className="flex items-center space-x-4">
           <button
-            onClick={toggleDropdown}
+            onClick={() => {
+              toggleDropdown();
+              markAllNotificationsAsRead();
+            }}
             className="relative cursor-pointer hover:bg-gray-700 p-2 rounded-full transition-colors"
           >
-            <Bell className="w-6 h-6" />
+            <FaBell className="w-6 h-6" fill="yellow" />
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
                 {unreadCount}
@@ -159,12 +162,12 @@ const NavbarEmployer = () => {
                   onClick={() => handleNotificationClick(notif)}
                   className={`px-4 py-2 text-sm border-b hover:bg-gray-100  cursor-pointer${
                     notif.isRead
-                      ? "text-gray-500 font-poppins"
+                      ? "text-black font-poppins"
                       : "text-black font-poppins font-semibold"
                   }`}
                 >
                   <div className="w-full ps-3">
-                    <div className="text-gray-500 text-sm mb-1.5 dark:text-gray-400 font-poppins">
+                    <div className=" text-black font-poppins">
                       {notif?.message || notif}
                     </div>
                   </div>
@@ -185,7 +188,7 @@ const NavbarEmployer = () => {
                 clearNotifications();
                 setIsDropdownOpen(false);
               }}
-              className="w-full py-2 text-center text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="w-full py-2 text-center text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-poppins"
             >
               Clear All
             </button>

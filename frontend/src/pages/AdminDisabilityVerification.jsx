@@ -37,14 +37,14 @@ const DisabilityVerification = () => {
 
   return (
     <>
-      <h2 className="text-3xl font-semibold mb-8 text-center text-gray-800">
+      <h2 className="text-3xl font-semibold mb-8 text-center text-gray-800 font-poppins">
         Disability Verification
       </h2>
 
       {Array.isArray(totaluploaddisability) &&
       totaluploaddisability.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border border-gray-200">
+          <table className="min-w-full bg-white border border-gray-200 font-poppins">
             <thead>
               <tr className="bg-gray-100">
                 <th className="py-4 px-6 border-b text-left">User ID</th>
@@ -56,7 +56,7 @@ const DisabilityVerification = () => {
                 <th className="py-4 px-6 border-b text-center   min-w-[250px]">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="font-poppins">
               {[...totaluploaddisability].reverse().map((user) => (
                 <tr
                   key={user.userId}

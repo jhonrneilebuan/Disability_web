@@ -670,39 +670,60 @@ export const jobStore = create((set, get) => ({
     }
   },
 
-  applyJobs: async ({ jobId, coverLetter, accessibilityNeeds, resume, additionalFiles }) => {
+  applyJobs: async ({
+    jobId,
+    coverLetter,
+    accessibilityNeeds,
+    resume,
+    additionalFiles,
+  }) => {
     set({ isLoading: true, error: null });
     try {
       const formData = new FormData();
       formData.append("jobId", jobId);
       formData.append("coverLetter", coverLetter);
       formData.append("accessibilityNeeds", accessibilityNeeds);
-      
+
       if (resume) {
         formData.append("resume", resume);
       }
-      
+
       if (additionalFiles && additionalFiles.length > 0) {
         additionalFiles.forEach((file) => {
           formData.append("additionalFiles", file);
         });
       }
-      
-      const response = await axios.post(`${API_URL}/applications/apply`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+
+      const response = await axios.post(
+        `${API_URL}/applications/apply`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      toast.success(
+        response.data.message || "Application submitted successfully."
+      );
+      set({
+        message: response.data.message || "Application submitted successfully.",
+        isLoading: false,
       });
-      
-      toast.success(response.data.message || "Application submitted successfully.");
-      set({ message: response.data.message || "Application submitted successfully.", isLoading: false });
     } catch (error) {
       if (error.response && error.response.status === 409) {
         throw new Error("You have already applied for this job.");
       } else {
         console.error("Error applying for job:", error);
-        console.error("Error applying for job:", JSON.stringify(error, null, 2));
-        set({ error: error.response?.data?.error || "Error applying for job", isLoading: false });
+        console.error(
+          "Error applying for job:",
+          JSON.stringify(error, null, 2)
+        );
+        set({
+          error: error.response?.data?.error || "Error applying for job",
+          isLoading: false,
+        });
         throw error;
       }
     }
@@ -715,7 +736,7 @@ export const jobStore = create((set, get) => ({
     jobDescription,
     jobCategory,
     locations,
-    preferredLanguages, 
+    preferredLanguages,
     jobQualifications,
     jobType,
     jobShift,
@@ -737,9 +758,12 @@ export const jobStore = create((set, get) => ({
       formData.append("jobCategory", jobCategory);
 
       if (preferredLanguages && preferredLanguages.length > 0) {
-        formData.append("preferredLanguages", JSON.stringify(preferredLanguages));
+        formData.append(
+          "preferredLanguages",
+          JSON.stringify(preferredLanguages)
+        );
       } else {
-        formData.append("preferredLanguages", JSON.stringify(["Any"])); 
+        formData.append("preferredLanguages", JSON.stringify(["Any"]));
       }
 
       formData.append("jobQualifications", jobQualifications);
@@ -749,9 +773,12 @@ export const jobStore = create((set, get) => ({
       formData.append("applyWithLink", applyWithLink);
 
       if (preferredDisabilities && preferredDisabilities.length > 0) {
-        formData.append("preferredDisabilities", JSON.stringify(preferredDisabilities));
+        formData.append(
+          "preferredDisabilities",
+          JSON.stringify(preferredDisabilities)
+        );
       } else {
-        formData.append("preferredDisabilities", JSON.stringify([])); 
+        formData.append("preferredDisabilities", JSON.stringify([]));
       }
 
       if (locations) {
@@ -898,23 +925,36 @@ export const jobStore = create((set, get) => ({
 
   updateJob: async (jobId, updatedData) => {
     set({ isLoading: true, error: null });
+
     try {
+      const formData = new FormData();
+
+      Object.keys(updatedData).forEach((key) => {
+        if (key === "jobAttachment" && updatedData[key]) {
+          formData.append("jobAttachment", updatedData[key]);
+        } else {
+          formData.append(key, updatedData[key]);
+        }
+      });
+
       const response = await axios.put(
         `${API_URL}/jobs/update/${jobId}`,
-        updatedData,
+        formData,
         {
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "multipart/form-data",
           },
           withCredentials: true,
         }
       );
-      set({
-        jobPosts: get().jobPosts.map((job) =>
-          job._id === jobId ? response.data : job
+
+      set((state) => ({
+        jobPosts: state.jobPosts.map((job) =>
+          job._id === jobId ? { ...job, ...response.data.job } : job
         ),
         isLoading: false,
-      });
+      }));
+
       toast.success(response.data.message || "Job updated successfully.");
       return response.data;
     } catch (error) {

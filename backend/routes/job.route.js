@@ -32,7 +32,7 @@ router.get("/:id", getJobById);
 
 router.delete("/:id", verifyToken, deleteJobById)
 
-router.put("/update/:jobId", verifyToken, employerOnly, updateJob);
+router.put("/update/:jobId", verifyToken, uploadFiles ,employerOnly, updateJob);
 
 
 export default router;

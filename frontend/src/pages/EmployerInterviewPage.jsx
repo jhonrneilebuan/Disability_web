@@ -135,6 +135,7 @@ const EmployerInterviewPage = () => {
 
     try {
       await scheduleInterview(selectedApplicant.id, interviewDetails);
+      await getShortlistedApplicant();
       closeModal();
     } catch (error) {
       setFormError(error || "Failed to schedule interview. Please try again.");

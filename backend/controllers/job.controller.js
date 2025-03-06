@@ -95,7 +95,6 @@ export const createJob = async (req, res) => {
 
     const jobAttachmentPath = req.files?.jobAttachment?.[0]?.path || null;
 
-
     const finalCompanyName =
       companyName || employer.employerInformation?.companyName;
     const finalLocations = locations || [
@@ -349,8 +348,6 @@ export const updateJob = async (req, res) => {
   try {
     const { jobId } = req.params;
     const employerId = req.userId;
-    console.log("Job ID:", jobId);
-    console.log("Employer ID:", employerId);
 
     const job = await Job.findOne({ _id: jobId, employer: employerId });
 
@@ -367,72 +364,89 @@ export const updateJob = async (req, res) => {
       jobDescription,
       jobCategory,
       locations,
-      preferredLanguages,
       jobQualifications,
       jobType,
       jobShift,
       jobLevel,
       applyWithLink,
       jobSkills,
+      preferredLanguages,
       preferredDisabilities,
+      expectedSalary,
     } = req.body;
 
-    let expectedSalary;
-    if (req.body.expectedSalary) {
-      if (typeof req.body.expectedSalary === "string") {
-        try {
-          expectedSalary = JSON.parse(req.body.expectedSalary);
-        } catch (error) {
-          console.error("Error parsing expectedSalary:", error);
-          return res
-            .status(400)
-            .json({ message: "Invalid expectedSalary format" });
-        }
-      } else {
-        expectedSalary = req.body.expectedSalary;
+    let parsedExpectedSalary = job.expectedSalary;
+    if (expectedSalary) {
+      try {
+        parsedExpectedSalary =
+          typeof expectedSalary === "string"
+            ? JSON.parse(expectedSalary)
+            : expectedSalary;
+      } catch (error) {
+        console.error("Error parsing expectedSalary:", error);
       }
     }
 
-    // let jobAttachmentPath = job.jobAttachment;
+    let sanitizedPreferredDisabilities = job.preferredDisabilities;
+    if (preferredDisabilities) {
+      try {
+        sanitizedPreferredDisabilities =
+          typeof preferredDisabilities === "string"
+            ? JSON.parse(preferredDisabilities)
+            : Array.isArray(preferredDisabilities)
+            ? preferredDisabilities
+            : job.preferredDisabilities;
+      } catch (error) {
+        sanitizedPreferredDisabilities = preferredDisabilities
+          .split(",")
+          .map((disability) => disability.trim());
+      }
+    }
 
-    // if (
-    //   req.files &&
-    //   req.files.jobAttachment &&
-    //   req.files.jobAttachment.length > 0
-    // ) {
-    //   const jobAttachment = req.files.jobAttachment[0];
-    //   jobAttachmentPath = `http://localhost:8080/uploads/${jobAttachment.filename}`;
-    // }
+    let parsedPreferredLanguages = job.preferredLanguages;
+    if (preferredLanguages) {
+      try {
+        parsedPreferredLanguages =
+          typeof preferredLanguages === "string"
+            ? JSON.parse(preferredLanguages)
+            : Array.isArray(preferredLanguages)
+            ? preferredLanguages
+            : job.preferredLanguages;
+      } catch (error) {
+        console.error("Error parsing preferredLanguages:", error);
+      }
+    }
 
-    const jobAttachmentPath = req.files?.jobAttachment?.[0]?.filename
-      ? `http://localhost:8080/uploads/${req.files.jobAttachment[0].filename}`
+    const jobAttachmentPath = req.files?.jobAttachment?.[0]?.path
+      ? req.files.jobAttachment[0].path
       : job.jobAttachment;
 
-    job.companyName = companyName || job.companyName;
-    job.applicationDeadline = applicationDeadline || job.applicationDeadline;
-    job.jobTitle = jobTitle || job.jobTitle;
-    job.jobDescription = jobDescription || job.jobDescription;
-    job.jobCategory = jobCategory || job.jobCategory;
-    job.locations = locations || job.locations;
-    job.preferredLanguages = preferredLanguages || job.preferredLanguages;
-    job.jobQualifications = jobQualifications || job.jobQualifications;
-    job.jobType = jobType || job.jobType;
-    job.jobShift = jobShift || job.jobShift;
-    job.jobLevel = jobLevel || job.jobLevel;
-    job.applyWithLink = applyWithLink || job.applyWithLink;
-    job.jobSkills = jobSkills || job.jobSkills;
-    job.expectedSalary = expectedSalary || job.expectedSalary;
-    job.jobAttachment = jobAttachmentPath;
-    job.preferredDisabilities =
-      preferredDisabilities?.length > 0
-        ? preferredDisabilities
-        : job.preferredDisabilities;
+    Object.assign(job, {
+      companyName: companyName || job.companyName,
+      applicationDeadline: applicationDeadline || job.applicationDeadline,
+      jobTitle: jobTitle || job.jobTitle,
+      jobDescription: jobDescription || job.jobDescription,
+      jobCategory: jobCategory || job.jobCategory,
+      locations: locations || job.locations,
+      jobQualifications: jobQualifications || job.jobQualifications,
+      jobType: jobType || job.jobType,
+      jobShift: jobShift || job.jobShift,
+      jobLevel: jobLevel || job.jobLevel,
+      applyWithLink: applyWithLink || job.applyWithLink,
+      jobSkills: jobSkills || job.jobSkills,
+      expectedSalary: parsedExpectedSalary,
+      jobAttachment: jobAttachmentPath,
+      preferredLanguages: parsedPreferredLanguages,
+      preferredDisabilities: sanitizedPreferredDisabilities.length
+        ? sanitizedPreferredDisabilities
+        : job.preferredDisabilities,
+    });
 
     await job.save();
 
     res.status(200).json({
       message: "Job updated successfully",
-      job: { ...job._doc },
+      job: job.toObject(),
     });
   } catch (error) {
     console.error("Error updating job:", error);

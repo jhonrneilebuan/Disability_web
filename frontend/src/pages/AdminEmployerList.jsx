@@ -109,11 +109,11 @@ const EmployerList = () => {
   }
 
   return (
-    <div className="p-6 bg--100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">EMPLOYER LIST</h1>
-      {error && <p className="text-center text-red-500">{error}</p>}
+    <div className="p-6 min-h-screen">
+      <h1 className="text-2xl font-bold mb-4 font-poppins">EMPLOYER LIST</h1>
+      {error && <p className="text-center text-red-500 font-poppins">{error}</p>}
 
-      <div className="flex space-x-4 mb-6">
+      <div className="flex space-x-4 mb-6 font-poppins">
         <input
           type="text"
           placeholder="Search by name"
@@ -124,7 +124,7 @@ const EmployerList = () => {
         <select
           value={filterBanned}
           onChange={(e) => setFilterBanned(e.target.value)}
-          className="p-2 border rounded-md"
+          className="p-2 px-6 border rounded-md font-poppins appearance-none"
         >
           <option value="All">All Status</option>
           <option value="true">Banned</option>
@@ -132,10 +132,10 @@ const EmployerList = () => {
         </select>
       </div>
 
-      <div className="bg-white p-4 shadow rounded-md">
+      <div>
         <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-gray-200">
+            <tr className="bg-gray-200 font-poppins">
               <th className="p-2 border">Full Name</th>
               <th className="p-2 border">Email</th>
               <th className="p-2 border">Banned</th>
@@ -144,13 +144,13 @@ const EmployerList = () => {
           </thead>
           <tbody>
             {sortedEmployers.map((user) => (
-              <tr key={user._id} className="text-center border">
-                <td className="p-2 border">{user.fullName}</td>
-                <td className="p-2 border">{user.email}</td>
-                <td className="p-2 border">{user.banned ? "Yes" : "No"}</td>
-                <td className="p-2 border space-x-2">
+              <tr key={user._id} className="border font-poppins">
+                <td className="p-2 border text-left">{user.fullName}</td>
+                <td className="p-2 border text-left">{user.email}</td>
+                <td className="p-2 border text-center">{user.banned ? "Yes" : "No"}</td>
+                <td className="p-2 border space-x-2 text-center">
                   <button
-                    className="bg-blue-500 text-white p-1 rounded"
+                    className="bg-blue-500 text-white py-2 px-4  rounded"
                     onClick={() => {
                       setSelectedUser(user);
                       setFormData({ ...user, password: "" });
@@ -160,7 +160,7 @@ const EmployerList = () => {
                     View
                   </button>
                   <button
-                    className="bg-red-500 text-white p-1 rounded"
+                    className="bg-red-500 text-white py-2 px-4 rounded"
                     onClick={() => {
                       setUserToDelete(user._id);
                       setIsDeleteModalOpen(true);
@@ -169,7 +169,7 @@ const EmployerList = () => {
                     Delete
                   </button>
                   <button
-                    className={`p-1 rounded ${
+                    className={`py-2 px-4  rounded ${
                       user.banned ? "bg-yellow-500" : "bg-gray-500"
                     } text-white`}
                     onClick={() => handleBanToggle(user)}
@@ -184,7 +184,7 @@ const EmployerList = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center font-poppins">
           <div className="bg-white p-6 rounded-md w-1/2">
             <h2 className="text-xl font-bold mb-4">User Details</h2>
             <form onSubmit={handleUpdateSubmit}>
@@ -307,7 +307,7 @@ const EmployerList = () => {
       )}
 
       {isDeleteModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center font-poppins">
           <div className="bg-white p-6 rounded-md w-96">
             <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
             <p className="mb-6">
@@ -324,7 +324,7 @@ const EmployerList = () => {
                 onClick={handleDelete}
                 className="bg-red-500 text-white px-4 py-2 rounded"
               >
-                OK
+                Confirm
               </button>
             </div>
           </div>

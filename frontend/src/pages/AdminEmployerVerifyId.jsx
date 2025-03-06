@@ -37,7 +37,7 @@ const AdminEmployerVerifyId = () => {
 
   return (
     <>
-      <h2 className="text-3xl font-semibold mb-8 text-center text-gray-800">
+      <h2 className="text-3xl font-semibold mb-8 text-center text-gray-800 font-poppins">
         Employer Verification
       </h2>
 
@@ -45,7 +45,7 @@ const AdminEmployerVerifyId = () => {
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-200">
             <thead>
-              <tr className="bg-gray-100">
+              <tr className="bg-gray-100 font-poppins">
                 <th className="py-4 px-6 border-b text-left">User ID</th>
                 <th className="py-4 px-6 border-b text-left">Employer Name</th>
                 <th className="py-4 px-6 border-b text-center">
@@ -57,7 +57,7 @@ const AdminEmployerVerifyId = () => {
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="font-poppins">
               {[...totaluploademployer].reverse().map((employer) => (
                 <tr
                   key={employer.userId}

@@ -7,10 +7,10 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useEffect, useState,  } from "react";
+import { useEffect, useState } from "react";
+import { FaBell } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { authStore } from "../stores/authStore";
-import { FaBell } from 'react-icons/fa';
 const Navbar = () => {
   const {
     user,
@@ -57,12 +57,12 @@ const Navbar = () => {
       case "interviewCompleted":
         navigate(`/job`);
         break;
-        case "applicationShortlisted":
+      case "applicationShortlisted":
         navigate(`/job`);
         break;
-        case "applicationRejected":
-          navigate(`/job`);
-          break;
+      case "applicationRejected":
+        navigate(`/job`);
+        break;
       case "verification":
         navigate(`/profile-info"`);
         break;
@@ -221,12 +221,15 @@ const Navbar = () => {
             Messaging
           </Link>
           <button
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => {
+              setIsOpen(!isOpen);
+              markAllNotificationsAsRead();
+            }}
             className="relative p-2 text-gray-700 hover:text-gray-900 focus:outline-none"
           >
-            <FaBell className="w-6 h-6" fill="gray" />
+            <FaBell className="w-6 h-6" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+              <span className="absolute top-0 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white font-poppins">
                 {unreadCount}
               </span>
             )}
@@ -376,7 +379,7 @@ const Navbar = () => {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg overflow-hidden z-50 mr-2">
-          <div className="p-3 text-gray-700 font-semibold">Notifications</div>
+          <div className="p-3 text-gray-700 font-semibold font-poppins text-center">Notifications</div>
           {notifications.length > 0 ? (
             <ul className="max-h-48 overflow-y-scroll no-scrollbar">
               {notifications.map((notif, index) => (
@@ -384,7 +387,9 @@ const Navbar = () => {
                   key={notif._id || index}
                   onClick={() => handleNotificationClick(notif)}
                   className={`px-4 py-2 text-sm border-b hover:bg-gray-100 cursor-pointer ${
-                    notif.isRead ? "text-gray-500 font-poppins" : "text-black font-poppins font-semibold"
+                    notif.isRead
+                      ? "text-gray-500 font-poppins"
+                      : "text-black font-poppins font-medium"
                   }`}
                 >
                   {notif?.message || notif}
@@ -401,11 +406,11 @@ const Navbar = () => {
             <button
               onClick={() => {
                 markAllNotificationsAsRead();
-                fetchNotifications(); 
+                fetchNotifications();
                 clearNotifications();
                 setIsOpen(false);
               }}
-              className="w-full py-2 text-center text-red-600 hover:bg-gray-100"
+              className="w-full py-2 text-center text-red-600 hover:bg-gray-100 font-poppins"
             >
               Clear All
             </button>

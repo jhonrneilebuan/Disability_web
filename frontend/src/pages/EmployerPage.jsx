@@ -230,6 +230,15 @@ const EmployerPage = () => {
                     data={totalDataOfApplicants}
                     options={{
                       responsive: true,
+                      scales: {
+                        y: {
+                          ticks: {
+                            stepSize: 1,
+                            callback: (value) =>
+                              Number.isInteger(value) ? value : null,
+                          },
+                        },
+                      },
                       plugins: {
                         legend: { position: "top" },
                         title: { display: true, text: "Applicants Over Time" },
@@ -237,7 +246,9 @@ const EmployerPage = () => {
                     }}
                   />
                 ) : (
-                  <p className="text-center text-gray-500 font-poppins">No data available</p>
+                  <p className="text-center text-gray-500 font-poppins">
+                    No data available
+                  </p>
                 )}
               </div>
 
@@ -247,8 +258,10 @@ const EmployerPage = () => {
                 </h3>
                 {isChartLoading ? (
                   <SkeletonLoader className="h-48" />
-                ) : !chartData ? ( 
-                  <p className="text-center text-gray-500 font-poppins">No data available</p>
+                ) : !chartData ? (
+                  <p className="text-center text-gray-500 font-poppins">
+                    No data available
+                  </p>
                 ) : (
                   <Bar
                     data={chartData}

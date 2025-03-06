@@ -42,7 +42,7 @@ const ViewModal = ({ open, onClose, job }) => {
 
   return (
     <Modal open={open} onClose={onClose}>
-      <div className="p-8 bg-white rounded-lg w-[800px] max-h-[80vh] overflow-y-auto">
+      <div className="p-8 bg-white rounded-lg w-[800px] max-h-[80vh] overflow-y-auto font-poppins">
         <h2 className="text-2xl font-bold text-center text-gray-900 mb-8 tracking-wide">
           Job Details
         </h2>
@@ -145,7 +145,7 @@ const ViewModal = ({ open, onClose, job }) => {
 
         <div className="mt-8 flex justify-center">
           <button
-            className="px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-full px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             onClick={onClose}
           >
             Close

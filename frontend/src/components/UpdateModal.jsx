@@ -13,9 +13,12 @@ const UpdateModal = ({ open, onClose, job }) => {
   const { updateJob, getEmployerJobs } = jobStore();
   const [keepPreviousAttachment, setKeepPreviousAttachment] = useState(true);
   const [showFileInput, setShowFileInput] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+
   const [showApplyWithLink, setShowApplyWithLink] = useState(
     !!job?.applyWithLink
   );
+
 
   const formik = useFormik({
     initialValues: {
@@ -26,16 +29,23 @@ const UpdateModal = ({ open, onClose, job }) => {
       applicationDeadline: job?.applicationDeadline
         ? new Date(job.applicationDeadline).toISOString().split("T")[0]
         : "",
-      preferredLanguage: job?.preferredLanguage
-        ? { value: job.preferredLanguage, label: job.preferredLanguage }
-        : null,
+      preferredLanguages: Array.isArray(job?.preferredLanguages)
+        ? job.preferredLanguages.map((lang) => ({ label: lang, value: lang }))
+        : [],
       preferredDisabilities: job?.preferredDisabilities
         ? job.preferredDisabilities.map((disability) => ({
             label: disability,
             value: disability,
           }))
         : [],
-      jobSkills: Array.isArray(job?.jobSkills) ? job.jobSkills : [],
+      jobSkills: Array.isArray(job?.jobSkills)
+        ? job.jobSkills.length === 1 && typeof job.jobSkills[0] === "string"
+          ? job.jobSkills[0].split(",").map((skill) => skill.trim())
+          : job.jobSkills 
+        : typeof job?.jobSkills === "string"
+        ? job.jobSkills.split(",").map((skill) => skill.trim()) 
+        : [],
+
       applyWithLink: job?.applyWithLink || "",
       jobType: job?.jobType || "",
       jobShift: job?.jobShift || "",
@@ -48,74 +58,57 @@ const UpdateModal = ({ open, onClose, job }) => {
       locations: Array.isArray(job?.locations)
         ? job.locations.join(", ")
         : job?.locations || "",
-
       jobAttachment: null,
-
-      // jobAttachment: job?.jobAttachment,
       previousAttachment: job?.jobAttachment,
     },
+
     enableReinitialize: true,
     validationSchema: jobPostSchema(keepPreviousAttachment),
     onSubmit: async (values) => {
-      console.log("Form values on submit:", values);
-      console.log("keepPreviousAttachment on submit:", keepPreviousAttachment);
-      console.log("jobAttachment on submit:", values.jobAttachment);
-      console.log("previousAttachment on submit:", values.previousAttachment);
-
       try {
         const jobData = {
           ...values,
-          preferredLanguage: values.preferredLanguage
-            ? values.preferredLanguage.value
-            : "Any",
+          preferredLanguages: values.preferredLanguages.map(
+            (lang) => lang.value
+          ),
           preferredDisabilities: values.preferredDisabilities.map(
             (disability) => disability.value
           ),
-          // jobAttachment: keepPreviousAttachment
-          // ? values.previousAttachment
-          // : values.jobAttachment || values.previousAttachment,
-          jobAttachment: keepPreviousAttachment
-            ? values.previousAttachment
-            : values.jobAttachment,
+          jobAttachment:
+            values.jobAttachment ||
+            (keepPreviousAttachment ? values.previousAttachment : null),
         };
 
-        console.log("Job data being submitted:", jobData);
-
-        // await updateJob(job._id, jobData);
         const updatedJob = await updateJob(job._id, jobData);
-        console.log("Job updated successfully");
         setIsSuccess(true);
         formik.setFieldValue("previousAttachment", updatedJob.jobAttachment);
-        console.log("Updated previousAttachment:", updatedJob.jobAttachment);
+        formik.setFieldValue("jobAttachment", null);
+        setKeepPreviousAttachment(true);
+        console.log("Final job data being sent:", jobData);
         await getEmployerJobs();
       } catch (error) {
         console.error("Error updating job:", error);
-        if (error.response && error.response.status === 401) {
-          alert("You are not authorized to update this job.");
-        } else if (error.response && error.response.status === 404) {
-          alert(
-            "The job with the given ID does not exist or you are not authorized to update it."
-          );
-        } else {
-          alert("There was an error updating your job. Please try again.");
-        }
+        alert("There was an error updating your job. Please try again.");
       }
     },
   });
 
   const handleSkillInputChange = (e) => {
-    if ((e.key === "," || e.key === "Enter") && e.target.value.trim()) {
-      e.preventDefault();
-      const newSkill = e.target.value.trim();
-      if (!formik.values.jobSkills.includes(newSkill)) {
-        formik.setFieldValue("jobSkills", [
-          ...formik.values.jobSkills,
-          newSkill,
-        ]);
-        console.log("Skill added:", newSkill);
-      }
-      e.target.value = "";
+    if ((e.key === "," || e.key === "Enter") && inputValue.trim()) {
+      addSkill(inputValue);
     }
+  };
+
+  const handleDropdownChange = (e) => {
+    const selectedSkill = e.target.value;
+    if (selectedSkill) addSkill(selectedSkill);
+  };
+
+  const addSkill = (skill) => {
+    if (skill && !formik.values.jobSkills.includes(skill)) {
+      formik.setFieldValue("jobSkills", [...formik.values.jobSkills, skill]);
+    }
+    setInputValue("");
   };
 
   const removeSkill = (skillToRemove) => {
@@ -123,8 +116,48 @@ const UpdateModal = ({ open, onClose, job }) => {
       "jobSkills",
       formik.values.jobSkills.filter((skill) => skill !== skillToRemove)
     );
-    console.log("Skill removed:", skillToRemove);
   };
+
+  const predefinedSkills = [
+    "Software Development",
+    "Cybersecurity",
+    "Cloud Computing",
+    "Data Analysis & Visualization",
+    "System Administration",
+    "Patient Care & Safety",
+    "Medical Coding & Billing",
+    "Healthcare Administration",
+    "Clinical Research",
+    "Nursing & Clinical Support",
+    "Financial Analysis",
+    "Accounting & Bookkeeping",
+    "Budgeting & Forecasting",
+    "Investment Management",
+    "Risk Management",
+    "Project Management ",
+    "Team Leadership",
+    "Strategic Planning",
+    "Operations Management",
+    "Performance Evaluation",
+    "Curriculum Development",
+    "Classroom Management",
+    "E-Learning & Educational Technology",
+    "Instructional Design",
+    "Student Assessment",
+    "Graphic Design ",
+    "UI/UX Design",
+    "Product & Industrial Design",
+    "Web & Mobile Design",
+    "Animation & Motion Graphics",
+    "Digital Marketing ",
+    "Content Marketing",
+    "Social Media Marketing",
+    "Market Research & Analysis",
+    "Email Marketing & Automation",
+    "B2B/B2C Sales Strategies",
+    "Lead Generation & Prospecting",
+    "Negotiation & Closing",
+  ];
 
   if (isSuccess) {
     return (
@@ -160,7 +193,10 @@ const UpdateModal = ({ open, onClose, job }) => {
   return (
     <Modal open={open} onClose={onClose}>
       <div className="p-8 bg-white rounded-lg w-[800px] max-h-[80vh] overflow-y-auto">
-        <form onSubmit={formik.handleSubmit} className="space-y-6 w-full">
+        <form
+          onSubmit={formik.handleSubmit}
+          className="space-y-6 w-full font-poppins"
+        >
           <h2 className="text-2xl font-bold text-center text-gray-900 mb-8 tracking-wide">
             Update Job
           </h2>
@@ -298,25 +334,27 @@ const UpdateModal = ({ open, onClose, job }) => {
                 </p>
               )}
           </div>
+
           <div>
             <label className="text-sm font-medium block mb-2">
-              Preferred Language
+              Preferred Languages
             </label>
             <Select
               options={languageOptions}
-              value={formik.values.preferredLanguage}
+              value={formik.values.preferredLanguages}
               onChange={(selected) => {
-                formik.setFieldValue("preferredLanguage", selected);
-                console.log("Preferred Language:", selected);
+                formik.setFieldValue("preferredLanguages", selected);
+                console.log("Preferred Languages:", selected);
               }}
               onBlur={formik.handleBlur}
+              isMulti
               isClearable
               className="w-full"
             />
-            {formik.touched.preferredLanguage &&
-              formik.errors.preferredLanguage && (
+            {formik.touched.preferredLanguages &&
+              formik.errors.preferredLanguages && (
                 <p className="text-red-500 text-sm">
-                  {formik.errors.preferredLanguage}
+                  {formik.errors.preferredLanguages}
                 </p>
               )}
           </div>
@@ -482,22 +520,51 @@ const UpdateModal = ({ open, onClose, job }) => {
             )}
           </div>
           <div>
-            <label className="text-sm font-medium block mb-2">Job Skills</label>
-            <div className="w-full border rounded-lg p-2">
+            <label className="text-sm font-medium block mb-2">
+              Job Skills <span className="text-red-500">*</span>
+            </label>
+
+            <div className="flex w-full gap-2">
               <input
                 type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleSkillInputChange}
-                className="w-full border-none outline-none"
-                placeholder="Enter skills (press ',' or 'Enter' to add)"
+                className="flex-1 border rounded-lg p-2 outline-none"
+                placeholder="Input skills"
               />
+              <button
+                type="button"
+                onClick={() => addSkill(inputValue)}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600"
+              >
+                Add
+              </button>
             </div>
+
+            <select
+              onChange={handleDropdownChange}
+              className="w-full mt-2 p-2 border rounded-lg"
+            >
+              <option value="">Select a skill</option>
+              {predefinedSkills.map((skill) => (
+                <option key={skill} value={skill}>
+                  {skill}
+                </option>
+              ))}
+            </select>
+
+            {formik.touched.jobSkills && formik.errors.jobSkills && (
+              <p className="text-red-500 text-sm">{formik.errors.jobSkills}</p>
+            )}
+
             <div className="flex flex-wrap gap-2 mt-2">
               {formik.values.jobSkills.map((skill, index) => (
                 <div
                   key={index}
                   className="flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium"
                 >
-                  {skill.replace(/["[\]]/g, "")}
+                  {skill}
                   <button
                     type="button"
                     className="ml-2 text-blue-700 hover:text-blue-900"
@@ -508,54 +575,38 @@ const UpdateModal = ({ open, onClose, job }) => {
                 </div>
               ))}
             </div>
-            {formik.touched.jobSkills && formik.errors.jobSkills && (
-              <p className="text-red-500 text-sm">{formik.errors.jobSkills}</p>
-            )}
           </div>
           <div>
             <label className="text-sm font-medium block mb-2">
               Job Attachment
             </label>
-            {formik.values.previousAttachment && !showFileInput && (
-              <div className="mt-2 flex items-center">
-                <span className="text-sm text-gray-600">
-                  Previously attached:
-                </span>
-                <a
-                  href={formik.values.previousAttachment}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-2 text-blue-500 hover:underline text-sm"
-                >
-                  View File
-                </a>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowFileInput(true);
-                    setKeepPreviousAttachment(false);
-                  }}
-                  className="ml-2 text-red-500 hover:text-red-700 text-sm"
-                >
-                  Change File
-                </button>
-              </div>
-            )}
-            {/* {showFileInput && (
-              <input
-                type="file"
-                name="jobAttachment"
-                onChange={(e) => {
-                  formik.setFieldValue(
-                    "jobAttachment",
-                    e.currentTarget.files[0] || formik.values.previousAttachment 
-                  );
-                  console.log("Job Attachment:", e.currentTarget.files[0]);
-                }}
-                onBlur={formik.handleBlur}
-                className="block w-full mt-1 text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 focus:outline-none"
-              />
-            )} */}
+            {formik.values.previousAttachment &&
+              !formik.values.jobAttachment && (
+                <div className="mt-2 flex items-center">
+                  <span className="text-sm text-gray-600">
+                    Previously attached:
+                  </span>
+                  <a
+                    href={formik.values.previousAttachment}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-2 text-blue-500 hover:underline text-sm"
+                  >
+                    View File
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      formik.setFieldValue("jobAttachment", null);
+                      setKeepPreviousAttachment(false);
+                      setShowFileInput(true);
+                    }}
+                    className="ml-2 text-red-500 hover:text-red-700 text-sm"
+                  >
+                    Change File
+                  </button>
+                </div>
+              )}
             {showFileInput && (
               <input
                 type="file"
@@ -564,6 +615,7 @@ const UpdateModal = ({ open, onClose, job }) => {
                   const newFile = e.currentTarget.files[0];
                   if (newFile) {
                     formik.setFieldValue("jobAttachment", newFile);
+                    setKeepPreviousAttachment(false);
                     console.log("New Job Attachment set:", newFile);
                   } else {
                     console.log("No new file selected");
@@ -577,9 +629,8 @@ const UpdateModal = ({ open, onClose, job }) => {
               <div className="text-red-500 text-sm">
                 {formik.errors.jobAttachment}
               </div>
-            )}
+            )}{" "}
           </div>
-
           <div className="flex-1">
             <label className="flex items-center gap-4">
               <span className="text-sm font-medium">Apply with Link</span>
@@ -621,7 +672,6 @@ const UpdateModal = ({ open, onClose, job }) => {
               </div>
             )}
           </div>
-
           <button
             type="submit"
             className="w-full px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold focus:outline-none focus:ring focus:ring-blue-300"

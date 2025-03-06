@@ -6,7 +6,15 @@ import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import Sidebar from "../components/Sidebar";
 import { jobStore } from "../stores/jobStore";
-import { disabilityOptions, languageOptions } from "../utils/options";
+import {
+  disabilityOptions,
+  jobCategoryOptions,
+  jobLevelOptions,
+  jobQualificationsOptions,
+  jobShiftOptions,
+  jobTypeOptions,
+  languageOptions,
+} from "../utils/options";
 import jobPostSchema from "../validations/jobpost";
 
 const JobPosts = () => {
@@ -82,7 +90,7 @@ const JobPosts = () => {
     if (skill && !formik.values.jobSkills.includes(skill)) {
       formik.setFieldValue("jobSkills", [...formik.values.jobSkills, skill]);
     }
-    setInputValue(""); // Clear input
+    setInputValue("");
   };
 
   const removeSkill = (skillToRemove) => {
@@ -93,9 +101,9 @@ const JobPosts = () => {
   };
 
   const predefinedSkills = [
-    "Software Development (e.g., Java, Python)",
+    "Software Development",
     "Cybersecurity",
-    "Cloud Computing (e.g., AWS, Azure)",
+    "Cloud Computing ",
     "Data Analysis & Visualization",
     "System Administration",
     "Patient Care & Safety",
@@ -108,7 +116,7 @@ const JobPosts = () => {
     "Budgeting & Forecasting",
     "Investment Management",
     "Risk Management",
-    "Project Management (e.g., Agile, Scrum)",
+    "Project Management",
     "Team Leadership",
     "Strategic Planning",
     "Operations Management",
@@ -118,12 +126,12 @@ const JobPosts = () => {
     "E-Learning & Educational Technology",
     "Instructional Design",
     "Student Assessment",
-    "Graphic Design (e.g., Adobe Creative Suite)",
+    "Graphic Design",
     "UI/UX Design",
     "Product & Industrial Design",
     "Web & Mobile Design",
     "Animation & Motion Graphics",
-    "Digital Marketing (SEO, SEM)",
+    "Digital Marketing",
     "Content Marketing",
     "Social Media Marketing",
     "Market Research & Analysis",
@@ -258,36 +266,21 @@ const JobPosts = () => {
                 <label className="text-sm font-medium block mb-2">
                   Job Category <span className="text-red-500">*</span>
                 </label>
-                <select
+                <Select
                   name="jobCategory"
-                  value={formik.values.jobCategory}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className="w-full border rounded-lg p-2"
-                >
-                  <option value="">Select category</option>
-                  <option value="DESIGN">Design</option>
-                  <option value="DEVELOPMENT">Development</option>
-                  <option value="MARKETING">Marketing</option>
-                  <option value="SALES">Sales</option>
-                  <option value="ENGINEERING">Engineering</option>
-                  <option value="HR">HR</option>
-                  <option value="FINANCE">Finance</option>
-                  <option value="MANAGEMENT">Management</option>
-                  <option value="PRODUCT">Product</option>
-                  <option value="CUSTOMER_SUPPORT">Customer Support</option>
-                  <option value="OPERATIONS">Operations</option>
-                  <option value="RESEARCH">Research</option>
-                  <option value="EDUCATION">Education</option>
-                  <option value="ADMINISTRATION">Administration</option>
-                  <option value="IT">IT</option>
-                  <option value="CONSULTING">Consulting</option>
-                  <option value="HEALTHCARE">Healthcare</option>
-                  <option value="CONSTRUCTION">Construction</option>
-                  <option value="LEGAL">Legal</option>
-                  <option value="ART">Art</option>
-                  <option value="MEDIA">Media</option>
-                </select>
+                  options={jobCategoryOptions}
+                  value={jobCategoryOptions.find(
+                    (option) => option.value === formik.values.jobCategory
+                  )}
+                  onChange={(selectedOption) =>
+                    formik.setFieldValue(
+                      "jobCategory",
+                      selectedOption ? selectedOption.value : ""
+                    )
+                  }
+                  onBlur={() => formik.setFieldTouched("jobCategory", true)}
+                  className="w-full"
+                />
                 {formik.touched.jobCategory && formik.errors.jobCategory && (
                   <p className="text-red-500 text-sm">
                     {formik.errors.jobCategory}
@@ -367,20 +360,21 @@ const JobPosts = () => {
                 <label className="text-sm font-medium block mb-2">
                   Job Type <span className="text-red-500">*</span>
                 </label>
-                <select
+                <Select
                   name="jobType"
-                  value={formik.values.jobType}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className="w-full border rounded-lg p-2"
-                >
-                  <option value="">Select Job Type</option>
-                  <option value="Full-Time">Full-Time</option>
-                  <option value="Part-Time">Part-Time</option>
-                  <option value="Freelance">Freelance</option>
-                  <option value="Contract">Contract</option>
-                  <option value="Internship">Internship</option>
-                </select>
+                  options={jobTypeOptions}
+                  value={jobTypeOptions.find(
+                    (option) => option.value === formik.values.jobType
+                  )}
+                  onChange={(selectedOption) =>
+                    formik.setFieldValue(
+                      "jobType",
+                      selectedOption ? selectedOption.value : ""
+                    )
+                  }
+                  onBlur={() => formik.setFieldTouched("jobType", true)}
+                  className="w-full"
+                />
                 {formik.touched.jobType && formik.errors.jobType && (
                   <p className="text-red-500 text-sm">
                     {formik.errors.jobType}
@@ -391,20 +385,21 @@ const JobPosts = () => {
                 <label className="text-sm font-medium block mb-2">
                   Job Shift <span className="text-red-500">*</span>
                 </label>
-                <select
+                <Select
                   name="jobShift"
-                  value={formik.values.jobShift}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className="w-full border rounded-lg p-2"
-                >
-                  <option value="">Select Job Shift</option>
-                  <option value="Part-Time">Part-Time</option>
-                  <option value="Full-Time">Full-Time</option>
-                  <option value="Fixed">Fixed</option>
-                  <option value="Night-Shift">Night-Shift</option>
-                  <option value="Day-Shift">Day-Shift</option>
-                </select>
+                  options={jobShiftOptions}
+                  value={jobShiftOptions.find(
+                    (option) => option.value === formik.values.jobShift
+                  )}
+                  onChange={(selectedOption) =>
+                    formik.setFieldValue(
+                      "jobShift",
+                      selectedOption ? selectedOption.value : ""
+                    )
+                  }
+                  onBlur={() => formik.setFieldTouched("jobShift", true)}
+                  className="w-full"
+                />
                 {formik.touched.jobShift && formik.errors.jobShift && (
                   <p className="text-red-500 text-sm">
                     {formik.errors.jobShift}
@@ -418,28 +413,23 @@ const JobPosts = () => {
                 <label className="text-sm font-medium block mb-2">
                   Job Qualifications <span className="text-red-500">*</span>
                 </label>
-                <select
+                <Select
                   name="jobQualifications"
-                  value={formik.values.jobQualifications}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className="w-full border rounded-lg p-2"
-                >
-                  <option value="">Select qualification</option>
-                  <option value="">Select Education Level</option>
-                  <option value="Bachelor's Degree">
-                    Bachelor&apos;s Degree
-                  </option>
-                  <option value="High School Diploma">
-                    High School Diploma
-                  </option>
-                  <option value="Technical Training">Technical Training</option>
-                  <option value="College Undergraduate">
-                    College Undergraduate
-                  </option>
-                  <option value="Master's Degree">Master&apos;s Degree</option>
-                  <option value="Doctorate Degree">Doctorate Degree</option>
-                </select>
+                  options={jobQualificationsOptions}
+                  value={jobQualificationsOptions.find(
+                    (option) => option.value === formik.values.jobQualifications
+                  )}
+                  onChange={(selectedOption) =>
+                    formik.setFieldValue(
+                      "jobQualifications",
+                      selectedOption ? selectedOption.value : ""
+                    )
+                  }
+                  onBlur={() =>
+                    formik.setFieldTouched("jobQualifications", true)
+                  }
+                  className="w-full"
+                />
                 {formik.touched.jobQualifications &&
                   formik.errors.jobQualifications && (
                     <p className="text-red-500 text-sm">
@@ -447,25 +437,26 @@ const JobPosts = () => {
                     </p>
                   )}
               </div>
+
               <div className="flex-1">
                 <label className="text-sm font-medium block mb-2">
                   Job Level <span className="text-red-500">*</span>
                 </label>
-                <select
+                <Select
                   name="jobLevel"
-                  value={formik.values.jobLevel}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className="w-full border rounded-lg p-2"
-                >
-                  <option value="">Select level</option>
-                  <option value="Entry">Entry</option>
-                  <option value="Mid">Mid-Level</option>
-                  <option value="Senior">Senior</option>
-                  <option value="Manager">Manager</option>
-                  <option value="Officer">Officer</option>
-                  <option value="Student">Student</option>
-                </select>
+                  options={jobLevelOptions}
+                  value={jobLevelOptions.find(
+                    (option) => option.value === formik.values.jobLevel
+                  )}
+                  onChange={(selectedOption) =>
+                    formik.setFieldValue(
+                      "jobLevel",
+                      selectedOption ? selectedOption.value : ""
+                    )
+                  }
+                  onBlur={() => formik.setFieldTouched("jobLevel", true)}
+                  className="w-full"
+                />
                 {formik.touched.jobLevel && formik.errors.jobLevel && (
                   <p className="text-red-500 text-sm">
                     {formik.errors.jobLevel}
@@ -625,7 +616,7 @@ const JobPosts = () => {
               <div className="flex-1">
                 <label className="flex items-center gap-4">
                   <span className="text-sm font-medium">
-                    Add &quot;Apply with Link&quot; Field
+                    Apply with Link Field
                   </span>
                   <div className="relative inline-block w-10 h-6">
                     <input
