@@ -80,7 +80,7 @@ const EmployerJobPage = () => {
     }
   };
 
-  const handleView = (job, action) => {
+  const handleView = (job) => {
     setSelectedJob(job);
     setOpenViewModal(true);
     toggleDropdown(job._id, true);
@@ -151,10 +151,7 @@ const EmployerJobPage = () => {
             </Link>
           </div>
           <hr />
-          <div
-            key={filteredJobs.length}
-            className="pb-5"
-          >
+          <div className="pb-5">
             {isLoading ? (
               [...Array(5)].map((_, index) => (
                 <div
@@ -180,121 +177,123 @@ const EmployerJobPage = () => {
                 </div>
               ))
             ) : filteredJobs.length > 0 ? (
-              [...filteredJobs].reverse().map((job) => (
-                <div
-                  key={job._id}
-                  className="p-4 bg-white shadow-md m-2 relative"
-                >
-                  <h3 className="text-2xl font-semibold font-poppins">
-                    {job.jobTitle}
-                  </h3>
-                  <div className="flex items-center mt-2">
-                    <span className="text-sm text-gray-600 font-poppins font-semibold">
-                      {job.employer.fullName || "N/A"} |{" "}
-                      {job.companyName || "N/A"}
-                    </span>
-                  </div>
-                  <div className="flex items-center mt-2 justify-between">
-                    <div className="flex items-center">
-                      <div className="flex items-center mr-4">
-                        <BriefcaseBusiness
-                          className="h-5 w-5 font-poppins font-semibold mr-2"
-                          strokeWidth={3}
-                        />
-                        <span className="text-sm">
-                          <span className="text-blue-500 text-normal font-poppins font-semibold mr-1">
-                            {job.totalApplicants || 0}
-                          </span>
-                          <span className="text-black text-normal font-poppins font-semibold">
-                            {" "}
-                            applicants
-                          </span>
-                        </span>
-                      </div>
+              <div className="overflow-y-auto max-h-[calc(100vh-200px)]">
+                {[...filteredJobs].reverse().map((job) => (
+                  <div
+                    key={job._id}
+                    className="p-4 bg-white shadow-md m-2 relative"
+                  >
+                    <h3 className="text-2xl font-semibold font-poppins">
+                      {job.jobTitle}
+                    </h3>
+                    <div className="flex items-center mt-2">
+                      <span className="text-sm text-gray-600 font-poppins font-semibold">
+                        {job.employer.fullName || "N/A"} |{" "}
+                        {job.companyName || "N/A"}
+                      </span>
+                    </div>
+                    <div className="flex items-center mt-2 justify-between">
                       <div className="flex items-center">
-                        <Calendar className="h-5 w-5 mr-1" strokeWidth={3} />
-                        <span className="text-sm text-blue-500 text-normal font-poppins font-semibold">
-                          <FormatTimeDate
-                            date={job.createdAt}
-                            formatType="relative"
+                        <div className="flex items-center mr-4">
+                          <BriefcaseBusiness
+                            className="h-5 w-5 font-poppins font-semibold mr-2"
+                            strokeWidth={3}
                           />
+                          <span className="text-sm">
+                            <span className="text-blue-500 text-normal font-poppins font-semibold mr-1">
+                              {job.totalApplicants || 0}
+                            </span>
+                            <span className="text-black text-normal font-poppins font-semibold">
+                              {" "}
+                              applicants
+                            </span>
+                          </span>
+                        </div>
+                        <div className="flex items-center">
+                          <Calendar className="h-5 w-5 mr-1" strokeWidth={3} />
+                          <span className="text-sm text-blue-500 text-normal font-poppins font-semibold">
+                            <FormatTimeDate
+                              date={job.createdAt}
+                              formatType="relative"
+                            />
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center">
+                        <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full mr-2 font-poppins font-semibold">
+                          {job.jobCategory || "N/A"}
+                        </span>
+                        {Array.isArray(job.preferredLanguages) &&
+                        job.preferredLanguages.length > 0 ? (
+                          job.preferredLanguages.map((lang, index) => (
+                            <span
+                              key={index}
+                              className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full mr-2 font-poppins font-semibold"
+                            >
+                              {lang}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full font-poppins font-semibold">
+                            N/A
+                          </span>
+                        )}
+
+                        <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full mr-2 font-poppins font-semibold">
+                          {job.jobType || "N/A"}
+                        </span>
+                        <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full font-poppins font-semibold">
+                          {job.jobLevel || "N/A"}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center">
-                      <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full mr-2 font-poppins font-semibold">
-                        {job.jobCategory || "N/A"}
-                      </span>
-                      {Array.isArray(job.preferredLanguages) &&
-                      job.preferredLanguages.length > 0 ? (
-                        job.preferredLanguages.map((lang, index) => (
-                          <span
-                            key={index}
-                            className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full mr-2 font-poppins font-semibold"
-                          >
-                            {lang}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full font-poppins font-semibold">
-                          N/A
-                        </span>
-                      )}
-
-                      <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full mr-2 font-poppins font-semibold">
-                        {job.jobType || "N/A"}
-                      </span>
-                      <span className="text-sm text-gray-600 px-2 py-1 border border-gray-200 bg-gray-200 rounded-full font-poppins font-semibold">
-                        {job.jobLevel || "N/A"}
-                      </span>
+                    <div className="absolute top-4 right-4">
+                      <div className="relative" ref={dropdownRef}>
+                        <button
+                          className="p-2 text-gray-700 hover:bg-gray-200 rounded-full"
+                          onClick={() => toggleDropdown(job._id)}
+                        >
+                          <div className="rounded-2xl border border-1 border-gray py-2 px-2">
+                            <MoreHorizontal className="h-5 w-5 text-blue-500" />
+                          </div>
+                        </button>
+                        {isDropdownOpen === job._id && (
+                          <div className="absolute right-0 mt-2 bg-white shadow-md rounded-md w-28 z-10 font-poppins font-semibold">
+                            <button
+                              className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                              onClick={() => handleView(job)}
+                            >
+                              View
+                            </button>
+                            <button
+                              className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                              onClick={() => {
+                                setSelectedJob(job);
+                                setOpenUpdateModal(true);
+                                toggleDropdown(job._id, true);
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-100"
+                              onClick={() => {
+                                setSelectedJob(job);
+                                setOpen(true);
+                                toggleDropdown(job._id, true);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-
-                  <div className="absolute top-4 right-4">
-                    <div className="relative" ref={dropdownRef}>
-                      <button
-                        className="p-2 text-gray-700 hover:bg-gray-200 rounded-full"
-                        onClick={() => toggleDropdown(job._id)}
-                      >
-                        <div className="rounded-2xl border border-1 border-gray py-2 px-2">
-                          <MoreHorizontal className="h-5 w-5 text-blue-500" />
-                        </div>
-                      </button>
-                      {isDropdownOpen === job._id && (
-                        <div className="absolute right-0 mt-2 bg-white shadow-md rounded-md w-28 z-10 font-poppins font-semibold">
-                          <button
-                            className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                            onClick={() => handleView(job, "view")}
-                          >
-                            View
-                          </button>
-                          <button
-                            className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                            onClick={() => {
-                              setSelectedJob(job);
-                              setOpenUpdateModal(true);
-                              toggleDropdown(job._id, true);
-                            }}
-                          >
-                            Update
-                          </button>
-                          <button
-                            className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-100"
-                            onClick={() => {
-                              setSelectedJob(job);
-                              setOpen(true);
-                              toggleDropdown(job._id, true);
-                            }}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))
+                ))}
+              </div>
             ) : (
               <p className="text-center font-poppins">No jobs found.</p>
             )}
