@@ -3,9 +3,9 @@ import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 import { create } from "zustand";
 
-const API_URL = "https://disability-careers-backend.onrender.com/api";
+const API_URL = "https://disability-careers-xgxx.onrender.com/api";
 
-const BASE_URL = "https://disability-careers-backend.onrender.com/api";
+const BASE_URL = "https://disability-careers-xgxx.onrender.com";
 
 axios.defaults.withCredentials = true;
 export const authStore = create((set, get) => ({
