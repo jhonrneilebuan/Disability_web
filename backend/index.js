@@ -43,6 +43,7 @@ app.use("/api/email", emailRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/contact", contactRoutes);
 
+console.log(process.env.JWT_SECRET); 
 
 const PORT = process.env.PORT
 
