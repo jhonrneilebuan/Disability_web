@@ -1,13 +1,12 @@
-import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 const PrivacyAgreementCheckbox = ({ agreedToPrivacy, setAgreedToPrivacy }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isScrollable, setIsScrollable] = useState(false);
   const contentRef = useRef(null);
 
-  // Load agreement state from local storage on component mount
   useEffect(() => {
     const savedAgreement = localStorage.getItem("agreedToPrivacy");
     if (savedAgreement === "true") {
@@ -17,13 +16,16 @@ const PrivacyAgreementCheckbox = ({ agreedToPrivacy, setAgreedToPrivacy }) => {
 
   const handleAgree = () => {
     setAgreedToPrivacy(true);
-    localStorage.setItem("agreedToPrivacy", "true"); // Save agreement state
+    localStorage.setItem("agreedToPrivacy", "true");
     setIsModalOpen(false);
   };
 
   const handleScroll = () => {
     const content = contentRef.current;
-    if (content && content.scrollHeight - content.scrollTop <= content.clientHeight + 10) {
+    if (
+      content &&
+      content.scrollHeight - content.scrollTop <= content.clientHeight + 10
+    ) {
       setIsScrollable(true);
     }
   };
@@ -38,12 +40,15 @@ const PrivacyAgreementCheckbox = ({ agreedToPrivacy, setAgreedToPrivacy }) => {
           onChange={() => setIsModalOpen(true)}
           className="text-yellow-500 focus:ring-2 focus:ring-yellow-600 focus:ring-offset-2"
         />
-        <label htmlFor="privacyAgreement" className="ml-2 text-sm text-gray-200">
+        <label
+          htmlFor="privacyAgreement"
+          className="ml-2 text-sm text-black font-poppins "
+        >
           I agree to the{" "}
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="text-yellow-600 hover:underline"
+            className="text-yellow-600 hover:underline font-poppins"
           >
             Privacy Policy
           </button>
@@ -66,39 +71,68 @@ const PrivacyAgreementCheckbox = ({ agreedToPrivacy, setAgreedToPrivacy }) => {
               onScroll={handleScroll}
             >
               <p className="mb-2">
-                Thank you for using our job portal, dedicated to providing employment opportunities for persons with disabilities.
-                By creating an account, you agree to the following terms:
+                Thank you for using our job portal, dedicated to providing
+                employment opportunities for persons with disabilities. By
+                creating an account, you agree to the following terms:
               </p>
 
               <h3 className="font-bold mt-3">1. Data Collection and Usage</h3>
               <ul className="list-disc pl-6 mb-2">
-                <li>Your personal data, including your name, email, and job-related information, will be securely stored.</li>
-                <li>We use this information to match job seekers with inclusive employers.</li>
-                <li>Employers will have limited access to your profile and contact details to facilitate recruitment.</li>
+                <li>
+                  Your personal data, including your name, email, and
+                  job-related information, will be securely stored.
+                </li>
+                <li>
+                  We use this information to match job seekers with inclusive
+                  employers.
+                </li>
+                <li>
+                  Employers will have limited access to your profile and contact
+                  details to facilitate recruitment.
+                </li>
               </ul>
 
-              <h3 className="font-bold mt-3">2. Confidentiality and Security</h3>
+              <h3 className="font-bold mt-3">
+                2. Confidentiality and Security
+              </h3>
               <ul className="list-disc pl-6 mb-2">
-                <li>Your data will not be sold, shared, or disclosed to third parties without your consent.</li>
-                <li>Our platform employs industry-standard encryption to protect your information.</li>
+                <li>
+                  Your data will not be sold, shared, or disclosed to third
+                  parties without your consent.
+                </li>
+                <li>
+                  Our platform employs industry-standard encryption to protect
+                  your information.
+                </li>
               </ul>
 
               <h3 className="font-bold mt-3">3. User Responsibilities</h3>
               <ul className="list-disc pl-6 mb-2">
-                <li>You are responsible for maintaining the confidentiality of your login credentials.</li>
-                <li>All provided information must be accurate and truthful to support fair hiring practices.</li>
+                <li>
+                  You are responsible for maintaining the confidentiality of
+                  your login credentials.
+                </li>
+                <li>
+                  All provided information must be accurate and truthful to
+                  support fair hiring practices.
+                </li>
               </ul>
 
               <h3 className="font-bold mt-3">4. Acceptance of Terms</h3>
               <p className="mb-2">
-                By checking the agreement box, you confirm that you have read, understood, and accepted our Privacy Policy.
+                By checking the agreement box, you confirm that you have read,
+                understood, and accepted our Privacy Policy.
               </p>
 
               <p className="text-sm">
                 For more details, visit our{" "}
-                <Link to="/privacy-policy" className="text-yellow-600 hover:underline">
+                <Link
+                  to="/privacy-policy"
+                  className="text-yellow-600 hover:underline"
+                >
                   full Privacy Policy page
-                </Link>.
+                </Link>
+                .
               </p>
             </div>
 

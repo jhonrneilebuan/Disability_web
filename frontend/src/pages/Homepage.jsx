@@ -1,9 +1,33 @@
+import {
+  FaBriefcase,
+  FaChartLine,
+  FaCode,
+  FaCog,
+  FaDollarSign,
+  FaFileAlt,
+  FaGavel,
+  FaGraduationCap,
+  FaHardHat,
+  FaHeart,
+  FaIndustry,
+  FaMusic,
+  FaPaintBrush,
+  FaTv,
+  FaUsers,
+} from "react-icons/fa";
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "swiper/css";
+import "swiper/css/free-mode";
+import "swiper/css/navigation";
+import { Autoplay, FreeMode, Mousewheel, Navigation } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import ApplicantSearch from "../components/ApplicantSearch";
 import Footer from "../components/Footer";
 import FormatTimeDate from "../components/FormatTimeDate";
 import Navbar from "../components/Navbar";
-import SearchBar from "../components/Search";
+import { adminStore } from "../stores/adminApi";
 import { authStore } from "../stores/authStore";
 import { jobStore } from "../stores/jobStore";
 const Homepage = () => {
@@ -13,23 +37,38 @@ const Homepage = () => {
   const [showAllJobs, setShowAllJobs] = useState(false);
   const navigate = useNavigate();
   const { isAuthenticated } = authStore();
+  const { employers, fetchEmployers } = adminStore();
   const {
+    categoryCounts,
+    fetchCategoryCounts,
     getAllJobs,
     jobPosts,
     //error
     //isLoading,
     error,
+    fetchJobsByCategory,
   } = jobStore();
 
   useEffect(() => {
     getAllJobs();
-  }, [getAllJobs]);
+    fetchEmployers();
+    fetchCategoryCounts();
+    fetchJobsByCategory();
+  }, [getAllJobs, fetchEmployers, fetchCategoryCounts, fetchJobsByCategory]);
+
+  const handleViewJobs = async (category) => {
+    await fetchJobsByCategory(category);
+    navigate(`/job-find/${category.toLowerCase().replace(/_/g, "-")}`);
+  };
 
   if (error) {
     return <p className="error">{error}</p>;
   }
 
-  // TODO: Implement isLoading state later :)
+  const getRandomColor = () => {
+    const colors = ["#F87171", "#34D399", "#60A5FA", "#FBBF24", "#A78BFA"];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
 
   const filteredJobPosts = jobPosts.filter((job) => {
     const matchesKeyword =
@@ -43,10 +82,21 @@ const Homepage = () => {
     const matchesCategory =
       selectedCategory === "ALL" || job.jobCategory === selectedCategory;
 
-    return matchesKeyword && matchesCategory;
+    const matchesLocation =
+      location === "" ||
+      job.locations.some((loc) =>
+        loc
+          .replace(/["]+/g, "")
+          .toLowerCase()
+          .trim()
+          .includes(location.toLowerCase().trim())
+      );
+
+    return matchesKeyword && matchesCategory && matchesLocation;
   });
 
   const categories = [
+    "Select Category",
     "ALL",
     "DESIGN",
     "DEVELOPMENT",
@@ -75,22 +125,41 @@ const Homepage = () => {
     ? [...filteredJobPosts].reverse()
     : [...filteredJobPosts].reverse().slice(0, 6);
 
-  const handleSearch = () => {
-    console.log;
-  };
-
   const handleJobDetails = (jobId) => {
     navigate(`/job-details/${jobId}`);
   };
 
-  const handleNavigateProfile = () => {
-    window.scrollTo(0, 0);
-    navigate(`/profile-info`);
+  const handleNavigateSignUp = () => {
+    navigate(`/sign-up`);
   };
 
-  const handleNavigateJobs = () => {
-    window.scrollTo(0, 0);
-    navigate(`/jobs`);
+  const handleNavigateLogin = () => {
+    navigate(`/login`);
+  };
+
+  const categoryIcons = {
+    ALL: <FaBriefcase className="w-10 h-10 text-gray-500" />,
+    DESIGN: <FaPaintBrush className="w-10 h-10 text-blue-500" />,
+    DEVELOPMENT: <FaCode className="w-10 h-10 text-green-500" />,
+    MARKETING: <FaChartLine className="w-10 h-10 text-red-500" />,
+    SALES: <FaDollarSign className="w-10 h-10 text-purple-500" />,
+    ENGINEERING: <FaIndustry className="w-10 h-10 text-yellow-500" />,
+    HR: <FaUsers className="w-10 h-10 text-pink-500" />,
+    FINANCE: <FaDollarSign className="w-10 h-10 text-teal-500" />,
+    MANAGEMENT: <FaCog className="w-10 h-10 text-indigo-500" />,
+    PRODUCT: <FaFileAlt className="w-10 h-10 text-cyan-500" />,
+    CUSTOMER_SUPPORT: <FaUsers className="w-10 h-10 text-orange-500" />,
+    OPERATIONS: <FaCog className="w-10 h-10 text-blue-600" />,
+    RESEARCH: <FaFileAlt className="w-10 h-10 text-purple-600" />,
+    EDUCATION: <FaGraduationCap className="w-10 h-10 text-green-600" />,
+    ADMINISTRATION: <FaUsers className="w-10 h-10 text-gray-600" />,
+    IT: <FaCode className="w-10 h-10 text-blue-400" />,
+    CONSULTING: <FaBriefcase className="w-10 h-10 text-pink-400" />,
+    HEALTHCARE: <FaHeart className="w-10 h-10 text-red-400" />,
+    CONSTRUCTION: <FaHardHat className="w-10 h-10 text-yellow-600" />,
+    LEGAL: <FaGavel className="w-10 h-10 text-indigo-600" />,
+    ART: <FaMusic className="w-10 h-10 text-purple-400" />,
+    MEDIA: <FaTv className="w-10 h-10 text-blue-300" />,
   };
 
   return (
@@ -98,29 +167,33 @@ const Homepage = () => {
       <Navbar />
 
       <main className="flex-grow flex flex-col">
-        <section className="bg-applicant-nbg-3 bg-no-repeat bg-cover bg-center flex flex-col items-center justify-start h-[70vh] w-full relative pt-32">
-          <h1 className="text-7xl font-bold text-center font-poppins text-white ">
-            Disability Careers
-          </h1>
-          <p className="text-center text-md font-normal font-poppins text-white text-2xl">
-            Connecting Talents with Accessible Job Opportunities
-          </p>
+        <section className="relative h-[70vh] w-full flex flex-col items-center justify-center text-white text-center px-6 md:px-12 bg-applicant-nbg-3 bg-no-repeat bg-cover bg-center">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/20 pointer-events-none z-0"></div>
 
-          <div className="flex items-center mx-auto">
-            <SearchBar
-              searchKeyword={searchKeyword}
-              setSearchKeyword={setSearchKeyword}
-              selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
-              location={location}
-              setLocation={setLocation}
-              categories={categories}
-              onSearch={handleSearch}
-            />
+          <div className="relative z-20 flex flex-col items-center">
+            <h1 className="text-5xl md:text-7xl font-extrabold font-poppins drop-shadow-lg">
+              Find Your Perfect Job Today
+            </h1>
+            <p className="mt-4 text-lg md:text-2xl font-light md:font-poppins max-w-3xl leading-relaxed drop-shadow-md">
+              Connect with inclusive employers and build a career that fits your
+              abilities.
+            </p>
+
+            <div className="flex flex-col items-center mx-auto space-y-6">
+              <ApplicantSearch
+                searchKeyword={searchKeyword}
+                setSearchKeyword={setSearchKeyword}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+                location={location}
+                setLocation={setLocation}
+                categories={categories}
+              />
+            </div>
           </div>
         </section>
 
-        <section className="bg-white h-[150] mb-10">
+        <section className="bg-white h-[150] mb-2">
           <h2 className="text-4xl font-bold text-center font-poppins text-BLUE mt-16 mb-5">
             Latest Job Posts
           </h2>
@@ -143,6 +216,10 @@ const Homepage = () => {
                   {job.employer?.fullName}/
                   {job.companyName || job.employer.companyName}
                 </p>
+                <p className="text-base text-black font-light font-poppins mb-2">
+                  {job.locations.join(", ").replace(/[\\[\]"]+/g, "")}
+                </p>
+
                 <p className="text-black font-light font-poppins">
                   {job.expectedSalary &&
                   job.expectedSalary.minSalary &&
@@ -192,27 +269,143 @@ const Homepage = () => {
           )}
         </section>
 
-        <section className="bg-applicant-nbg-5 bg-transparent bg-no-repeat bg-cover bg-center h-[500px] flex items-center justify-center flex-col px-4 sm:px-8 md:px-12">
-          <div className="text-center">
+        <section className="bg-gray-100 py-12">
+          <div className="container mx-auto px-6 lg:px-12">
+            <h2 className="text-3xl font-bold text-center text-BLUE mb-8 font-poppins">
+              Explore Job Categories
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {Object.entries(categoryCounts).map(([category, count]) => {
+                let formattedCategory = category
+                  .toLowerCase()
+                  .replace(/_/g, " ")
+                  .replace(/\b\w/g, (char) => char.toUpperCase());
+
+                if (category === "IT" || category === "HR") {
+                  formattedCategory = category;
+                }
+
+                return (
+                  <div
+                    key={category}
+                    className="bg-white p-6 shadow-md flex flex-col items-center text-center 
+            transition-transform duration-300 hover:scale-105 hover:shadow-lg rounded-lg"
+                  >
+                    <div className="w-14 h-14 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full">
+                      {categoryIcons[category] || (
+                        <FaBriefcase className="w-8 h-8" />
+                      )}
+                    </div>
+
+                    <h3 className="text-lg font-medium mt-4 text-gray-800 font-[Poppins]">
+                      {formattedCategory}
+                    </h3>
+
+                    <p className="text-gray-600 text-sm mt-1 font-[Poppins]">
+                      {count} Jobs Available
+                    </p>
+
+                    <button
+                      onClick={() => handleViewJobs(category)}
+                      className="mt-4 px-8 py-2 text-sm font-medium text-white bg-blue-500 
+              hover:bg-blue-600 transition-all font-[Poppins] rounded-lg"
+                    >
+                      View Jobs
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-12 bg-white">
+          <h2 className="text-3xl font-bold text-center mb-8 font-poppins text-BLUE">
+            Trusted Top Companies
+          </h2>
+          <div className="px-4">
+            {employers.length > 0 ? (
+              <Swiper
+                modules={[Navigation, FreeMode, Mousewheel, Autoplay]}
+                spaceBetween={20}
+                slidesPerView={1}
+                breakpoints={{
+                  640: { slidesPerView: 2 },
+                  768: { slidesPerView: 3 },
+                  1024: { slidesPerView: 4 },
+                }}
+                navigation={false}
+                freeMode={true}
+                grabCursor={true}
+                mousewheel={true}
+                autoplay={{
+                  delay: 3000,
+                  disableOnInteraction: false,
+                }}
+                speed={1000}
+              >
+                {employers.map((employer) => {
+                  const firstLetter =
+                    employer.fullName?.charAt(0).toUpperCase() || "?";
+                  const bgColor = getRandomColor();
+
+                  return (
+                    <SwiperSlide key={employer._id}>
+                      <div className="flex flex-col items-center justify-center text-center">
+                        {employer.profilePicture ? (
+                          <img
+                            src={employer.profilePicture}
+                            alt={employer.fullName}
+                            className="h-16 w-16 object-cover rounded-full border-2 border-gray-300"
+                          />
+                        ) : (
+                          <div
+                            className="h-16 w-16 flex items-center justify-center rounded-full text-white font-bold text-xl"
+                            style={{ backgroundColor: bgColor }}
+                          >
+                            {firstLetter}
+                          </div>
+                        )}
+                        <h3 className="mt-2 text-base font-normal text-gray-800 w-full font-poppins">
+                          {employer.employerInformation?.companyName ||
+                            employer.fullName}
+                        </h3>
+                      </div>
+                    </SwiperSlide>
+                  );
+                })}
+              </Swiper>
+            ) : (
+              <p className="text-gray-500 text-center">
+                No featured employers yet.
+              </p>
+            )}
+          </div>
+        </section>
+
+        <section className="bg-applicant-nbg-5 bg-transparent bg-no-repeat bg-cover bg-center h-[500px] flex items-center justify-center flex-col px-4 sm:px-8 md:px-12 relative">
+          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+          <div className="text-center relative z-10">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-medium font-poppins text-BLUE mt-16 mb-8 sm:mb-10">
-              Empowering Abilities, Transforming Lives
+              Unlocking Opportunities, Embracing Potential
             </h2>
             <p className="text-xl sm:text-2xl lg:text-3xl font-normal font-poppins text-white mb-8 sm:mb-10">
-              Your next chapter begins here. Let’s achieve together!
+              Take the next step in your journey — your future starts here!
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-7 mt-4">
+          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-7 mt-4 relative z-10">
             <button
-              onClick={() => handleNavigateProfile()}
-              className="px-12 py-3 sm:px-20 sm:py-3 bg-transparent rounded border-2 border-solid border-BLUE font-poppins text-BLUE font-semibold text-center"
+              onClick={() => handleNavigateSignUp()}
+              className="w-full sm:w-[250px] px-12 py-3 rounded border-2 border-solid border-BLUE font-poppins text-BLUE font-semibold text-center hover:bg-BLUE hover:text-white transition-colors"
             >
-              Profile
+              Get Started
             </button>
             <button
-              onClick={() => handleNavigateJobs()}
-              className="px-12 py-3 sm:px-24 sm:py-3 bg-buttonBlue text-white rounded font-poppins font-semibold text-center"
+              onClick={() => handleNavigateLogin()}
+              className="w-full sm:w-[250px] px-12 py-3 bg-buttonBlue text-white rounded border-2 border-transparent font-poppins font-semibold text-center hover:bg-transparent hover:border-BLUE hover:text-buttonBlue transition-colors"
             >
-              Find a Job
+              Login
             </button>
           </div>
         </section>

@@ -74,20 +74,24 @@ const Navbar = () => {
   if (!isAuthenticated)
     return (
       <nav className="bg-white shadow-md">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="text-lg font-normal text-black flex items-center ml-5">
-            <div className="w-10 h-10 rounded-full overflow-hidden cursor-pointer">
-              <Link to="/">
-                <img
-                  src="/sample-logo.png"
-                  alt="Logo"
-                  className="w-full h-full object-cover"
-                />
-              </Link>
-            </div>
+        <div className="container mx-auto px-4 py-4 flex items-center">
+          <div className="flex-1 flex items-center">
+            <Link to="/" className="w-10 h-10 rounded-full overflow-hidden">
+              <img
+                src="/sample-logo.png"
+                alt="Logo"
+                className="w-full h-full object-cover"
+              />
+            </Link>
+            <Link
+              to="/"
+              className="text-lg font-semibold text-browny font-mono ml-2"
+            >
+              Disability Careers
+            </Link>
           </div>
 
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="flex-1 flex justify-center space-x-8">
             <Link
               to="/"
               className={`${
@@ -97,16 +101,6 @@ const Navbar = () => {
               } text-base hover:text-browny font-poppins`}
             >
               Home
-            </Link>
-            <Link
-              to="/job-find"
-              className={`${
-                isActive("/job-find")
-                  ? "text-browny font-normal"
-                  : "text-BLUE font-normal"
-              } text-base hover:text-browny font-poppins`}
-            >
-              Find a Job
             </Link>
             <Link
               to="/about-us"
@@ -138,6 +132,9 @@ const Navbar = () => {
             >
               Contact Us
             </Link>
+          </div>
+
+          <div className="flex-1 flex justify-end items-center space-x-6">
             <Link
               to="/login"
               className={`${
@@ -148,17 +145,13 @@ const Navbar = () => {
             >
               Login
             </Link>
+
             <Link
               to="/sign-up"
-              className={`${
-                isActive("/sign-up")
-                  ? "text-browny font-normal"
-                  : "text-BLUE font-normal"
-              } text-base hover:text-browny font-poppins`}
+              className="bg-browny text-white px-5 py-2 rounded-sm font-poppins font-medium hover:bg-yellow-700 transition duration-200"
             >
               Sign Up
             </Link>
-            <div className="h-10 border-l-2 border-BLUE mx-4"></div>
           </div>
         </div>
       </nav>
@@ -168,13 +161,19 @@ const Navbar = () => {
     <nav className="bg-white shadow-md">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <div className="text-lg font-normal text-black flex items-center ml-5">
-          <div className="w-10 h-10 rounded-full overflow-hidden cursor-pointer">
-            <Link to="/">
+          <div className="flex-1 flex items-center">
+            <Link to="/" className="w-10 h-10 rounded-full overflow-hidden">
               <img
                 src="/sample-logo.png"
                 alt="Logo"
                 className="w-full h-full object-cover"
               />
+            </Link>
+            <Link
+              to="/"
+              className="text-lg font-semibold text-browny font-mono ml-2 "
+            >
+              Disability Careers
             </Link>
           </div>
         </div>
@@ -379,7 +378,9 @@ const Navbar = () => {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg overflow-hidden z-50 mr-2">
-          <div className="p-3 text-gray-700 font-semibold font-poppins text-center">Notifications</div>
+          <div className="p-3 text-gray-700 font-semibold font-poppins text-center">
+            Notifications
+          </div>
           {notifications.length > 0 ? (
             <ul className="max-h-48 overflow-y-scroll no-scrollbar">
               {notifications.map((notif, index) => (

@@ -17,7 +17,7 @@ const PasswordRules = ({ password }) => {
           ) : (
             <X className="size-4 text-green-500 mr-2" />
           )}
-          <span className={items.met ? "text-green-500" : "text-gray-200"}>
+          <span className={items.met ? "text-green-500" : "text-gray-500"}>
             {items.label}
           </span>
         </div>
@@ -55,9 +55,9 @@ const PasswordStrengthMeter = ({password}) => {
 
   return (
     <div className="mt-2">
-      <div className="flex justify-between items-center mb-1">
-        <span className="text-xs text-gray-200">Password Strength:</span>
-        <span className="text-xs text-gray-200">
+      <div className="flex justify-between items-center mb-1 font-poppins">
+        <span className="text-xs text-gray-500 font-poppins">Password Strength:</span>
+        <span className="text-xs text-gray-500 font-poppins">
           {getStrongPasswordTxt(strength)}
         </span>
       </div>
@@ -67,7 +67,7 @@ const PasswordStrengthMeter = ({password}) => {
           <div
             key={index}
             className={`h-1 w-1/4 rounded-full transition-colors duration-300 ${
-              index < strength ? getColor(strength) : "bg-gray-200"
+              index < strength ? getColor(strength) : "bg-gray-200 font-poppins"
             }`}
           />
         ))}

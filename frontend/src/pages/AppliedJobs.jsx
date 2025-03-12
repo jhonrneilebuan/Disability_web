@@ -193,56 +193,62 @@ const AppliedJobs = () => {
   };
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <main className="min-h-screen flex flex-col bg-slate-100">
       <Navbar />
-      {/* <section className="bg-applicant-bg-3 bg-transparent bg-no-repeat bg-cover bg-center flex-grow flex flex-col space-y-4 pt-8 h-screen"> */}
-      <section className="bg-applicant-nbg-6 bg-no-repeat bg-cover bg-center flex flex-col items-center justify-start h-[50vh] w-full relative pt-32">
-        <h1 className="text-6xl font-semibold text-center font-poppins text-white pb-7 text-shadow-xl">
-          My Job Applications
-        </h1>
+      <section className="relative h-[70vh] w-full flex flex-col items-center justify-start pt-32 bg-applicant-nbg-6 bg-no-repeat bg-cover bg-center">
+        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div className="relative z-10 flex flex-col items-center w-full">
+          <h1 className="text-6xl font-semibold text-center font-poppins text-white pb-7 text-shadow-xl">
+            My Job Applications
+          </h1>
 
-        <div className="flex flex-col items-center mx-auto space-y-6 min-w-full">
-          <div className="bg-semiTransparent rounded-3xl shadow-custom overflow-hidden p-6 max-w-4xl w-full mx-auto">
-            <div className="relative">
-              <input
-                placeholder="Search by job titles or keywords..."
-                className="px-10 py-2 rounded-md w-full text-browny text-opacity-70 placeholder-black placeholder-opacity-50 bg-lightBrown border-none font-poppins focus:outline-none focus:ring-1 focus:ring-darkBrowny"
-                value={searchKeyword}
-                onChange={(e) => setSearchKeyword(e.target.value)}
-              />
-              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-600">
-                <Search size={20} />
+          <div className="flex flex-col items-center mx-auto space-y-6 min-w-full">
+            <div className="bg-semiTransparent rounded-3xl shadow-custom overflow-hidden p-6 max-w-4xl w-full mx-auto">
+              <div className="relative">
+                <input
+                  placeholder="Search by job titles or keywords..."
+                  className="px-10 py-2 rounded-md w-full text-browny text-opacity-70 placeholder-black placeholder-opacity-50 bg-lightBrown border-none font-poppins focus:outline-none focus:ring-1 focus:ring-darkBrowny"
+                  value={searchKeyword}
+                  onChange={(e) => setSearchKeyword(e.target.value)}
+                />
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-600">
+                  <Search size={20} />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex items-center justify-center w-full max-w-4xl space-x-4 mt-4">
-            <div className="relative w-full sm:w-auto">
-              <select
-                className="px-4 py-3 text-browny text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
-                onChange={handleStatusFilter}
-                value={selectedStatus}
-              >
-                <option value="">Select Status</option>
-                <option value="Pending">Pending</option>
-                <option value="Shortlisted">Shortlisted</option>
-                <option value="Rejected">Rejected</option>
-                <option value="Pending">Interview Scheduled</option>
-                <option value="Interview Completed">Interview Completed</option>
-                <option value="Hired">Hired</option>
-              </select>
-            </div>
+            <div className="flex items-center justify-center w-full max-w-4xl space-x-4 mt-4">
+              <div className="relative w-full sm:w-auto">
+                <select
+                  className="px-4 py-3 text-black font-light bg-lightBrown rounded-2xl border-2 border-solid border-browny font-poppins w-full"
+                  onChange={handleStatusFilter}
+                  value={selectedStatus}
+                >
+                  <option value="">Select Status</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Shortlisted">Shortlisted</option>
+                  <option value="Rejected">Rejected</option>
+                  <option value="Interview Scheduled">
+                    Interview Scheduled
+                  </option>
+                  <option value="Interview Completed">
+                    Interview Completed
+                  </option>
+                  <option value="Hired">Hired</option>
+                </select>
+              </div>
 
-            <div className="relative w-full sm:w-auto">
-              <select
-                className="px-4 py-3 text-browny text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
-                onChange={handleDateSort}
-                value={selectedDate}
-              >
-                <option value="">Sort by Date</option>
-                <option value="recent">Most Recent</option>
-                <option value="oldest">Oldest</option>
-              </select>
+              <div className="relative w-full sm:w-auto">
+                <select
+                  className="px-4 py-3 text-black font-light bg-lightBrown rounded-2xl border-2 border-solid border-browny font-poppins w-full"
+                  onChange={handleDateSort}
+                  value={selectedDate}
+                >
+                  <option value="">Sort by Date</option>
+                  <option value="recent">Most Recent</option>
+                  <option value="oldest">Oldest</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -288,7 +294,7 @@ const AppliedJobs = () => {
               sortedApplications.map((application) => (
                 <div
                   key={application._id}
-                  className="bg-white rounded-2xl shadow-md p-6 flex flex-col justify-between mb-6 border-2 border-browny border-solid w-full overflow-auto"
+                  className="bg-white rounded-2xl border mt-3 border-gray-200 shadow-md  p-6 flex flex-col justify-between mb-6 border-solid w-full overflow-auto"
                 >
                   <div className="flex-1">
                     <h3 className="text-lg sm:text-xl font-base font-poppins mb-2">
@@ -474,7 +480,7 @@ const AppliedJobs = () => {
               filteredSavedJobs.map((savedJob) => (
                 <div
                   key={savedJob._id}
-                  className="bg-white rounded-2xl shadow-md p-6 flex flex-col justify-between mb-6 border-2 border-browny border-solid w-full overflow-auto"
+                  className="bg-white rounded-2xl border mt-3 border-gray-200 shadow-md p-6 flex flex-col justify-between mb-6 border-solid w-full overflow-auto"
                 >
                   <div className="flex-1">
                     <h3 className="text-lg sm:text-xl font-base font-poppins mb-2">
@@ -495,15 +501,15 @@ const AppliedJobs = () => {
                   <div className="flex items-center space-x-4">
                     <button
                       onClick={() => handleDetails(savedJob)}
-                      className="px-4 py-2 text-sm sm:text-base bg-browny text-white rounded-md"
+                      className="px-4 py-2 text-sm sm:text-base bg-browny text-white rounded-md font-poppins"
                     >
                       View Details
                     </button>
                     <button
                       onClick={() => handleUnsave(savedJob._id)}
-                      className="px-4 py-2 text-sm sm:text-base bg-red-500 text-white rounded-md"
+                      className="px-4 py-2 text-sm sm:text-base bg-red-500 text-white rounded-md font-poppins"
                     >
-                      Unsave Job
+                      Remove Favorite{" "}
                     </button>
                   </div>
                 </div>
@@ -545,23 +551,24 @@ const AppliedJobs = () => {
             open={unsaveModalOpen}
             onClose={() => setUnsaveModalOpen(false)}
           >
-            <div className="text-center">
-              <h2 className="text-lg font-semibold mb-4">Confirm Unsave</h2>
-              <p>
-                Are you sure you want to remove this job from your saved jobs?
+            <div className="text-center font-poppins">
+              <h2 className="text-lg font-semibold mb-4">Remove Saved Job</h2>
+              <p className="text-gray-600">
+                Are you sure you want to remove this job from your saved list? <br/>
+                You won’t be able to access it later.
               </p>
               <div className="mt-4 flex justify-center gap-4">
                 <button
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-800"
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-800 transition duration-200"
                   onClick={() => setUnsaveModalOpen(false)}
                 >
-                  Cancel
+                  Keep Saved
                 </button>
                 <button
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-800"
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-800 transition duration-200"
                   onClick={confirmUnsave}
                 >
-                  Unsave
+                  Remove
                 </button>
               </div>
             </div>

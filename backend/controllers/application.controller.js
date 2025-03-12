@@ -5,6 +5,47 @@ import Job from "../models/job.model.js";
 import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
 
+
+export const countJobsByCategory = async (req, res) => {
+  try {
+    const result = await Job.aggregate([
+      {
+        $group: {
+          _id: "$jobCategory", 
+          count: { $sum: 1 }, 
+        },
+      },
+      {
+        $sort: { _id: 1 }, 
+      },
+    ]);
+
+    const categoryCounts = result.reduce((acc, { _id, count }) => {
+      acc[_id] = count;
+      return acc;
+    }, {});
+
+    res.status(200).json({ success: true, data: categoryCounts });
+  } catch (error) {
+    console.error("Error counting jobs by category:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+export const getJobsByCategory = async (req, res) => {
+  try {
+    const { category } = req.params; 
+
+    const jobs = await Job.find({ jobCategory: category }); 
+
+    res.status(200).json({ success: true, data: jobs });
+  } catch (error) {
+    console.error("Error fetching jobs by category:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+
 export const applyJobs = async (req, res) => {
   try {
     const applicantId = req.userId;
@@ -1433,5 +1474,35 @@ export const declineInterview = async (req, res) => {
   } catch (error) {
     console.error("Error declining interview:", error);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const JobsByDisability = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const userDisability = user.disabilityInformation?.disabilityType;
+
+    const jobs = await Job.find({
+      preferredDisabilities: { $in: [userDisability] }
+    }).populate(
+      "employer",
+      "profilePicture fullName email employerInformation.companyName employerInformation.companyAddress employerInformation.isIdVerified"
+    );
+
+    const updatedJobs = jobs.map((job) => {
+      const jobData = job.toObject();
+      if (jobData.jobAttachment) {
+        jobData.jobAttachment = `${jobData.jobAttachment}`;
+      }
+      return jobData;
+    });
+
+    res.status(200).json(updatedJobs);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 };

@@ -78,8 +78,9 @@ const RedirectAuthenticatedUser = ({ children }) => {
 };
 
 function App() {
-  const { isCheckingAuth, checkAuth } = authStore();
+  const { isCheckingAuth, checkAuth, onlineUsers } = authStore();
 
+  console.log("Online User",onlineUsers);
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
@@ -167,7 +168,7 @@ function App() {
         />
 
         <Route
-          path="/job-find"
+          path="/job-find/:category"
           element={
             <RedirectAuthenticatedUser>
               <FindAJob />

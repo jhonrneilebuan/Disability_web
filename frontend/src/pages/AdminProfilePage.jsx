@@ -20,7 +20,6 @@ const AdminProfilePage = () => {
 
     const validTypes = ["image/jpeg", "image/png", "image/jpg"];
     if (!validTypes.includes(file.type)) {
-      alert("Invalid file type. Please upload a JPEG or PNG image.");
       return;
     }
 
@@ -52,11 +51,9 @@ const AdminProfilePage = () => {
       setIsEditing(false);
     } catch (error) {
       console.error("Failed to update profile:", error);
-      alert("Failed to update profile. Please try again.");
     }
   };
 
-  // Delay logic: ensure skeleton is shown for at least 2 seconds.
   useEffect(() => {
     const startTime = Date.now();
     const delay = 2000;

@@ -1,11 +1,11 @@
-import 'react';
-import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
-
+import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
+import "react";
+import { authStore } from "../stores/authStore";
 
 function randomID(len) {
-  let result = '';
+  let result = "";
   if (result) return result;
-  var chars = '12345qwertyuiopasdfgh67890jklmnbvcxzMNBVCZXASDQWERTYHGFUIOLKJP',
+  var chars = "12345qwertyuiopasdfgh67890jklmnbvcxzMNBVCZXASDQWERTYHGFUIOLKJP",
     maxPos = chars.length,
     i;
   len = len || 5;
@@ -15,45 +15,51 @@ function randomID(len) {
   return result;
 }
 
-function getUrlParams(
-  url = window.location.href
-) {
-  let urlStr = url.split('?')[1];
+function getUrlParams(url = window.location.href) {
+  let urlStr = url.split("?")[1];
   return new URLSearchParams(urlStr);
 }
 
-export default function VideoChatRoom(){
-    const roomID = getUrlParams().get('roomID') || randomID(5);
-    let myMeeting = async (element) => {
-    const appID = 626949686;
-    const serverSecret = "017cc3723f4553054476cb6d96edae92";
-    const kitToken =  ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID,  randomID(5),  randomID(5));
+export default function VideoChatRoom() {
+  const { user } = authStore();
+  const roomID = getUrlParams().get("roomID") || randomID(5);
+  let myMeeting = async (element) => {
+    const appID = 961138036;
+    const serverSecret = "17dc13deb2ba1ccb3b2987977f2d5a18";
+    const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
+      appID,
+      serverSecret,
+      roomID,
+      randomID(5),
+      user?.fullName || "Guest"
+    );
 
-  
     const zp = ZegoUIKitPrebuilt.create(kitToken);
     zp.joinRoom({
       container: element,
       sharedLinks: [
         {
-          name: 'Personal link',
+          name: "Personal link",
           url:
-           window.location.protocol + '//' + 
-           window.location.host + window.location.pathname +
-            '?roomID=' +
+            window.location.protocol +
+            "//" +
+            window.location.host +
+            window.location.pathname +
+            "?roomID=" +
             roomID,
         },
       ],
       scenario: {
-        mode: ZegoUIKitPrebuilt.OneONoneCall, 
+        mode: ZegoUIKitPrebuilt.OneONoneCall,
       },
     });
-};
+  };
 
-return (
-  <div
-    className="myCallContainer"
-    ref={myMeeting}
-    style={{ width: '100vw', height: '100vh' }}
-  ></div>
-);
+  return (
+    <div
+      className="myCallContainer"
+      ref={myMeeting}
+      style={{ width: "100vw", height: "100vh" }}
+    ></div>
+  );
 }

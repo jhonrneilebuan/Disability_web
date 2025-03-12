@@ -198,11 +198,11 @@ const EmployerApplicantsPage = () => {
                 ) : filteredApplicants && filteredApplicants.length > 0 ? (
                   [...filteredApplicants].reverse().map((applicant) => (
                     <tr key={applicant.id} className="border-b border-gray-300">
-                      <td className="px-4 py-2 text-sm text-gray-700 text-center font-poppins">
+                      <td className="px-4 py-2 text-sm text-gray-700 text-start font-poppins">
                         {applicant.jobTitle}
                       </td>
                       <td className="px-4 py-2 text-sm text-gray-700 text-center font-poppins">
-                        <div className="flex items-center justify-center space-x-2">
+                        <div className="flex items-center justify-start space-x-2">
                           <div className="w-9 h-9 rounded-full overflow-hidden cursor-pointer">
                             <img
                               src={

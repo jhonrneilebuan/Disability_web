@@ -22,12 +22,14 @@ import {
   getPendingDisabilityVerifications,
   getUploadedDisabilityVerificationIds,
   getUploadedEmployerVerificationIds,
-  getAllDisabilityCounts
+  getAllDisabilityCounts,
+  getAllEmployers
 } from "../controllers/admin.controller.js";
 import { admin, verifyToken } from "../middlewares/token.js";
 
 const router = express.Router();
 
+router.get("/employers",  getAllEmployers);
 router.get("/get-users", verifyToken, admin, getAllUsers);
 router.delete("/user/:id", verifyToken, admin, deleteUserById);
 router.patch("/user/:id/ban", verifyToken, admin, banUserById);

@@ -12,6 +12,7 @@ export const authStore = create((set, get) => ({
   user: null,
   isAuthenticated: false,
   error: null,
+  isError: null,
   isLoading: false,
   isCheckingAuth: true,
   isUpdatingProfile: false,
@@ -52,7 +53,7 @@ export const authStore = create((set, get) => ({
   },
 
   signup: async (email, password, fullName, role, privacyAgreement) => {
-    set({ isLoading: true, error: null });
+    set({ isLoading: true, isError: null });
     try {
       const response = await axios.post(`${API_URL}/auth/signup`, {
         email,
@@ -69,7 +70,7 @@ export const authStore = create((set, get) => ({
       get().connectSocket();
     } catch (error) {
       set({
-        error: error.response.data.message || "Error signing up",
+        isError: error.response.data.message || "Error signing up",
         isLoading: false,
       });
       throw error;

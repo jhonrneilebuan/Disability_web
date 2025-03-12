@@ -15,6 +15,7 @@ import {
   FaFlask,
   FaHeadphones,
   FaHeart,
+  FaLaptop,
   FaMicrophone,
   FaPaintBrush,
   FaShoppingBag,
@@ -93,6 +94,12 @@ const UserProfilingPage = () => {
   };
 
   const handleSubmit = async () => {
+    const { minSalary, maxSalary } = preferences.expectedSalary;
+
+    if (minSalary > maxSalary) {
+      toast.error("Max salary cannot be lower than min salary.");
+      return;
+    }
     try {
       preferences.expectedSalary = {
         minSalary: Number(preferences.expectedSalary.minSalary),
@@ -133,6 +140,9 @@ const UserProfilingPage = () => {
   };
 
   const jobCategories = [
+    "Development",
+    "Administration",
+    "Art",
     "IT",
     "Finance",
     "Healthcare",
@@ -154,6 +164,9 @@ const UserProfilingPage = () => {
   ];
 
   const categoryIcons = {
+    Development: <FaLaptop className="w-4 h-4 mr-2 text-blue-500" />,
+    Administration: <FaBuilding className="w-4 h-4 mr-2 text-gray-500" />,
+    Art: <FaPaintBrush className="w-4 h-4 mr-2 text-pink-500" />,
     IT: <FaCode className="w-4 h-4 mr-2 text-blue-500" />,
     Finance: <FaDollarSign className="w-4 h-4 mr-2 text-green-500" />,
     Healthcare: <FaHeart className="w-4 h-4 mr-2 text-red-500" />,
@@ -439,7 +452,7 @@ const UserProfilingPage = () => {
         )}
 
         {step === 7 && (
-          <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="bg-white p-6 rounded-lg shadow-md ">
             <h2 className="text-2xl font-bold text-gray-800 mb-2 font-poppins">
               Select Job Categories (Up to 3)
             </h2>
@@ -448,12 +461,12 @@ const UserProfilingPage = () => {
               interests.
             </p>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-3">
               {jobCategories.map((category) => (
                 <button
                   key={category}
                   onClick={() => handleCategoryClick(category)}
-                  className={`flex items-center px-4 py-2 rounded-full border-2 text-sm font-medium transition-all 
+                  className={`flex items-center justify-between px-4 py-2 rounded-full border-2 text-sm font-medium transition-all  
             ${
               preferences.jobCategories.includes(category)
                 ? "bg-blue-300 text-white border-blue-300 shadow-md"
@@ -529,10 +542,7 @@ const UserProfilingPage = () => {
                       ...prev,
                       expectedSalary: {
                         ...prev.expectedSalary,
-                        maxSalary: Math.max(
-                          prev.expectedSalary.minSalary,
-                          maxSalary
-                        ),
+                        maxSalary: maxSalary,
                       },
                     }));
                   }}

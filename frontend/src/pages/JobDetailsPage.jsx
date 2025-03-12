@@ -9,7 +9,8 @@ import {
   Undo2,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa';
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import FormatTimeDate from "../components/FormatTimeDate";
 import Modal from "../components/Modal";
@@ -25,6 +26,60 @@ const JobDetailsPage = () => {
     jobStore();
   const { user } = authStore();
   const [formErrors, setFormErrors] = useState({});
+  const [coverLetter, setCoverLetter] = useState("");
+  const [accessibilityNeeds, setAccessibilityNeeds] = useState("");
+  const [isListening, setIsListening] = useState({
+    coverLetter: false,
+    accessibilityNeeds: false,
+  });
+
+  const recognitionRef = useRef(null);
+
+  const toggleListening = (field) => {
+    if (isListening[field]) {
+      stopListening();
+    } else {
+      startListening(field);
+    }
+  };
+
+  const startListening = (field) => {
+    if (!recognitionRef.current) {
+      recognitionRef.current = new (window.SpeechRecognition ||
+        window.webkitSpeechRecognition)();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = "en-US";
+    }
+
+    recognitionRef.current.onresult = (event) => {
+      const transcript =
+        event.results[event.results.length - 1][0].transcript.trim();
+      if (field === "coverLetter") {
+        setCoverLetter((prev) => prev + " " + transcript);
+      } else if (field === "accessibilityNeeds") {
+        setAccessibilityNeeds((prev) => prev + " " + transcript);
+      }
+    };
+
+    recognitionRef.current.onend = () => {
+      if (isListening[field]) {
+        recognitionRef.current.start();
+      }
+    };
+
+    recognitionRef.current.start();
+    setIsListening((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.onend = null;
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+    setIsListening({ coverLetter: false, accessibilityNeeds: false });
+  };
 
   useEffect(() => {
     if (jobId) {
@@ -58,7 +113,6 @@ const JobDetailsPage = () => {
     event.preventDefault();
 
     if (!jobDetails?._id) {
-      alert("Job ID is missing. Please select a job and try again.");
       return;
     }
 
@@ -95,11 +149,9 @@ const JobDetailsPage = () => {
       setOpen(false);
     } catch (error) {
       if (error.message === "You have already applied for this job.") {
-        alert(error.message);
         setOpen(false);
       } else {
         console.error("Error submitting application:", error);
-        alert("There was an error submitting your application. Please try again.");
       }
     }
   };
@@ -130,7 +182,9 @@ const JobDetailsPage = () => {
       </button>
       <section className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
         {jobpostError && (
-          <p className="text-red-500 text-lg font-semibold text-center">{jobpostError}</p>
+          <p className="text-red-500 text-lg font-semibold text-center">
+            {jobpostError}
+          </p>
         )}
         {!jobDetails ? (
           <p className="text-gray-500 text-lg">No job details available.</p>
@@ -162,14 +216,25 @@ const JobDetailsPage = () => {
               </p>
             </div>
 
-            <div className="flex items-center space-x-2 mt-4">
-              <Accessibility className="h-5 w-5 text-gray-500" />
-              <p className="text-xl font-normal font-poppins">
+            <div className="flex items-start space-x-2 mt-4">
+              <Accessibility className="h-5 w-5 text-gray-500 mt-1" />
+              <div className="flex flex-wrap gap-2">
                 {Array.isArray(jobDetails?.preferredDisabilities) &&
-                jobDetails.preferredDisabilities.length > 0
-                  ? jobDetails.preferredDisabilities.join(", ")
-                  : "Not specified"}
-              </p>
+                jobDetails.preferredDisabilities.length > 0 ? (
+                  jobDetails.preferredDisabilities.map((disability, index) => (
+                    <span
+                      key={index}
+                      className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-poppins"
+                    >
+                      {disability}
+                    </span>
+                  ))
+                ) : (
+                  <p className="text-xl font-normal font-poppins">
+                    Not specified
+                  </p>
+                )}
+              </div>
             </div>
 
             {jobDetails?.expectedSalary?.minSalary &&
@@ -264,6 +329,17 @@ const JobDetailsPage = () => {
                 </li>
 
                 <li className="border-b pb-4">
+                  <div className="flex flex-col">
+                    <p className="text-base font-medium mb-2">
+                      Job Description:
+                    </p>
+                    <div className="text-base bg-gray-100 p-3 rounded-lg max-h-40 overflow-y-auto text-justify">
+                      {jobDetails.jobDescription || "Not specified"}
+                    </div>
+                  </div>
+                </li>
+
+                <li className="border-b pb-4">
                   <div>
                     <p className="text-lg font-medium mb-2">Job Skills:</p>
                     <ul className="flex flex-wrap gap-2">
@@ -344,7 +420,7 @@ const JobDetailsPage = () => {
               className="space-y-4"
               encType="multipart/form-data"
             >
-              <div>
+              <div className="relative">
                 <label
                   htmlFor="coverLetter"
                   className="block text-sm font-medium text-gray-700"
@@ -357,7 +433,21 @@ const JobDetailsPage = () => {
                   rows="5"
                   placeholder="Write your cover letter here..."
                   className="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+                  value={coverLetter}
+                  onChange={(e) => setCoverLetter(e.target.value)}
                 ></textarea>
+                <button
+                  type="button"
+                  onClick={() => toggleListening("coverLetter")}
+                  className="absolute top-10 right-3 p-2 rounded-full"
+                >
+                  {isListening.coverLetter ? (
+                    <FaMicrophone size={20} />
+                  ) : (
+                    <FaMicrophoneSlash size={24}/>
+                  )}
+                </button>
+
                 {formErrors.coverLetter && (
                   <p className="text-red-500 text-sm mt-1">
                     {formErrors.coverLetter}
@@ -365,7 +455,7 @@ const JobDetailsPage = () => {
                 )}
               </div>
 
-              <div>
+              <div className="relative">
                 <label
                   htmlFor="accessibilityNeeds"
                   className="block text-sm font-medium text-gray-700"
@@ -378,7 +468,21 @@ const JobDetailsPage = () => {
                   rows="3"
                   placeholder="Specify any accessibility accommodations required..."
                   className="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+                  value={accessibilityNeeds}
+                  onChange={(e) => setAccessibilityNeeds(e.target.value)}
                 ></textarea>
+
+                <button
+                  type="button"
+                  onClick={() => toggleListening("accessibilityNeeds")}
+                  className="absolute top-10 right-3 p-2 rounded-full"
+                >
+                  {isListening.accessibilityNeeds ? ( 
+                    <FaMicrophone size={20}/>
+                  ) : (
+                    <FaMicrophoneSlash size={22} />
+                  )}
+                </button>
               </div>
 
               <div>

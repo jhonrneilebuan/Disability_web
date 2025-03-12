@@ -66,7 +66,6 @@ const JobPosts = () => {
       } catch (error) {
         console.error("Error creating job:", error);
         console.error("Response data:", error.response?.data);
-        alert("There was an error creating your job. Please try again.");
       }
     },
   });

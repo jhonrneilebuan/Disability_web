@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { authStore } from "../stores/authStore";
 import { toast } from "react-toastify";
+import { authStore } from "../stores/authStore";
 
 const EditEmployerPage = () => {
   const { user, updateEmployerProfile } = authStore();
@@ -119,8 +119,11 @@ const EditEmployerPage = () => {
                   value={formData.contact}
                   onChange={handleInputChange}
                   className="h-12 border mt-1 rounded-lg px-4 w-full bg-gray-50 text-lg"
+                  pattern="\d*"
+                  inputMode="numeric"
                   required
                 />
+
                 {errors.contact && (
                   <span className="text-red-500">{errors.contact}</span>
                 )}

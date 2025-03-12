@@ -114,7 +114,6 @@ const jobSchema = new mongoose.Schema(
     preferredDisabilities: {
       type: [String],
       enum: [
-        // "Any",
   "Mobility Impairment",
   "Amputation",
   "Cerebral Palsy",

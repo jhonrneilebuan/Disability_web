@@ -1,4 +1,5 @@
 import {
+  Accessibility,
   Banknote,
   ChevronLeft,
   ChevronRight,
@@ -11,7 +12,8 @@ import {
   X,
   XCircle,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import FormatTimeDate from "../components/FormatTimeDate";
@@ -30,7 +32,6 @@ const JobsPage = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [location, setLocation] = useState("");
-  //const [search, setSearch] = useState("");
   const [isJobSaved, setIsJobSaved] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("ALL");
   const [selectedJobShift, setSelectedJobShift] = useState("listedAnyTime");
@@ -42,9 +43,64 @@ const JobsPage = () => {
   const navigate = useNavigate();
   const { user } = authStore();
 
+  const [coverLetter, setCoverLetter] = useState("");
+  const [accessibilityNeeds, setAccessibilityNeeds] = useState("");
+  const [isListening, setIsListening] = useState({
+    coverLetter: false,
+    accessibilityNeeds: false,
+  });
+
+  const recognitionRef = useRef(null);
+
+  const toggleListening = (field) => {
+    if (isListening[field]) {
+      stopListening();
+    } else {
+      startListening(field);
+    }
+  };
+
+  const startListening = (field) => {
+    if (!recognitionRef.current) {
+      recognitionRef.current = new (window.SpeechRecognition ||
+        window.webkitSpeechRecognition)();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = "en-US";
+    }
+
+    recognitionRef.current.onresult = (event) => {
+      const transcript =
+        event.results[event.results.length - 1][0].transcript.trim();
+      if (field === "coverLetter") {
+        setCoverLetter((prev) => prev + " " + transcript);
+      } else if (field === "accessibilityNeeds") {
+        setAccessibilityNeeds((prev) => prev + " " + transcript);
+      }
+    };
+
+    recognitionRef.current.onend = () => {
+      if (isListening[field]) {
+        recognitionRef.current.start();
+      }
+    };
+
+    recognitionRef.current.start();
+    setIsListening((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.onend = null;
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+    setIsListening({ coverLetter: false, accessibilityNeeds: false });
+  };
+
   const {
     getJobPosts,
-    jobPosts,
+    jobPreferredPosts,
     isLoading,
     error,
     saveJob,
@@ -99,7 +155,7 @@ const JobsPage = () => {
     };
   }, []);
 
-  const filteredJobPosts = jobPosts.filter((job) => {
+  const filteredJobPosts = jobPreferredPosts.filter((job) => {
     const matchesKeyword =
       searchKeyword === "" ||
       job.jobTitle.toLowerCase().includes(searchKeyword.toLowerCase()) ||
@@ -210,7 +266,6 @@ const JobsPage = () => {
     const jobId = selectedJob?._id || selectedJob?.id;
 
     if (!jobId) {
-      alert("Job ID is missing. Please select a job and try again.");
       return;
     }
 
@@ -246,14 +301,14 @@ const JobsPage = () => {
 
       setOpen(false);
     } catch (error) {
+      console.error("Error submitting application:", error);
+
       if (error.message === "You have already applied for this job.") {
-        alert(error.message);
-        setOpen(false);
+        setFormErrors({ general: error.message });
       } else {
-        console.error("Error submitting application:", error);
-        alert(
-          "There was an error submitting your application. Please try again."
-        );
+        setFormErrors({
+          general: "An unexpected error occurred. Please try again.",
+        });
       }
     }
   };
@@ -275,60 +330,69 @@ const JobsPage = () => {
     : "";
 
   return (
-    <main className="min-h-screen flex flex-col overflow-auto">
+    <main className="min-h-screen flex flex-col overflow-auto bg-slate-100">
       <Navbar />
-      {/* <section className="bg-applicant-bg-3 bg-transparent bg-no-repeat bg-cover bg-center flex-grow flex flex-col items-start justify-start space-y-4 pt-8 h-screen"> */}
-      <section className="bg-applicant-nbg-4 pb-10 p-16  bg-cover bg-center flex-grow flex flex-col">
-        {/* <section className="bg-applicant-nbg-4 pb-10 flex-grow flex flex-col p-16"> */}
-        <h1 className="text-7xl font-semibold font-poppins text-white ml-4 mb-4 pl-4 text-shadow-xl sm:text-5xl md:text-6xl text-center">
-          Let&apos;s Get You Find a Job
-        </h1>
-        <p className="text-4xl text-center text-md font-medium font-jakarta ml-4 pl-4 text-white text-shadow-xl sm:text-xl md:text-2xl">
-          WE&apos;VE GOT {jobPosts?.length || 0} JOBS TO APPLY!
-        </p>
-        <div className="flex flex-col items-center mx-auto space-y-6">
-          <SearchBar
-            searchKeyword={searchKeyword}
-            setSearchKeyword={setSearchKeyword}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            location={location}
-            setLocation={setLocation}
-            categories={categories}
-            onSearch={handleSearch}
-          />
-          <JobPreferencesModal
-            isOpen={isModalOpen}
-            onClose={() => setModalOpen(false)}
-          />
+      <section className="relative pb-10 p-16 h-[70vh] bg-applicant-nbg-4 bg-cover bg-center flex-grow flex flex-col">
+        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="relative z-10 flex flex-col items-center text-white text-center">
+          <h1 className="text-7xl font-semibold font-poppins text-white ml-4 mb-4 pl-4 text-shadow-xl sm:text-5xl md:text-6xl text-center">
+            Let&apos;s Get You Find a Job
+          </h1>
+          <p className="text-4xl text-center text-md font-medium font-poppins ml-4 pl-4 text-white text-shadow-xl sm:text-xl md:text-2xl">
+            WE&apos;VE GOT {jobPreferredPosts?.length || 0} JOBS TO APPLY!
+          </p>
+          <div className="flex flex-col items-center mx-auto space-y-6">
+            <SearchBar
+              searchKeyword={searchKeyword}
+              setSearchKeyword={setSearchKeyword}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              location={location}
+              setLocation={setLocation}
+              categories={categories}
+              onSearch={handleSearch}
+            />
+            <JobPreferencesModal
+              isOpen={isModalOpen}
+              onClose={() => setModalOpen(false)}
+            />
 
-          <div className="items-center justify-center w-full flex flex-col sm:flex-row sm:space-x-7 sm:space-y-0">
-            <div className="relative w-full sm:w-48 ">
-              <select
-                className="px-4 py-3 text-browny text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
-                onChange={(e) => setselectedJobType(e.target.value)}
-                value={selectedJobType}
-              >
-                {jobTypes.map((type, index) => (
-                  <option key={index} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <div className="items-center justify-center w-full flex flex-col sm:flex-row sm:space-x-7 sm:space-y-0">
+              <div className="relative w-full sm:w-48">
+                <select
+                  className="px-4 py-3 text-black bg-lightBrown text-opacity-70 font-light rounded-2xl border-2 border-solid border-browny font-poppins w-full peer"
+                  onChange={(e) => setselectedJobType(e.target.value)}
+                  value={selectedJobType}
+                >
+                  {jobTypes.map((type, index) => (
+                    <option
+                      key={index}
+                      value={type}
+                      className="bg-lightBrown text-black"
+                    >
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="relative w-full sm:w-48 mt-4 sm:mt-0">
-              <select
-                className="px-4 py-3 text-browny text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
-                onChange={(e) => setSelectedJobShift(e.target.value)}
-                value={selectedJobShift}
-              >
-                {jobShifts.map((shift, index) => (
-                  <option key={index} value={shift}>
-                    {shift === "listedAnyTime" ? "Listed Any Time" : shift}
-                  </option>
-                ))}
-              </select>
+              <div className="relative w-full sm:w-48 mt-4 sm:mt-0">
+                <select
+                  className="px-4 py-3 text-black bg-lightBrown text-opacity-70 font-light rounded-2xl border-2 border-solid border-browny font-poppins w-full peer"
+                  onChange={(e) => setSelectedJobShift(e.target.value)}
+                  value={selectedJobShift}
+                >
+                  {jobShifts.map((shift, index) => (
+                    <option
+                      key={index}
+                      value={shift}
+                      className="bg-lightBrown text-black"
+                    >
+                      {shift === "listedAnyTime" ? "Listed Any Time" : shift}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -349,7 +413,7 @@ const JobsPage = () => {
       </div>
 
       {currentSection === "section2" ? (
-        <section className="flex mt-3 h-[150vh] flex-col sm:flex-row bg-white">
+        <section className="flex mt-3 h-[130vh] flex-col sm:flex-row ">
           <div className="w-full sm:w-2/4 p-4 h-full overflow-y-auto ml-24">
             <div className="space-y-4">
               {isjobLoading ? (
@@ -362,7 +426,7 @@ const JobsPage = () => {
                 [...filteredJobPosts].reverse().map((job) => (
                   <div
                     key={job.id || job._id}
-                    className="bg-white rounded-lg border-solid border-2 border-browny shadow-md p-4 cursor-pointer font-poppins hover:bg-gray-100"
+                    className="bg-white rounded-2xl border mt-3 border-gray-200 shadow-md p-6 cursor-pointer font-poppins hover:bg-gray-100"
                     onClick={() => setSelectedJob(job)}
                   >
                     <h3 className="text-xl font-bold">{job.jobTitle}</h3>
@@ -445,6 +509,29 @@ const JobsPage = () => {
                     </p>
                   </div>
                 )}
+
+                <div className="flex items-start space-x-2 mt-2 mb-2">
+                  <Accessibility className="h-5 w-5 text-gray-500 mt-1" />
+                  <div className="flex flex-wrap gap-2">
+                    {Array.isArray(selectedJob?.preferredDisabilities) &&
+                    selectedJob.preferredDisabilities.length > 0 ? (
+                      selectedJob.preferredDisabilities.map(
+                        (disability, index) => (
+                          <span
+                            key={index}
+                            className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-poppins"
+                          >
+                            {disability}
+                          </span>
+                        )
+                      )
+                    ) : (
+                      <p className="text-xl font-normal font-poppins">
+                        Not specified
+                      </p>
+                    )}
+                  </div>
+                </div>
 
                 <div className="mt-4 text-sm flex items-center space-x-2">
                   <span>Posted</span>
@@ -538,6 +625,16 @@ const JobsPage = () => {
                       </div>
                     </li>
                     <li className="border-b pb-4">
+                      <div className="flex justify-between items-center">
+                        <p className="text-base font-medium">
+                          Job Description:
+                        </p>
+                        <span className="text-base">
+                          {selectedJob.jobDescription || "Not specified"}
+                        </span>
+                      </div>
+                    </li>
+                    <li className="border-b pb-4">
                       <div className="flex flex-col">
                         <p className="text-base font-medium mb-2">
                           Job Skills:
@@ -621,7 +718,7 @@ const JobsPage = () => {
                 return (
                   <div
                     key={job.id || job._id}
-                    className="bg-white rounded-lg border-2 border-browny shadow-md p-4 cursor-pointer font-poppins hover:bg-gray-100"
+                    className="bg-white rounded-2xl border border-gray-200 shadow-md mb-2 p-4 cursor-pointer font-poppins hover:bg-gray-100"
                   >
                     <h3 className="text-xl font-bold mb-2 flex items-center justify-between">
                       {job.jobTitle}
@@ -738,8 +835,14 @@ const JobsPage = () => {
             </h2>
 
             {error && (
-              <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4 text-center font-poppins">
+              <p className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
                 {error}
+              </p>
+            )}
+
+            {formErrors.general && (
+              <p className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
+                {formErrors.general}
               </p>
             )}
 
@@ -748,7 +851,7 @@ const JobsPage = () => {
               className="space-y-4"
               encType="multipart/form-data"
             >
-              <div>
+              <div className="relative">
                 <label
                   htmlFor="coverLetter"
                   className="block text-sm font-medium text-gray-700"
@@ -761,15 +864,29 @@ const JobsPage = () => {
                   rows="5"
                   placeholder="Write your cover letter here..."
                   className="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+                  value={coverLetter}
+                  onChange={(e) => setCoverLetter(e.target.value)}
                 ></textarea>
+                <button
+                  type="button"
+                  onClick={() => toggleListening("coverLetter")}
+                  className="absolute top-10 right-3 p-2 rounded-full"
+                >
+                  {isListening.coverLetter ? (
+                    <FaMicrophone size={20} />
+                  ) : (
+                    <FaMicrophoneSlash size={24} />
+                  )}
+                </button>
+
                 {formErrors.coverLetter && (
-                  <p className="text-red-500 text-sm mt-1 font-poppins">
+                  <p className="text-red-500 text-sm mt-1">
                     {formErrors.coverLetter}
                   </p>
                 )}
               </div>
 
-              <div>
+              <div className="relative">
                 <label
                   htmlFor="accessibilityNeeds"
                   className="block text-sm font-medium text-gray-700"
@@ -782,7 +899,21 @@ const JobsPage = () => {
                   rows="3"
                   placeholder="Specify any accessibility accommodations required..."
                   className="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+                  value={accessibilityNeeds}
+                  onChange={(e) => setAccessibilityNeeds(e.target.value)}
                 ></textarea>
+
+                <button
+                  type="button"
+                  onClick={() => toggleListening("accessibilityNeeds")}
+                  className="absolute top-10 right-3 p-2 rounded-full"
+                >
+                  {isListening.accessibilityNeeds ? (
+                    <FaMicrophone size={20} />
+                  ) : (
+                    <FaMicrophoneSlash size={22} />
+                  )}
+                </button>
               </div>
 
               <div>
@@ -800,7 +931,7 @@ const JobsPage = () => {
                   className="block w-full mt-1 text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 focus:outline-none"
                 />
                 {formErrors.resume && (
-                  <p className="text-red-500 text-sm mt-1 font-poppins">
+                  <p className="text-red-500 text-sm mt-1">
                     {formErrors.resume}
                   </p>
                 )}

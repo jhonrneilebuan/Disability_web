@@ -1,10 +1,12 @@
 import { Banknote, Heart, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import ApplicantSearch from "../components/ApplicantSearch";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
-import SearchBar from "../components/Search";
 import { authStore } from "../stores/authStore";
 import { jobStore } from "../stores/jobStore";
+
 const FindAJob = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [location, setLocation] = useState("");
@@ -12,11 +14,13 @@ const FindAJob = () => {
   const [selectedJobShift, setSelectedJobShift] = useState("listedAnyTime");
   const [selectedJobType, setselectedJobType] = useState("All work types");
   const { isAuthenticated } = authStore();
-  const { getAllJobs, jobPosts, error } = jobStore();
+  const { category } = useParams();
+  const { jobs, fetchJobsByCategory, error } = jobStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    getAllJobs();
-  }, [getAllJobs]);
+    fetchJobsByCategory(category.replace(/-/g, "_"));
+  }, [category, fetchJobsByCategory]);
 
   useEffect(() => {
     return () => {
@@ -27,39 +31,45 @@ const FindAJob = () => {
   if (error) {
     return <p className="error">{error}</p>;
   }
+  const jobList = jobs[category.replace(/-/g, "_").toUpperCase()] || [];
+  const filteredJobPosts = Array.isArray(jobList)
+    ? jobList.filter((job) => {
+        const matchesKeyword =
+          searchKeyword === "" ||
+          job.jobTitle.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+          job.jobDescription
+            .toLowerCase()
+            .includes(searchKeyword.toLowerCase()) ||
+          job.employer?.fullName
+            .toLowerCase()
+            .includes(searchKeyword.toLowerCase());
 
-  const filteredJobPosts = jobPosts.filter((job) => {
-    const matchesKeyword =
-      searchKeyword === "" ||
-      job.jobTitle.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-      job.jobDescription.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-      job.employer?.fullName
-        .toLowerCase()
-        .includes(searchKeyword.toLowerCase());
+        const matchesCategory =
+          selectedCategory === "ALL" || job.jobCategory === selectedCategory;
 
-    const matchesCategory =
-      selectedCategory === "ALL" || job.jobCategory === selectedCategory;
+        const matchesLocation =
+          location === "" ||
+          job.locations?.some((loc) =>
+            loc.toLowerCase().includes(location.toLowerCase())
+          );
 
-    const matchesLocation =
-      location === "" ||
-      job.locations?.some((loc) =>
-        loc.toLowerCase().includes(location.toLowerCase())
-      );
+        const matchesJobShift =
+          selectedJobShift === "listedAnyTime" ||
+          job.jobShift === selectedJobShift;
 
-    const matchesJobShift =
-      selectedJobShift === "listedAnyTime" || job.jobShift === selectedJobShift;
+        const matchesJobType =
+          selectedJobType === "All work types" ||
+          job.jobType === selectedJobType;
 
-    const matchesJobType =
-      selectedJobType === "All work types" || job.jobType === selectedJobType;
-
-    return (
-      matchesKeyword &&
-      matchesCategory &&
-      matchesLocation &&
-      matchesJobShift &&
-      matchesJobType
-    );
-  });
+        return (
+          matchesKeyword &&
+          matchesCategory &&
+          matchesLocation &&
+          matchesJobShift &&
+          matchesJobType
+        );
+      })
+    : [];
 
   const categories = [
     "ALL",
@@ -107,20 +117,18 @@ const FindAJob = () => {
     "Internship",
   ];
 
-  const handleSearch = () => {};
-
   return (
     <main className="min-h-screen flex flex-col overflow-auto">
       <Navbar />
-      <section className="bg-applicant-nbg-4 pb-10 p-16  bg-cover bg-center flex-grow flex flex-col">
+      <section className="bg-applicant-nbg-4 pb-10 p-16 h-[70vh] bg-cover bg-center flex-grow flex flex-col">
         <h1 className="text-7xl font-semibold font-poppins text-white ml-4 mb-4 pl-4 text-shadow-xl sm:text-5xl md:text-6xl text-center">
           Let&apos;s Get You Find a Job
         </h1>
         <p className="text-4xl text-center text-md font-medium font-jakarta ml-4 pl-4 text-white text-shadow-xl sm:text-xl md:text-2xl">
-          WE&apos;VE GOT {jobPosts?.length || 0} JOBS TO APPLY!
+          WE&apos;VE GOT {jobs?.length || 0} JOBS TO APPLY!
         </p>
         <div className="flex flex-col items-center mx-auto space-y-6">
-          <SearchBar
+          <ApplicantSearch
             searchKeyword={searchKeyword}
             setSearchKeyword={setSearchKeyword}
             selectedCategory={selectedCategory}
@@ -128,13 +136,12 @@ const FindAJob = () => {
             location={location}
             setLocation={setLocation}
             categories={categories}
-            onSearch={handleSearch}
           />
 
           <div className="items-center justify-center w-full flex flex-col sm:flex-row sm:space-x-7 sm:space-y-0">
             <div className="relative w-full sm:w-48 ">
               <select
-                className="px-4 py-3 text-browny text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
+                className="px-4 py-3 text-black text-opacity-70 font-light bg-lightBrown rounded-2xl border-2 border-solid border-browny font-poppins w-full"
                 onChange={(e) => setselectedJobType(e.target.value)}
                 value={selectedJobType}
               >
@@ -148,7 +155,7 @@ const FindAJob = () => {
 
             <div className="relative w-full sm:w-48 mt-4 sm:mt-0">
               <select
-                className="px-4 py-3 text-browny text-opacity-70 font-light bg-transparent rounded-2xl border-2 border-solid border-browny font-poppins w-full"
+                className="px-4 py-3 text-black  text-opacity-70 font-light bg-lightBrown rounded-2xl border-2 border-solid border-browny font-poppins w-full"
                 onChange={(e) => setSelectedJobShift(e.target.value)}
                 value={selectedJobShift}
               >
@@ -202,9 +209,9 @@ const FindAJob = () => {
                 </div>
 
                 {job.expectedSalary && (
-                  <div className="flex items-center gap-2 text-gray-600 mt-4">
+                  <div className="flex items-center gap-2 text-gray-500 mt-4">
                     <Banknote className="h-5 w-5" />
-                    <p className="text-base font-poppins text-gray-600">
+                    <p className="text-base font-poppins text-gray-500">
                       ₱{job.expectedSalary.minSalary.toLocaleString()} - ₱
                       {job.expectedSalary.maxSalary.toLocaleString()}
                     </p>
@@ -237,7 +244,7 @@ const FindAJob = () => {
                   {isAuthenticated ? (
                     <>
                       <button
-                        className="bg-buttonBlue text-white px-6 py-3 rounded-xl font-semibold text-base hover:cursor-pointer"
+                        className="bg-BLUE text-white px-6 py-3 rounded-xl font-semibold text-base hover:cursor-pointer"
                         onClick={() => console.log("Applying for job", job.id)}
                       >
                         Apply Now
@@ -252,16 +259,16 @@ const FindAJob = () => {
                   ) : (
                     <>
                       <button
-                        className="bg-buttonBlue text-white px-6 py-3 rounded-xl font-semibold text-base opacity-50 cursor-not-allowed"
+                        className="bg-BLUE text-white px-20 py-3 rounded-md font-semibold text-base hover:cursor-pointer hover:bg-blue-700 transition duration-200"
                         title="Login first to proceed"
-                        disabled
+                        onClick={() => navigate("/login")}
                       >
                         Apply Now
                       </button>
                       <button
-                        className="bg-gray-200 text-black p-3 rounded-xl font-semibold opacity-50 cursor-not-allowed"
+                        className="bg-gray-200 text-black p-3 rounded-xl font-semibold hover:cursor-pointer "
                         title="Login first to proceed"
-                        disabled
+                        onClick={() => navigate("/login")}
                       >
                         <Heart size={24} />
                       </button>

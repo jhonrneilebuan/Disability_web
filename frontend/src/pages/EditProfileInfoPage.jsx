@@ -1,12 +1,13 @@
 import { Loader, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { authStore } from "../stores/authStore";
 import SkillsSelector from "../components/SkillsSelector";
-
+import { authStore } from "../stores/authStore";
 const EditProfileInfoPage = () => {
   const { user, userProfileInfo, isUpdatingProfileInfo } = authStore();
+  const [searchParams] = useSearchParams();
+
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
 
@@ -277,7 +278,13 @@ const EditProfileInfoPage = () => {
 
     try {
       await userProfileInfo(updatedFormData);
-      navigate("/profile-info");
+      const fromSignup = searchParams.get("fromSignup") === "true";
+
+      if (fromSignup) {
+        navigate("/user-profiling");
+      } else {
+        navigate("/profile-info");
+      }
     } catch (error) {
       console.error("Error updating profile:", error);
     }
@@ -306,7 +313,7 @@ const EditProfileInfoPage = () => {
                   Contact Number
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   name="contact"
                   value={formData.contact}
                   onChange={handleChange}
@@ -414,7 +421,6 @@ const EditProfileInfoPage = () => {
               )}
             </div>
 
-            {/* Skills Selector */}
             <SkillsSelector
               formData={formData}
               setFormData={setFormData}

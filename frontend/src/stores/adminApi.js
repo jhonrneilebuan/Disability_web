@@ -7,6 +7,7 @@ const BASE_URL = "http://localhost:8080/api/admin";
 
 axios.defaults.withCredentials = true;
 export const adminStore = create((set) => ({
+  employers: [],
   isAdminLoading: false,
   error: null,
   totalUsers: 0,
@@ -15,6 +16,17 @@ export const adminStore = create((set) => ({
   pendingPwdID: 0,
   totaluploaddisability: [],
   totaluploademployer: [],
+
+  fetchEmployers: async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/employers`);
+      const data = await response.json();
+
+      set({ employers: data.employers });
+    } catch (error) {
+      console.error("Error fetching employers:", error);
+    }
+  },
 
   getTotalUsers: async () => {
     set({ isAdminLoading: true, error: null });

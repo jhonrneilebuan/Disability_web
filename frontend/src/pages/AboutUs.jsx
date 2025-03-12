@@ -7,7 +7,7 @@ const AboutUs = () => {
     <div className="bg-gray-50 min-h-screen">
       <Navbar />
       <section
-        className="relative bg-applicant-nbg-3 bg-no-repeat bg-cover bg-center flex flex-col items-center justify-center h-[40vh] w-full overflow-hidden">
+        className="relative bg-applicant-nbg-3 bg-no-repeat bg-cover bg-center flex flex-col items-center justify-center h-[40vh] w-full overflow-hidden font-poppins">
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="container mx-auto px-4 text-center relative z-10">
           <h1 className="text-5xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg animate-fade-in">
@@ -20,7 +20,7 @@ const AboutUs = () => {
       </section>
 
       <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 font-poppins">
           <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">Our Purpose</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div className="flex flex-col items-center text-center space-y-4">
@@ -68,7 +68,7 @@ const AboutUs = () => {
       </section>
 
       <section className="py-16 bg-gray-100">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 font-poppins">
           <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">What We Offer</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="flex flex-col items-center text-center space-y-4">
@@ -111,7 +111,7 @@ const AboutUs = () => {
                 Our platform is designed with accessibility in mind, ensuring everyone can use it effectively.
               </p>
             </div>
-            <div className="flex flex-col items-center text-center space-y-4">
+            <div className="flex flex-col items-center text-center space-y-4 ">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-12 w-12 text-red-600 mb-4"
@@ -126,7 +126,7 @@ const AboutUs = () => {
                   d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
                 />
               </svg>
-              <h3 className="text-xl font-semibold text-gray-700">Resources & Support</h3>
+              <h3 className="text-xl font-semibold text-gray-700 ">Resources & Support</h3>
               <p className="text-gray-600 text-sm">
                 Find guides, tips, and support to help you navigate your career journey.
               </p>
@@ -136,7 +136,7 @@ const AboutUs = () => {
       </section>
 
       <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 font-poppins">
           <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">Our Impact</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div className="flex flex-col items-center text-center space-y-4">
@@ -159,7 +159,7 @@ const AboutUs = () => {
                 Thousands of individuals have found meaningful careers through our platform.
               </p>
             </div>
-            <div className="flex flex-col items-center text-center space-y-4">
+            <div className="flex flex-col items-center text-center space-y-4 font-poppins">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-16 w-16 text-orange-600 mb-4"
@@ -184,13 +184,13 @@ const AboutUs = () => {
       </section>
 
       <section
-        className="relative bg-abtusimg bg-no-repeat bg-cover bg-center flex flex-col items-center justify-center h-[40vh] w-full overflow-hidden">
+        className="relative bg-abtusimg bg-no-repeat bg-cover bg-center flex flex-col items-center justify-center h-[40vh] w-full overflow-hidden font-poppins">
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="container mx-auto px-4 text-center relative z-10">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white drop-shadow-lg animate-fade-in">
             Join Us Today
           </h2>
-          <p className="text-lg md:text-xl max-w-2xl mx-auto mb-8 text-white drop-shadow-md animate-fade-in">
+          <p className="text-lg md:text-xl max-w-2xl mx-auto mb-8 text-white drop-shadow-md animate-fade-in ">
             Whether you&apos;re a job seeker or an employer, Disability Careers is here to support you.
           </p>
         </div>

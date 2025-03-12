@@ -1,3 +1,4 @@
+
 const SearchBar = ({
   searchKeyword,
   setSearchKeyword,
@@ -22,7 +23,7 @@ const SearchBar = ({
         </label>
         <select
           id="categorySelect"
-          className="text-black text-opacity-50 px-4 py-2 border-none rounded-md bg-lightBrown w-full sm:w-[calc(33.33%-1.5rem)] font-poppins appearance-none focus:outline-none focus:ring-1 focus:ring-darkBrowny"
+          className="text-black font-normal text-opacity-50 px-4 py-2 border-none rounded-md bg-lightBrown w-full sm:w-[calc(33.33%-1.5rem)] font-poppins appearance-none focus:outline-none focus:ring-1 focus:ring-darkBrowny"
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
         >
@@ -51,3 +52,5 @@ const SearchBar = ({
 };
 
 export default SearchBar;
+
+

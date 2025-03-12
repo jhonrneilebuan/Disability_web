@@ -1,16 +1,16 @@
-import User from "../models/user.model.js";
+import { getReceiverSocketId, io } from "../db/socket.js";
 import Notification from "../models/notification.model.js";
-import { io, getReceiverSocketId } from "../db/socket.js";
+import User from "../models/user.model.js";
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find({});
 
-    const employers = users.filter(user => user.role === "Employer");
-    const applicants = users.filter(user => user.role === "Applicant");
+    const employers = users.filter((user) => user.role === "Employer");
+    const applicants = users.filter((user) => user.role === "Applicant");
 
     res.status(200).json({
       employers,
-      applicants
+      applicants,
     });
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -18,6 +18,21 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+export const getAllEmployers = async (req, res) => {
+  try {
+    const employers = await User.find(
+      { role: "Employer" },
+      "fullName profilePicture role employerInformation.companyName"
+    );
+
+    res.status(200).json({ employers });
+  } catch (error) {
+    console.error("Error fetching employers:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching employers." });
+  }
+};
 
 export const deleteUserById = async (req, res) => {
   try {
@@ -93,34 +108,40 @@ export const getUsersInfo = async (req, res) => {
   try {
     const users = await User.find({});
 
-    const employers = users.filter(user => user.role === "Employer").map(user => ({
-      userId: user._id,
-      fullName: user.fullName,
-      contact: user.contact,
-      employerInformation: {
-        companyName: user.employerInformation.companyName,
-        companyAddress: user.employerInformation.companyAddress,
-        verificationId: user.employerInformation.verificationId || "No verification ID",
-        isIdVerified: user.employerInformation.isIdVerified
-      },
-      banned: user.banned
-    }));
+    const employers = users
+      .filter((user) => user.role === "Employer")
+      .map((user) => ({
+        userId: user._id,
+        fullName: user.fullName,
+        contact: user.contact,
+        employerInformation: {
+          companyName: user.employerInformation.companyName,
+          companyAddress: user.employerInformation.companyAddress,
+          verificationId:
+            user.employerInformation.verificationId || "No verification ID",
+          isIdVerified: user.employerInformation.isIdVerified,
+        },
+        banned: user.banned,
+      }));
 
-    const applicants = users.filter(user => user.role === "Applicant").map(user => ({
-      userId: user._id,
-      fullName: user.fullName,
-      contact: user.contact,
-      disabilityInformation: {
-        verificationId: user.disabilityInformation.verificationId || "No verification ID",
-        disabilityType: user.disabilityInformation.disabilityType,
-        isIdVerified: user.disabilityInformation.isIdVerified
-      },
-      banned: user.banned
-    }));
+    const applicants = users
+      .filter((user) => user.role === "Applicant")
+      .map((user) => ({
+        userId: user._id,
+        fullName: user.fullName,
+        contact: user.contact,
+        disabilityInformation: {
+          verificationId:
+            user.disabilityInformation.verificationId || "No verification ID",
+          disabilityType: user.disabilityInformation.disabilityType,
+          isIdVerified: user.disabilityInformation.isIdVerified,
+        },
+        banned: user.banned,
+      }));
 
     res.status(200).json({
       employers,
-      applicants
+      applicants,
     });
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -130,7 +151,7 @@ export const getUsersInfo = async (req, res) => {
 
 export const updateVerificationStatus = async (req, res) => {
   try {
-    const { userId, role, isVerified } = req.body; 
+    const { userId, role, isVerified } = req.body;
     const user = await User.findById(userId);
 
     if (!user) {
@@ -138,13 +159,23 @@ export const updateVerificationStatus = async (req, res) => {
     }
 
     if (role === "Employer") {
-      if (!user.employerInformation || !user.employerInformation.verificationId) {
-        return res.status(400).json({ message: "Employer verification ID not found" });
+      if (
+        !user.employerInformation ||
+        !user.employerInformation.verificationId
+      ) {
+        return res
+          .status(400)
+          .json({ message: "Employer verification ID not found" });
       }
       user.employerInformation.isIdVerified = isVerified;
     } else if (role === "Applicant") {
-      if (!user.disabilityInformation || !user.disabilityInformation.verificationId) {
-        return res.status(400).json({ message: "Applicant verification ID not found" });
+      if (
+        !user.disabilityInformation ||
+        !user.disabilityInformation.verificationId
+      ) {
+        return res
+          .status(400)
+          .json({ message: "Applicant verification ID not found" });
       }
       user.disabilityInformation.isIdVerified = isVerified;
     } else {
@@ -174,11 +205,15 @@ export const updateUserById = async (req, res) => {
     }
 
     if (updateData.email) user.email = updateData.email;
-    if (updateData.isVerified !== undefined) user.isVerified = updateData.isVerified;
+    if (updateData.isVerified !== undefined)
+      user.isVerified = updateData.isVerified;
     if (updateData.fullName) user.fullName = updateData.fullName;
     if (updateData.contact) user.contact = updateData.contact;
 
-    if (updateData.role && ["Applicant", "Employer", "Admin"].includes(updateData.role)) {
+    if (
+      updateData.role &&
+      ["Applicant", "Employer", "Admin"].includes(updateData.role)
+    ) {
       user.role = updateData.role;
     }
 
@@ -203,10 +238,11 @@ export const updateUserById = async (req, res) => {
     res.status(200).json({ message: "User updated successfully", user });
   } catch (error) {
     console.error("Error updating user:", error);
-    res.status(500).json({ message: "An error occurred while updating the user." });
+    res
+      .status(500)
+      .json({ message: "An error occurred while updating the user." });
   }
 };
-
 
 export const getTotalUsers = async (req, res) => {
   try {
@@ -216,57 +252,70 @@ export const getTotalUsers = async (req, res) => {
     res.status(200).json({ totalUsers });
   } catch (error) {
     console.error("Error fetching total users:", error);
-    res.status(500).json({ error: "An error occurred while fetching total users." });
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching total users." });
   }
 };
-
 
 export const getTotalEmployers = async (req, res) => {
   try {
     const users = await User.find({});
-    const totalEmployers = users.filter(user => user.role === "Employer").length;
+    const totalEmployers = users.filter(
+      (user) => user.role === "Employer"
+    ).length;
 
     res.status(200).json({ totalEmployers });
   } catch (error) {
     console.error("Error fetching total employers:", error);
-    res.status(500).json({ error: "An error occurred while fetching total employers." });
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching total employers." });
   }
 };
-
 
 export const getTotalApplicants = async (req, res) => {
   try {
     const users = await User.find({});
-    const totalApplicants = users.filter(user => user.role === "Applicant").length;
+    const totalApplicants = users.filter(
+      (user) => user.role === "Applicant"
+    ).length;
 
     res.status(200).json({ totalApplicants });
   } catch (error) {
     console.error("Error fetching total applicants:", error);
-    res.status(500).json({ error: "An error occurred while fetching total applicants." });
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching total applicants." });
   }
 };
 
 export const getTotalUser = async (req, res) => {
-
   try {
-    const users = await User.find({});
-
-    if (users.length === 0) {
-      return res.status(400).json({ message: "No users found" });
-    }
-
     const totalUsers = await User.aggregate([
       {
         $group: {
-          _id: null,
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
           count: { $sum: 1 },
         },
       },
+      { $sort: { _id: 1 } },
     ]);
 
-    res.status(200).json({
-      totalUsers: totalUsers[0]?.count || 0,
-    });
+    const chartData = {
+      labels: totalUsers.map((user) => user._id),
+      datasets: [
+        {
+          label: "Total Users",
+          data: totalUsers.map((user) => user.count),
+          fill: false,
+          borderColor: "rgb(75, 192, 192)",
+          tension: 0.1,
+        },
+      ],
+    };
+
+    res.status(200).json(chartData);
   } catch (error) {
     console.error("Error fetching total users:", error);
     res.status(500).json({ message: "An error occurred while fetching total users." });
@@ -284,7 +333,9 @@ export const getUserPercentage = async (req, res) => {
     if (totalUsers === 0) {
       return res.status(400).json({ message: "No users found" });
     }
-    const applicantPercentage = ((totalApplicants / totalUsers) * 100).toFixed(2);
+    const applicantPercentage = ((totalApplicants / totalUsers) * 100).toFixed(
+      2
+    );
     const employerPercentage = ((totalEmployers / totalUsers) * 100).toFixed(2);
 
     res.status(200).json({
@@ -294,15 +345,16 @@ export const getUserPercentage = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching user percentages:", error);
-    res.status(500).json({ message: "An error occurred while fetching percentages." });
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching percentages." });
   }
 };
 
-
 export const updateAdminProfile = async (req, res) => {
   try {
-    const adminId = req.userId
-    const { fullName, contact } = req.body; 
+    const adminId = req.userId;
+    const { fullName, contact } = req.body;
 
     const admin = await User.findById(adminId);
 
@@ -320,14 +372,15 @@ export const updateAdminProfile = async (req, res) => {
       admin,
     });
   } catch (error) {
-    res.status(500).json({ message: "Internal Server Error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
 
-
 export const getAdminProfile = async (req, res) => {
   try {
-    const adminId = req.userId
+    const adminId = req.userId;
 
     const admin = await User.findById(adminId);
 
@@ -350,7 +403,9 @@ export const getAdminProfile = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Internal Server Error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
 
@@ -367,7 +422,7 @@ export const getAllDisabilityCounts = async (req, res) => {
     const disabilityCounts = {};
 
     applicants.forEach((applicant) => {
-      const type = applicant.disabilityInformation?.disabilityType; 
+      const type = applicant.disabilityInformation?.disabilityType;
       if (type) {
         disabilityCounts[type] = (disabilityCounts[type] || 0) + 1;
       }
@@ -385,24 +440,33 @@ export const getAllDisabilityCounts = async (req, res) => {
 export const getUploadedDisabilityVerificationIds = async (req, res) => {
   try {
     const users = await User.find({
-      "disabilityInformation.verificationId": { $ne: null } 
-    }).select("fullName disabilityInformation.verificationId disabilityInformation.isIdVerified");
+      "disabilityInformation.verificationId": { $ne: null },
+    }).select(
+      "fullName disabilityInformation.verificationId disabilityInformation.isIdVerified"
+    );
 
     if (!users.length) {
-      return res.status(404).json({ message: "No users with uploaded verification ID found" });
+      return res
+        .status(404)
+        .json({ message: "No users with uploaded verification ID found" });
     }
 
-    const verificationIds = users.map(user => ({
+    const verificationIds = users.map((user) => ({
       userId: user._id,
       fullName: user.fullName,
       verificationId: user.disabilityInformation.verificationId,
-      isIdVerified: user.disabilityInformation.isIdVerified
+      isIdVerified: user.disabilityInformation.isIdVerified,
     }));
 
     res.status(200).json(verificationIds);
   } catch (error) {
-    console.error("Error fetching uploaded disability verification IDs:", error.stack || error);
-    res.status(500).json({ message: "Internal Server Error", error: error.message });
+    console.error(
+      "Error fetching uploaded disability verification IDs:",
+      error.stack || error
+    );
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
 
@@ -410,7 +474,9 @@ export const getDisabilityVerificationId = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const user = await User.findById(userId).select("disabilityInformation.verificationId");
+    const user = await User.findById(userId).select(
+      "disabilityInformation.verificationId"
+    );
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -420,8 +486,13 @@ export const getDisabilityVerificationId = async (req, res) => {
       verificationId: user.disabilityInformation?.verificationId || null,
     });
   } catch (error) {
-    console.error("Error fetching disability verification ID:", error.stack || error);
-    res.status(500).json({ message: "Internal Server Error", error: error.message });
+    console.error(
+      "Error fetching disability verification ID:",
+      error.stack || error
+    );
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
 
@@ -437,7 +508,9 @@ export const updateDisabilityVerificationStatus = async (req, res) => {
     }
 
     if (user.role !== "Applicant") {
-      return res.status(403).json({ message: "Only applicants can be verified" });
+      return res
+        .status(403)
+        .json({ message: "Only applicants can be verified" });
     }
 
     user.disabilityInformation.isIdVerified = isVerified;
@@ -445,7 +518,9 @@ export const updateDisabilityVerificationStatus = async (req, res) => {
 
     const notification = await Notification.create({
       user: user._id,
-      message: `Your disability verification has been ${isVerified ? "approved" : "rejected"}.`,
+      message: `Your disability verification has been ${
+        isVerified ? "approved" : "rejected"
+      }.`,
       type: "verification",
       isRead: false,
       createdAt: new Date(),
@@ -460,36 +535,52 @@ export const updateDisabilityVerificationStatus = async (req, res) => {
     }
 
     res.status(200).json({
-      message: `Disability ID verification ${isVerified ? "approved" : "rejected"}`,
+      message: `Disability ID verification ${
+        isVerified ? "approved" : "rejected"
+      }`,
       isIdVerified: isVerified,
     });
   } catch (error) {
-    console.error("Error updating disability verification status:", error.stack || error);
-    res.status(500).json({ message: "Internal Server Error", error: error.message });
+    console.error(
+      "Error updating disability verification status:",
+      error.stack || error
+    );
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
 
 export const getUploadedEmployerVerificationIds = async (req, res) => {
   try {
     const users = await User.find({
-      "employerInformation.verificationId": { $ne: null }
-    }).select("fullName employerInformation.verificationId employerInformation.isIdVerified");
+      "employerInformation.verificationId": { $ne: null },
+    }).select(
+      "fullName employerInformation.verificationId employerInformation.isIdVerified"
+    );
 
     if (!users.length) {
-      return res.status(404).json({ message: "No employers with uploaded verification ID found" });
+      return res
+        .status(404)
+        .json({ message: "No employers with uploaded verification ID found" });
     }
 
-    const verificationIds = users.map(user => ({
+    const verificationIds = users.map((user) => ({
       userId: user._id,
       fullName: user.fullName,
       verificationId: user.employerInformation.verificationId,
-      isIdVerified: user.employerInformation.isIdVerified 
+      isIdVerified: user.employerInformation.isIdVerified,
     }));
 
     res.status(200).json(verificationIds);
   } catch (error) {
-    console.error("Error fetching uploaded employer verification IDs:", error.stack || error);
-    res.status(500).json({ message: "Internal Server Error", error: error.message });
+    console.error(
+      "Error fetching uploaded employer verification IDs:",
+      error.stack || error
+    );
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
 
@@ -497,7 +588,9 @@ export const getEmployerVerificationId = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const user = await User.findById(userId).select("employerInformation.verificationId");
+    const user = await User.findById(userId).select(
+      "employerInformation.verificationId"
+    );
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -507,8 +600,13 @@ export const getEmployerVerificationId = async (req, res) => {
       verificationId: user.employerInformation?.verificationId || null,
     });
   } catch (error) {
-    console.error("Error fetching employer verification ID:", error.stack || error);
-    res.status(500).json({ message: "Internal Server Error", error: error.message });
+    console.error(
+      "Error fetching employer verification ID:",
+      error.stack || error
+    );
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
 
@@ -524,7 +622,9 @@ export const updateEmployerVerificationStatus = async (req, res) => {
     }
 
     if (user.role !== "Employer") {
-      return res.status(403).json({ message: "Only employers can be verified" });
+      return res
+        .status(403)
+        .json({ message: "Only employers can be verified" });
     }
 
     user.employerInformation.isIdVerified = isVerified;
@@ -532,7 +632,9 @@ export const updateEmployerVerificationStatus = async (req, res) => {
 
     const notification = await Notification.create({
       user: user._id,
-      message: `Your employer ID verification has been ${isVerified ? "approved" : "rejected"}.`,
+      message: `Your employer ID verification has been ${
+        isVerified ? "approved" : "rejected"
+      }.`,
       type: "verification",
       isRead: false,
       createdAt: new Date(),
@@ -547,12 +649,19 @@ export const updateEmployerVerificationStatus = async (req, res) => {
     }
 
     res.status(200).json({
-      message: `Employer ID verification ${isVerified ? "approved" : "rejected"}`,
+      message: `Employer ID verification ${
+        isVerified ? "approved" : "rejected"
+      }`,
       isIdVerified: isVerified,
     });
   } catch (error) {
-    console.error("Error updating employer verification status:", error.stack || error);
-    res.status(500).json({ message: "Internal Server Error", error: error.message });
+    console.error(
+      "Error updating employer verification status:",
+      error.stack || error
+    );
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
 
@@ -568,7 +677,9 @@ export const getPendingDisabilityVerifications = async (req, res) => {
     });
   } catch (error) {
     console.error("Error counting pending disability verifications:", error);
-    res.status(500).json({ message: "Internal Server Error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
 
@@ -584,6 +695,8 @@ export const getPendingEmployerVerifications = async (req, res) => {
     });
   } catch (error) {
     console.error("Error counting pending employer verifications:", error);
-    res.status(500).json({ message: "Internal Server Error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };

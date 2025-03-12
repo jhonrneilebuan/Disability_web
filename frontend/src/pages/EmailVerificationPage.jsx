@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { authStore } from "../stores/authStore";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { FaSpinner } from "react-icons/fa";
-// import Navbar from "../components/Navbar";
+import { useNavigate } from "react-router-dom";
+import { authStore } from "../stores/authStore";
 
 const EmailVerificationPage = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
@@ -53,7 +52,7 @@ const EmailVerificationPage = () => {
       const { user } = authStore.getState();
       if (user?.role) {
         if (user.role === "Applicant") {
-          navigate("/user-profiling");
+          navigate("/edit-profile?fromSignup=true");
         } else if (user.role === "Employer") {
           navigate("/employer");
         }
@@ -71,23 +70,28 @@ const EmailVerificationPage = () => {
   }, [code]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-applicant-nbg-3 bg-no-repeat bg-cover bg-center overflow-auto">
-
-      <main className="flex-grow flex items-center justify-center p-6">
+    <div className="min-h-screen flex flex-col bg-gray-100 overflow-auto">
+      <main className="flex-grow flex flex-col md:flex-row items-center justify-center p-6 gap-10">
+        <img
+          src="/New message-amico.svg"
+          alt="Email Verification"
+          className="w-3/4 md:w-1/2 lg:w-1/3 object-contain"
+        />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="max-w-md w-full bg-white bg-opacity-30 backdrop-blur-sm rounded-xl shadow-lg p-8"
+          className="max-w-xl w-full bg-white rounded-2xl shadow-xl p-10"
         >
-          <h2 className="text-3xl font-extrabold text-start font-poppins text-white mb-2 drop-shadow-lg">
+          <h2 className="text-4xl font-extrabold font-poppins text-black mb-4 text-center">
             Verify Your Email
           </h2>
-          <p className="text-start text-gray-200 mb-8">
-            Enter the 6-digit code sent to your email to continue your job search.
+          <p className=" text-gray-700 mb-6 text-lg font-poppins text-center">
+            Enter the 6-digit code sent to your email to continue your job
+            search.
           </p>
           <form onSubmit={handleSubmit}>
-            <div className="flex justify-between gap-3">
+            <div className="flex justify-between gap-4">
               {code.map((digit, index) => (
                 <input
                   key={index}
@@ -97,14 +101,14 @@ const EmailVerificationPage = () => {
                   value={digit}
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-14 h-14 text-center text-3xl font-bold bg-gray-100 text-gray-800 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all duration-200 ease-in-out transform hover:scale-105"
+                  className="w-14 h-14 text-center text-4xl font-bold bg-gray-100 text-black border-2 border-gray-300 rounded-xl focus:border-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-600/50 transition-all duration-200 ease-in-out transform hover:scale-105"
                   aria-label={`Digit ${index + 1}`}
                 />
               ))}
             </div>
 
             {error && (
-              <p className="text-red-500 font-semibold text-center mt-4">
+              <p className="text-center mt-4 text-red-500 text-base font-poppins">
                 {error}
               </p>
             )}
@@ -114,7 +118,7 @@ const EmailVerificationPage = () => {
               whileTap={{ scale: 0.95 }}
               type="submit"
               disabled={isLoading || code.some((digit) => !digit)}
-              className="mt-5 w-full py-3 px-4 bg-yellow-600 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-700 transition duration-200"
+              className="mt-6 w-full py-3 px-5 bg-yellow-600 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-700 transition duration-200 text-lg font-poppins"
               aria-label="Verify Email"
             >
               {isLoading ? (

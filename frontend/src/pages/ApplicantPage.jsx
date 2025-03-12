@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ApplicantSearch from "../components/ApplicantSearch";
 import Footer from "../components/Footer";
 import FormatTimeDate from "../components/FormatTimeDate";
 import JobPostSkeleton from "../components/JobPostSkeleton";
 import Navbar from "../components/Navbar";
-import SearchBar from "../components/Search";
 import { jobStore } from "../stores/jobStore";
 
 const ApplicantPage = () => {
@@ -14,13 +14,14 @@ const ApplicantPage = () => {
   const [showAllJobs, setShowAllJobs] = useState(false);
   const navigate = useNavigate();
 
-  const { getJobPosts, jobPosts, error, isLoading } = jobStore();
+  const { fetchJobsByDisability, disabilityJobs, error, isLoading } =
+    jobStore();
 
   useEffect(() => {
-    getJobPosts();
-  }, [getJobPosts]);
+    fetchJobsByDisability();
+  }, [fetchJobsByDisability]);
 
-  const filteredJobPosts = jobPosts.filter((job) => {
+  const filteredJobPosts = disabilityJobs.filter((job) => {
     const matchesKeyword =
       searchKeyword === "" ||
       job.jobTitle?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
@@ -88,15 +89,17 @@ const ApplicantPage = () => {
 
       <main className="flex-grow flex flex-col">
         <section className="bg-applicant-nbg-3 bg-no-repeat bg-cover bg-center flex flex-col items-center justify-start h-[70vh] w-full relative pt-32">
-          <h1 className="text-7xl font-bold text-center font-poppins text-white ">
-            Disability Careers
-          </h1>
-          <p className="text-center text-md font-normal font-poppins text-white text-2xl">
-            Connecting Talents with Accessible Job Opportunities
-          </p>
-
-          <div className="flex items-center mx-auto">
-            <SearchBar
+          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+          <div className="relative z-10 text-center">
+            <h1 className="text-7xl font-bold font-poppins text-white">
+              Disability Careers
+            </h1>
+            <p className="text-2xl font-normal font-poppins text-white">
+              Connecting Talents with Accessible Job Opportunities
+            </p>
+          </div>
+          <div className="flex flex-col items-center mx-auto space-y-6">
+            <ApplicantSearch
               searchKeyword={searchKeyword}
               setSearchKeyword={setSearchKeyword}
               selectedCategory={selectedCategory}
@@ -111,11 +114,13 @@ const ApplicantPage = () => {
 
         <section className="bg-white h-[150] mb-10">
           <h2 className="text-4xl font-bold text-center font-poppins text-BLUE mt-16 mb-5">
-            Latest Job Posts
+            Job Opportunities Aligned with Your Abilities
           </h2>
           <p className="text-xl font-normal text-center font-poppins text-BLUE mb-12">
-            List of Featured Jobs for Disabled People
+            Discover roles where your unique strengths and qualifications are
+            highly valued.
           </p>
+
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-9 px-4">
             {isLoading ? (
               <JobPostSkeleton rows={6} />
@@ -182,27 +187,28 @@ const ApplicantPage = () => {
           )}
         </section>
 
-        <section className="bg-applicant-nbg-5 bg-transparent bg-no-repeat bg-cover bg-center h-[500px] flex items-center justify-center flex-col px-4 sm:px-8 md:px-12">
-          <div className="text-center">
+        <section className="bg-applicant-nbg-5 bg-transparent bg-no-repeat bg-cover bg-center h-[500px] flex items-center justify-center flex-col px-4 sm:px-8 md:px-12 relative">
+          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+          <div className="text-center relative z-10">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-medium font-poppins text-BLUE mt-16 mb-8 sm:mb-10">
-              Empowering Abilities, Transforming Lives
+              Unlocking Opportunities, Embracing Potential
             </h2>
             <p className="text-xl sm:text-2xl lg:text-3xl font-normal font-poppins text-white mb-8 sm:mb-10">
-              Your next chapter begins here. Let’s achieve together!
+              Take the next step in your journey — your future starts here!
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-7 mt-4">
+          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-7 mt-4 relative z-10">
             <button
               onClick={() => handleNavigateProfile()}
-              className="px-12 py-3 sm:px-20 sm:py-3 bg-transparent rounded border-2 border-solid border-BLUE font-poppins text-BLUE font-semibold text-center"
+              className="px-12 py-3 sm:px-20 sm:py-3 bg-transparent rounded border-2 border-solid border-BLUE font-poppins text-BLUE font-semibold text-center hover:bg-BLUE hover:text-white transition duration-300"
             >
-              Profile
+              View Profile
             </button>
             <button
               onClick={() => handleNavigateJobs()}
-              className="px-12 py-3 sm:px-24 sm:py-3 bg-buttonBlue text-white rounded font-poppins font-semibold text-center"
+              className="px-12 py-3 sm:px-24 sm:py-3 bg-buttonBlue text-white rounded border-2 border-transparent font-poppins font-semibold text-center hover:bg-transparent hover:border-BLUE hover:text-buttonBlue transition duration-300"
             >
-              Find a Job
+              Explore Jobs
             </button>
           </div>
         </section>

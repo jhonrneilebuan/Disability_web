@@ -11,6 +11,7 @@ export const jobStore = create((set, get) => ({
   jobPreferences: null,
   isjobPreferencesLoading: false,
   jobPosts: [],
+  jobPreferredPosts: [],
   jobposted: [],
   applications: [],
   employerApplicants: [],
@@ -20,6 +21,9 @@ export const jobStore = create((set, get) => ({
   completeInteview: [],
   interviewScheduledApplicants: [],
   CompleteInterviewApplicants: [],
+  categoryCounts: {},
+  jobs: {},
+  disabilityJobs: [],
   totalPending: 0,
   totalDataOfApplicants: null,
   totalShortlist: 0,
@@ -28,6 +32,7 @@ export const jobStore = create((set, get) => ({
   totalApplicants: 0,
   totalJobs: 0,
   isLoading: false,
+  loading: false,
   isTotalLoading: false,
   isChartLoading: false,
   interviewLoading: false,
@@ -37,6 +42,51 @@ export const jobStore = create((set, get) => ({
   isError: null,
   jobpostError: null,
   isjobLoading: null,
+
+  fetchJobsByDisability: async () => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axios.get(`${API_URL}/applications/job-disability`);
+      set({ disabilityJobs: response.data, loading: false });
+    } catch (error) {
+      set({ error: error.response?.data?.message || 'Something went wrong', loading: false });
+    }
+  },
+
+  fetchJobsByCategory: async (category) => {
+    set({ loading: true });
+    try {
+      const formattedCategory = category.replace(/-/g, "_").toUpperCase();
+      const response = await axios.get(
+        `${API_URL}/applications/category/${formattedCategory}`
+      );
+
+      set((state) => ({
+        jobs: { ...state.jobs, [formattedCategory]: response.data.data },
+        loading: false,
+      }));
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+      set({ loading: false });
+    }
+  },
+
+  fetchCategoryCounts: async () => {
+    set({ loading: true, error: null }); 
+
+    try {
+      const response = await fetch(
+        `${API_URL}/applications/count-by-category`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch category counts");
+      }
+      const data = await response.json();
+      set({ categoryCounts: data.data, loading: false });
+    } catch (error) {
+      set({ error: error.message, loading: false });
+    }
+  },
 
   getJobPreferences: async () => {
     set({ isjobPreferencesLoading: true, error: null });
@@ -140,7 +190,7 @@ export const jobStore = create((set, get) => ({
     try {
       const response = await axios.get(`${API_URL}/jobs/`);
       set({
-        jobPosts: response.data,
+        jobPreferredPosts: response.data,
         isjobLoading: false,
       });
     } catch (error) {
@@ -452,7 +502,6 @@ export const jobStore = create((set, get) => ({
       }));
     } catch (error) {
       console.error("Error removing saved job:", error.message);
-      alert("Failed to remove job from saved list. Please try again.");
     }
   },
 

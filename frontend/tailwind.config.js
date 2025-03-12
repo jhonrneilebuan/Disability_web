@@ -37,6 +37,8 @@ export default {
       },
       fontFamily: {
         jakarta: ["'Plus Jakarta Sans'", "sans-serif"],
+        amanda: ['Amanda Black', 'sans-serif'],
+
         poppins: ["Poppins", "sans-serif"],
         nunito: ["Nunito", "sans-serif"],
         rowdies: ["Rowdies", "cursive"],
@@ -52,6 +54,7 @@ export default {
         "applicant-nbg-5": "url('bgbgbgbg.jpg')",
         "applicant-nbg-6": "url('bgbgbgbgbg.jpg')",
         "sample-logo":"url('sample-logo.png')",
+        "login-logo":"url('undraw_interview_yz52.png')",
         "abtusimg":"url(abtusimg.jpg)",
         "initiallogowhite":"url(initiallogowhite.jpg)"
 
@@ -72,6 +75,5 @@ export default {
   },
   plugins: [daisyui],
   daisyui: {
-    themes: ["light"],
   },
 };

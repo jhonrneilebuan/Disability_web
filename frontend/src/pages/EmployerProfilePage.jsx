@@ -17,7 +17,6 @@ const EmployerProfilePage = () => {
 
     const validTypes = ["image/jpeg", "image/png", "image/jpg"];
     if (!validTypes.includes(file.type)) {
-      alert("Invalid file type. Please upload a JPEG or PNG image.");
       return;
     }
 
@@ -33,7 +32,6 @@ const EmployerProfilePage = () => {
           await updateCoverPhoto({ coverPhoto: base64Image });
         } catch (error) {
           console.error("Failed to upload cover photo:", error);
-          alert("Failed to upload cover photo. Please try again.");
         }
       } else {
         setSelectedImg(base64Image);
@@ -41,7 +39,6 @@ const EmployerProfilePage = () => {
           await updateProfile({ profilePicture: base64Image });
         } catch (error) {
           console.error("Failed to upload profile picture:", error);
-          alert("Failed to upload profile picture. Please try again.");
         }
       }
     };

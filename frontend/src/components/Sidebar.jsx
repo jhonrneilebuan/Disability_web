@@ -70,7 +70,7 @@ const Sidebar = () => {
           <li>
             <Link
               to="/employer"
-              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-all duration-300 ${
+              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-all duration-300 font-poppins${
                 isSidebarCollapsed ? "justify-center" : ""
               } ${isActive("/employer") ? "bg-gray-700" : ""}`}
             >
@@ -80,7 +80,7 @@ const Sidebar = () => {
                 } text-blue-400`}
               />
               {!isSidebarCollapsed && (
-                <span className="text-lg text-white hover:text-blue-400 transition-colors duration-300">
+                <span className="text-base text-white hover:text-blue-400 transition-colors duration-300">
                   Dashboard
                 </span>
               )}
@@ -90,7 +90,7 @@ const Sidebar = () => {
           <li>
             <Link
               to="/post-job"
-              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-all duration-300 ${
+              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-all duration-300 font-poppins ${
                 isSidebarCollapsed ? "justify-center" : ""
               } ${isActive("/post-job") ? "bg-gray-700" : ""}`}
             >
@@ -100,7 +100,7 @@ const Sidebar = () => {
                 } text-blue-400`}
               />
               {!isSidebarCollapsed && (
-                <span className="text-lg text-white hover:text-blue-400 transition-colors duration-300">
+                <span className="text-base text-white hover:text-blue-400 transition-colors duration-300">
                   Jobs
                 </span>
               )}
@@ -109,7 +109,7 @@ const Sidebar = () => {
           <li>
             <Link
               to="/applicant-list"
-              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-all duration-300 ${
+              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-all duration-300 font-poppins${
                 isSidebarCollapsed ? "justify-center" : ""
               } ${isActive("/applicant-list") ? "bg-gray-700" : ""}`}
             >
@@ -120,11 +120,11 @@ const Sidebar = () => {
               />
               {!isSidebarCollapsed && (
                 <div className="flex items-center justify-between w-full">
-                  <span className="text-lg text-white hover:text-blue-400 transition-colors duration-300">
+                  <span className="text-base text-white hover:text-blue-400 transition-colors duration-300">
                     Applicants
                   </span>
                   {totalApplicants !== null && (
-                    <span className="text-sm bg-blue-500 text-white px-2 py-1 rounded-full">
+                    <span className="text-sm bg-blue-500 text-white px-3 py-1 rounded-full">
                       {totalApplicants}
                     </span>
                   )}
@@ -136,7 +136,7 @@ const Sidebar = () => {
           <li>
             <Link
               to="/employer-interview"
-              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-all duration-300 ${
+              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-all duration-300 font-poppins ${
                 isSidebarCollapsed ? "justify-center" : ""
               } ${isActive("/employer-interview") ? "bg-gray-700" : ""}`}
             >
@@ -146,7 +146,7 @@ const Sidebar = () => {
                 } text-blue-400`}
               />
               {!isSidebarCollapsed && (
-                <span className="text-lg text-white hover:text-blue-400 transition-colors duration-300">
+                <span className="text-base text-white hover:text-blue-400 transition-colors duration-300">
                   Interview Management
                 </span>
               )}
@@ -156,7 +156,7 @@ const Sidebar = () => {
           <li>
             <Link
               to="/employer-hiring"
-              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-all duration-300 ${
+              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-all duration-300 font-poppins ${
                 isSidebarCollapsed ? "justify-center" : ""
               } ${isActive("/employer-hiring") ? "bg-gray-700" : ""}`}
             >
@@ -166,7 +166,7 @@ const Sidebar = () => {
                 } text-blue-400`}
               />
               {!isSidebarCollapsed && (
-                <span className="text-lg text-white hover:text-blue-400 transition-colors duration-300">
+                <span className="text-base text-white hover:text-blue-400 transition-colors duration-300">
                   Hiring Management
                 </span>
               )}
@@ -176,7 +176,7 @@ const Sidebar = () => {
           <li>
             <Link
               to="/messaging"
-              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-all duration-300 ${
+              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-gray-700 transition-all duration-300 font-poppins ${
                 isSidebarCollapsed ? "justify-center" : ""
               } ${isActive("/messaging") ? "bg-gray-700" : ""}`}
             >
@@ -186,7 +186,7 @@ const Sidebar = () => {
                 } text-blue-400`}
               />
               {!isSidebarCollapsed && (
-                <span className="text-lg text-white hover:text-blue-400 transition-colors duration-300">
+                <span className="text-base text-white hover:text-blue-400 transition-colors duration-300">
                   Messaging
                 </span>
               )}
@@ -196,19 +196,17 @@ const Sidebar = () => {
           <li>
             <button
               onClick={handleLogout}
-              className={`flex items-center gap-4 p-3 rounded-lg hover:bg-red-700 transition-all duration-300 w-full ${
+              className={`flex items-center gap-4 p-3 rounded-lg bg-red-600 hover:bg-red-700 transition-all duration-300 w-full font-poppins ${
                 isSidebarCollapsed ? "justify-center" : ""
               }`}
             >
               <LogOut
                 className={`${
                   isSidebarCollapsed ? "h-8 w-8" : "h-6 w-6"
-                } text-red-400`}
+                } text-white`}
               />
               {!isSidebarCollapsed && (
-                <span className="text-lg text-white hover:text-red-400 transition-colors duration-300">
-                  Logout
-                </span>
+                <span className="text-base text-white">Logout</span>
               )}
             </button>
           </li>

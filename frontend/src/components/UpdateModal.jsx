@@ -88,7 +88,6 @@ const UpdateModal = ({ open, onClose, job }) => {
         await getEmployerJobs();
       } catch (error) {
         console.error("Error updating job:", error);
-        alert("There was an error updating your job. Please try again.");
       }
     },
   });

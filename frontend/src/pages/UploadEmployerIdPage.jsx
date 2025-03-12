@@ -16,7 +16,6 @@ const UploadEmployerIdPage = () => {
 
     const validTypes = ["image/jpeg", "image/png", "image/jpg"];
     if (!validTypes.includes(file.type)) {
-      alert("Invalid file type. Please upload a JPEG or PNG image.");
       return;
     }
 
@@ -42,7 +41,6 @@ const UploadEmployerIdPage = () => {
 
   const handleUpload = async () => {
     if (!selectedEmployerID) {
-      alert("Please select an image first.");
       return;
     }
 

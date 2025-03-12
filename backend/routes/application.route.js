@@ -30,11 +30,19 @@ import {
   shortlistApplication,
   updateJobPreferences,
   withdrawApplication,
+  countJobsByCategory,
+  getJobsByCategory,
+  JobsByDisability
 } from "../controllers/application.controller.js";
 import { uploadFiles } from "../middlewares/file_upload.js";
 import { employerOnly, verifyToken } from "../middlewares/token.js";
 
 const router = express.Router();
+
+router.get("/count-by-category", countJobsByCategory);
+router.get("/category/:category", getJobsByCategory);
+
+
 
 router.post("/apply", verifyToken, uploadFiles, applyJobs);
 
@@ -112,5 +120,6 @@ router.get(
 );
 
 router.get("/applicants/CompleteInterview", verifyToken, getCompleteInterview);
+router.get("/job-disability", verifyToken ,JobsByDisability);
 
 export default router;
