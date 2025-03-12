@@ -7,7 +7,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["https://disability-careers-gixk.onrender.com"],
+    origin: ["https://disability-careers-gixk.onrender.com/"],
     methods: ["GET", "PUT", "POST", "DELETE", "PATCH"],
     credentials: true,
   },
