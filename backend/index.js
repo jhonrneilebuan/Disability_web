@@ -44,7 +44,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/contact", contactRoutes);
 
 
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT
 
 server.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
