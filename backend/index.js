@@ -43,6 +43,18 @@ app.use("/api/email", emailRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/contact", contactRoutes);
 
+app.use((req, res, next) => {
+  console.log("Headers:", req.headers);
+  console.log("Cookies:", req.cookies);
+  next();
+});
+
+
+app.get("/test-cookie", (req, res) => {
+  console.log('Cookies:', req.cookies);
+  res.send(req.cookies);
+});
+
 console.log(process.env.JWT_SECRET); 
 
 const PORT = process.env.PORT
