@@ -1,28 +1,29 @@
-import  { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { userStore } from "../stores/userStore";
-import Sidebar from "../components/Sidebar";
-import { chatStore } from "../stores/chatStore";
 import {
   Accessibility,
-  User,
-  Briefcase,
   Award,
-  Layers,
+  Briefcase,
   Check,
-  ChevronRight,
   ChevronLeft,
-  Undo2,
-  Send,
+  ChevronRight,
+  Layers,
+  Loader,
   Mail,
+  Send,
+  Undo2,
+  User,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import Sidebar from "../components/Sidebar";
+import { chatStore } from "../stores/chatStore";
+import { userStore } from "../stores/userStore";
 
 const UserData = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("bio");
   const { fetchUserData, profileData, isLoading, error } = userStore();
-  const {setSelectedUser} = chatStore();
+  const { setSelectedUser } = chatStore();
 
   const tabs = ["bio", "career Info", "Accessibility Info"];
 
@@ -31,7 +32,11 @@ const UserData = () => {
   }, [userId, fetchUserData]);
 
   if (isLoading) {
-    return <p className="text-center text-gray-600">Loading user data...</p>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader className="w-10 h-10 animate-spin" />
+      </div>
+    );
   }
 
   if (error) {
@@ -68,6 +73,11 @@ const UserData = () => {
             <Undo2 className="w-5 h-5 mr-2" />
             Go Back
           </button>
+          {error && (
+            <div className="flex items-center justify-center flex-1">
+              <p className="text-red-500 text-lg font-poppins">{error}</p>
+            </div>
+          )}
           <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden h-[80vh] flex flex-col">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 flex-1">
               <div className="flex flex-col items-center space-y-4 h-full">
@@ -78,7 +88,10 @@ const UserData = () => {
                 />
 
                 <div className="flex space-x-4 mt-4">
-                  <button className="bg-blue-600 text-white py-2 px-4 rounded-full flex items-center" onClick={handleMessageClick}>
+                  <button
+                    className="bg-blue-600 text-white py-2 px-4 rounded-full flex items-center"
+                    onClick={handleMessageClick}
+                  >
                     <Send size={18} className="mr-2" /> Message
                   </button>
 

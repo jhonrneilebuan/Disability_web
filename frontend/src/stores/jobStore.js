@@ -72,7 +72,7 @@ export const jobStore = create((set, get) => ({
   },
 
   fetchCategoryCounts: async () => {
-    set({ loading: true, error: null }); 
+    set({ loading: true, isError: null }); 
 
     try {
       const response = await fetch(
@@ -84,7 +84,7 @@ export const jobStore = create((set, get) => ({
       const data = await response.json();
       set({ categoryCounts: data.data, loading: false });
     } catch (error) {
-      set({ error: error.message, loading: false });
+      set({ isError: error.message, loading: false });
     }
   },
 

@@ -26,10 +26,12 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import ApplicantSearch from "../components/ApplicantSearch";
 import Footer from "../components/Footer";
 import FormatTimeDate from "../components/FormatTimeDate";
+import JobPostSkeleton from "../components/JobPostSkeleton";
 import Navbar from "../components/Navbar";
 import { adminStore } from "../stores/adminApi";
 import { authStore } from "../stores/authStore";
 import { jobStore } from "../stores/jobStore";
+import CategoryLoading from "./CategoryLoading";
 const Homepage = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("ALL");
@@ -43,8 +45,9 @@ const Homepage = () => {
     fetchCategoryCounts,
     getAllJobs,
     jobPosts,
-    //error
-    //isLoading,
+    isLoading,
+    loading,
+    isError,
     error,
     fetchJobsByCategory,
   } = jobStore();
@@ -201,60 +204,72 @@ const Homepage = () => {
             List of Featured Jobs for Disabled People
           </p>
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-9 px-4">
-            {displayedJobPosts.map((job) => (
-              <div
-                key={job.id}
-                className="bg-white shadow-lg rounded-lg p-4 border border-gray-200 flex flex-col justify-between"
-              >
-                <h3 className="text-xl font-semibold text-black mb-2 font-poppins">
-                  {job.jobTitle || "Job Type Not Specified"}
-                </h3>
-                <p className="text-black font-light font-poppins bg-green-300 rounded-md w-24 text-center py-1 px-1 mb-1">
-                  {job.jobType || "No job description available"}
-                </p>
-                <p className="text-base text-black font-light font-poppins mb-2">
-                  {job.employer?.fullName}/
-                  {job.companyName || job.employer.companyName}
-                </p>
-                <p className="text-base text-black font-light font-poppins mb-2">
-                  {job.locations.join(", ").replace(/[\\[\]"]+/g, "")}
-                </p>
+            {isLoading ? (
+              <JobPostSkeleton rows={6} />
+            ) : error ? (
+              <p className="text-red-500 text-lg font-poppins col-span-full text-center">
+                {error}
+              </p>
+            ) : displayedJobPosts.length > 0 ? (
+              displayedJobPosts.map((job) => (
+                <div
+                  key={job.id}
+                  className="bg-white shadow-lg rounded-lg p-4 border border-gray-200 flex flex-col justify-between"
+                >
+                  <h3 className="text-xl font-semibold text-black mb-2 font-poppins">
+                    {job.jobTitle || "Job Type Not Specified"}
+                  </h3>
+                  <p className="text-black font-light font-poppins bg-green-300 rounded-md w-24 text-center py-1 px-1 mb-1">
+                    {job.jobType || "No job description available"}
+                  </p>
+                  <p className="text-base text-black font-light font-poppins mb-2">
+                    {job.employer?.fullName}/
+                    {job.companyName || job.employer.companyName}
+                  </p>
+                  <p className="text-base text-black font-light font-poppins mb-2">
+                    {job.locations.join(", ").replace(/[\\[\]"]+/g, "")}
+                  </p>
 
-                <p className="text-black font-light font-poppins">
-                  {job.expectedSalary &&
-                  job.expectedSalary.minSalary &&
-                  job.expectedSalary.maxSalary
-                    ? `PHP ${job.expectedSalary.minSalary.toLocaleString()} - PHP ${job.expectedSalary.maxSalary.toLocaleString()}`
-                    : "Salary information not available"}
-                </p>
+                  <p className="text-black font-light font-poppins">
+                    {job.expectedSalary &&
+                    job.expectedSalary.minSalary &&
+                    job.expectedSalary.maxSalary
+                      ? `PHP ${job.expectedSalary.minSalary.toLocaleString()} - PHP ${job.expectedSalary.maxSalary.toLocaleString()}`
+                      : "Salary information not available"}
+                  </p>
 
-                <hr className="border-t-2 border-gray-300 my-6" />
+                  <hr className="border-t-2 border-gray-300 my-6" />
 
-                <p className="text-black font-poppins font-normal flex-grow">
-                  {job.jobDescription || "No job description available"}
-                </p>
-                {isAuthenticated ? (
-                  <button
-                    className="text-blue-500 font-poppins underline py-2 text-left"
-                    onClick={() => handleJobDetails(job._id)}
-                  >
-                    See more
-                  </button>
-                ) : (
-                  <button
-                    className="text-blue-500 font-poppins underline py-2 text-left opacity-50 cursor-not-allowed"
-                    title="Login first to proceed"
-                    disabled
-                  >
-                    See more
-                  </button>
-                )}
+                  <p className="text-black font-poppins font-normal flex-grow">
+                    {job.jobDescription || "No job description available"}
+                  </p>
+                  {isAuthenticated ? (
+                    <button
+                      className="text-blue-500 font-poppins underline py-2 text-left"
+                      onClick={() => handleJobDetails(job._id)}
+                    >
+                      See more
+                    </button>
+                  ) : (
+                    <button
+                      className="text-blue-500 font-poppins underline py-2 text-left opacity-50 cursor-not-allowed"
+                      title="Login first to proceed"
+                      disabled
+                    >
+                      See more
+                    </button>
+                  )}
 
-                <p className="text-black mt-10 font-poppins">
-                  <FormatTimeDate date={job.createdAt} formatType="date" />
-                </p>
-              </div>
-            ))}
+                  <p className="text-black mt-10 font-poppins">
+                    <FormatTimeDate date={job.createdAt} formatType="date" />
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 text-lg font-semibold col-span-full text-center">
+                No job posts available.
+              </p>
+            )}
           </div>
 
           {filteredJobPosts.length > 6 && (
@@ -276,46 +291,56 @@ const Homepage = () => {
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {Object.entries(categoryCounts).map(([category, count]) => {
-                let formattedCategory = category
-                  .toLowerCase()
-                  .replace(/_/g, " ")
-                  .replace(/\b\w/g, (char) => char.toUpperCase());
+              {loading ? (
+                Array.from({ length: 8 }).map((_, index) => (
+                  <CategoryLoading key={index} />
+                ))
+              ) : isError ? (
+                <p className="text-red-500 text-lg font-poppins col-span-full text-center">
+                  {isError}
+                </p>
+              ) : (
+                Object.entries(categoryCounts).map(([category, count]) => {
+                  let formattedCategory = category
+                    .toLowerCase()
+                    .replace(/_/g, " ")
+                    .replace(/\b\w/g, (char) => char.toUpperCase());
 
-                if (category === "IT" || category === "HR") {
-                  formattedCategory = category;
-                }
+                  if (category === "IT" || category === "HR") {
+                    formattedCategory = category;
+                  }
 
-                return (
-                  <div
-                    key={category}
-                    className="bg-white p-6 shadow-md flex flex-col items-center text-center 
+                  return (
+                    <div
+                      key={category}
+                      className="bg-white p-6 shadow-md flex flex-col items-center text-center 
             transition-transform duration-300 hover:scale-105 hover:shadow-lg rounded-lg"
-                  >
-                    <div className="w-14 h-14 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full">
-                      {categoryIcons[category] || (
-                        <FaBriefcase className="w-8 h-8" />
-                      )}
-                    </div>
-
-                    <h3 className="text-lg font-medium mt-4 text-gray-800 font-[Poppins]">
-                      {formattedCategory}
-                    </h3>
-
-                    <p className="text-gray-600 text-sm mt-1 font-[Poppins]">
-                      {count} Jobs Available
-                    </p>
-
-                    <button
-                      onClick={() => handleViewJobs(category)}
-                      className="mt-4 px-8 py-2 text-sm font-medium text-white bg-blue-500 
-              hover:bg-blue-600 transition-all font-[Poppins] rounded-lg"
                     >
-                      View Jobs
-                    </button>
-                  </div>
-                );
-              })}
+                      <div className="w-14 h-14 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full">
+                        {categoryIcons[category] || (
+                          <FaBriefcase className="w-8 h-8" />
+                        )}
+                      </div>
+
+                      <h3 className="text-lg font-medium mt-4 text-gray-800 font-[Poppins]">
+                        {formattedCategory}
+                      </h3>
+
+                      <p className="text-gray-600 text-sm mt-1 font-[Poppins]">
+                        {count} Jobs Available
+                      </p>
+
+                      <button
+                        onClick={() => handleViewJobs(category)}
+                        className="mt-4 px-8 py-2 text-sm font-medium text-white bg-blue-500 
+              hover:bg-blue-600 transition-all font-[Poppins] rounded-lg"
+                      >
+                        View Jobs
+                      </button>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </section>
