@@ -189,6 +189,7 @@ export const locationOptions = [
   { label: "Metro Manila, San Juan", value: "Metro Manila, San Juan" },
   { label: "Metro Manila, Taguig", value: "Metro Manila, Taguig" },
   { label: "Metro Manila, Valenzuela", value: "Metro Manila, Valenzuela" },
+  { label: "Metro Manila, Cebu", value: "Metro Manila, Cebu" },
 
   { label: "Ilocos Norte, Laoag", value: "Ilocos Norte, Laoag" },
   { label: "Ilocos Sur, Vigan", value: "Ilocos Sur, Vigan" },

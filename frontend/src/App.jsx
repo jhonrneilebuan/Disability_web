@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Loading from "./components/Loading";
+import ScrollToTop from "./components/ScrollToTop";
 import AboutUs from "./pages/AboutUs";
 import ApplicantList from "./pages/AdminApplicantList";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -42,7 +43,6 @@ import UserData from "./pages/UserData";
 import UserProfilingPage from "./pages/UserProfilingPage";
 import VideoChatRoom from "./pages/VideoChatRoom";
 import { authStore } from "./stores/authStore";
-
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = authStore();
   if (!isAuthenticated) {
@@ -80,7 +80,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
 function App() {
   const { isCheckingAuth, checkAuth, onlineUsers } = authStore();
 
-  console.log("Online User",onlineUsers);
+  console.log("Online User", onlineUsers);
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
@@ -89,6 +89,7 @@ function App() {
 
   return (
     <div>
+      <ScrollToTop />
       <Routes>
         <Route
           path="/applicant"
@@ -176,14 +177,7 @@ function App() {
           }
         />
 
-        <Route
-          path="/contact-us"
-          element={
-            <RedirectAuthenticatedUser>
-              <ContactUsPage />
-            </RedirectAuthenticatedUser>
-          }
-        />
+        <Route path="/contact-us" element={<ContactUsPage />} />
 
         <Route
           path="/login"

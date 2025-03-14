@@ -452,7 +452,7 @@ const JobsPage = () => {
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500">No job posts available.</p>
+                <p className="text-gray-500 font-poppins text-center">No job posts available.</p>
               )}
             </div>
           </div>
@@ -776,7 +776,7 @@ const JobsPage = () => {
                 );
               })
             ) : (
-              <p className="text-gray-500 col-span-full text-center">
+              <p className="text-gray-500 col-span-full text-center font-poppins">
                 No job posts available.
               </p>
             )}

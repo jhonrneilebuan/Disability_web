@@ -169,7 +169,7 @@ const ApplicantPage = () => {
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 text-lg font-semibold col-span-full text-center">
+              <p className="text-gray-500 text-lg font-semibold font-poppins col-span-full text-center">
                 No job posts available.
               </p>
             )}

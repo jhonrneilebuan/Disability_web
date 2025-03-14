@@ -97,7 +97,7 @@ const EmailVerificationPage = () => {
                   key={index}
                   ref={(el) => (inputRefs.current[index] = el)}
                   type="text"
-                  maxLength="1"
+                  maxLength="6"
                   value={digit}
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}

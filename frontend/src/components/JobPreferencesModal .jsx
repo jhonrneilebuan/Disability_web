@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import Select from "react-select";
 import { jobStore } from "../stores/jobStore";
 import { locationOptions } from "../utils/options";
+
 const jobCategories = [
-  "ALL",
   "DESIGN",
   "DEVELOPMENT",
   "MARKETING",
@@ -36,7 +36,6 @@ const jobTypes = [
 ].map((type) => ({ value: type, label: type }));
 
 const disabilities = [
-  "Any",
   "Mobility Impairment",
   "Amputation",
   "Cerebral Palsy",
@@ -70,6 +69,15 @@ const jobLevels = [
   "Student",
 ].map((level) => ({ value: level, label: level }));
 
+const jobQualificationsOptions = [
+  "Bachelor's Degree",
+  "High School Diploma",
+  "Technical Training",
+  "College Undergraduate",
+  "Master's Degree",
+  "Doctorate Degree",
+].map((qual) => ({ value: qual, label: qual }));
+
 const JobPreferencesModal = ({ isOpen, onClose }) => {
   const {
     jobPreferences,
@@ -77,14 +85,15 @@ const JobPreferencesModal = ({ isOpen, onClose }) => {
     updateJobPreferences,
     isJobPreferencesLoading,
   } = jobStore();
+  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
     jobCategories: [],
     jobTypes: [],
-    preferredLocations: "",
+    preferredLocations: null,
     preferredDisability: null,
     expectedSalary: { minSalary: "", maxSalary: "" },
-    jobQualifications: "",
+    jobQualifications: null,
     jobLevel: null,
   });
 
@@ -143,129 +152,204 @@ const JobPreferencesModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
 
     const preparedData = {
       jobCategories: formData.jobCategories?.map((c) => c.value) || [],
       jobTypes: formData.jobTypes?.map((t) => t.value) || [],
-      preferredLocations: formData.preferredLocations,
+      preferredLocations: formData.preferredLocations?.value || "",
       preferredDisability: formData.preferredDisability?.value || "",
       expectedSalary: {
         minSalary: Number(formData.expectedSalary.minSalary) || 0,
         maxSalary: Number(formData.expectedSalary.maxSalary) || 0,
       },
-      jobQualifications: formData.jobQualifications,
+      jobQualifications: formData.jobQualifications?.value || "",
       jobLevel: formData.jobLevel?.value || "",
     };
 
     await updateJobPreferences(preparedData);
     onClose();
+    window.location.reload();
   };
 
   if (!isOpen) return null;
 
+  const validateForm = () => {
+    let newErrors = {};
+
+    if (!formData.preferredLocations || !formData.preferredLocations.value) {
+      newErrors.preferredLocations = "Location is required.";
+    }
+
+    if (!formData.jobQualifications || !formData.jobQualifications.value) {
+      newErrors.jobQualifications = "Qualifications are required.";
+    }
+
+    const minSalary =
+      formData.expectedSalary.minSalary.trim() === ""
+        ? NaN
+        : Number(formData.expectedSalary.minSalary);
+    const maxSalary =
+      formData.expectedSalary.maxSalary.trim() === ""
+        ? NaN
+        : Number(formData.expectedSalary.maxSalary);
+
+    if (isNaN(minSalary) || isNaN(maxSalary)) {
+      newErrors.expectedSalary = "Salary values must be numbers.";
+    } else if (minSalary < 0 || maxSalary < 0) {
+      newErrors.expectedSalary = "Salary values cannot be negative.";
+    } else if (minSalary > maxSalary) {
+      newErrors.expectedSalary =
+        "Min salary cannot be greater than max salary.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const customStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: "white",
+      borderColor: state.isFocused ? "#007bff" : "#ccc",
+      color: "black",
+      boxShadow: state.isFocused ? "0 0 0 2px rgba(0, 123, 255, 0.2)" : "none",
+      "&:hover": {
+        borderColor: "#007bff",
+      },
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: "white",
+      color: "black",
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected
+        ? "#007bff"
+        : state.isFocused
+        ? "#cce5ff"
+        : "white",
+      color: state.isSelected ? "white" : "black",
+      "&:hover": {
+        backgroundColor: "#cce5ff",
+      },
+    }),
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div className="bg-white p-8 rounded-2xl w-full max-w-lg shadow-2xl">
-        <h2 className="text-xl font-semibold mb-6 text-center">
+      <div className="bg-white p-10 rounded-lg w-2/3 shadow-lg">
+        <h2 className="text-2xl font-semibold mb-4 text-center text-black font-poppins">
           Edit Job Preferences
         </h2>
 
         {isJobPreferencesLoading ? (
-          <p className="text-center text-gray-600">Loading...</p>
+          <p className="font-poppins">Loading...</p>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 gap-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex space-x-2 w-full">
               <Select
                 name="jobCategories"
                 options={jobCategories}
                 onChange={handleMultiChange}
                 value={formData.jobCategories}
-                placeholder="Select up to 3 Job Categories"
-                className="w-full"
+                placeholder="Select Job Categories"
+                className="w-full flex-1 text-black font-poppins"
+                styles={customStyles}
                 isMulti
-                closeMenuOnSelect={false}
-                isOptionDisabled={() => formData.jobCategories.length >= 3}
               />
-
               <Select
                 name="jobTypes"
                 options={jobTypes}
                 onChange={handleMultiChange}
                 value={formData.jobTypes}
-                placeholder="Select up to 3 Job Types"
-                className="w-full"
+                placeholder="Select Job Types"
+                className="w-full flex-1 text-black font-poppins"
+                styles={customStyles}
                 isMulti
-                closeMenuOnSelect={false}
-                isOptionDisabled={() => formData.jobTypes.length >= 3}
               />
-
-              <Select
-                name="preferredLocations"
-                options={locationOptions}
-                onChange={handleChange}
-                value={formData.preferredLocations}
-                placeholder="Select Preferred Location"
-                className="w-full text-black font-poppins"
-              />
-
-              <Select
-                name="preferredDisability"
-                options={disabilities}
-                onChange={handleChange}
-                value={formData.preferredDisability}
-                placeholder="Select Preferred Disability"
-                className="w-full"
-              />
-
-              <Select
-                name="jobLevel"
-                options={jobLevels}
-                onChange={handleChange}
-                value={formData.jobLevel}
-                placeholder="Select Job Level"
-                className="w-full"
-              />
-
-              <input
-                type="text"
-                name="jobQualifications"
-                placeholder="Job Qualifications"
-                value={formData.jobQualifications}
-                onChange={handleInputChange}
-                className="w-full border p-3 rounded-lg text-black"
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <input
-                  type="number"
-                  name="minSalary"
-                  placeholder="Min Salary"
-                  value={formData.expectedSalary.minSalary}
-                  onChange={handleInputChange}
-                  className="w-full border p-3 rounded-lg text-black"
-                />
-                <input
-                  type="number"
-                  name="maxSalary"
-                  placeholder="Max Salary"
-                  value={formData.expectedSalary.maxSalary}
-                  onChange={handleInputChange}
-                  className="w-full border p-3 rounded-lg text-black"
-                />
-              </div>
             </div>
 
-            <div className="flex justify-end space-x-4">
+            <Select
+              name="preferredLocations"
+              options={locationOptions}
+              onChange={handleChange}
+              value={formData.preferredLocations}
+              placeholder="Select Preferred Location"
+              styles={customStyles}
+              className=" text-black font-poppins"
+            />
+            {errors.preferredLocations && (
+              <p className="text-red-500 text-center font-poppins">
+                {errors.preferredLocations}
+              </p>
+            )}
+
+            <Select
+              name="preferredDisability"
+              options={disabilities}
+              onChange={handleChange}
+              value={formData.preferredDisability}
+              placeholder="Select Preferred Disability"
+              styles={customStyles}
+              className=" text-black font-poppins"
+            />
+
+            <Select
+              name="jobLevel"
+              options={jobLevels}
+              onChange={handleChange}
+              value={formData.jobLevel}
+              placeholder="Select Job Level"
+              className=" text-black font-poppins"
+            />
+
+            <Select
+              name="jobQualifications"
+              options={jobQualificationsOptions}
+              onChange={handleChange}
+              value={formData.jobQualifications}
+              placeholder="Select Job Qualifications"
+              styles={customStyles}
+              className=" text-black font-poppins"
+            />
+
+            <div className="flex space-x-2">
+              <input
+                type="number"
+                name="minSalary"
+                placeholder="Min Salary"
+                value={formData.expectedSalary.minSalary}
+                onChange={handleInputChange}
+                className="w-1/2 border p-2 rounded text-black font-poppins  [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-moz-appearance:textfield]"
+              />
+              <input
+                type="number"
+                name="maxSalary"
+                placeholder="Max Salary"
+                value={formData.expectedSalary.maxSalary}
+                onChange={handleInputChange}
+                className="w-1/2 border p-2 rounded  text-black font-poppins  [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-moz-appearance:textfield]"
+              />
+            </div>
+            {errors.expectedSalary && (
+              <p className="text-red-500 text-center font-poppins">
+                {errors.expectedSalary}
+              </p>
+            )}
+
+            <div className="flex justify-end space-x-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-3 bg-gray-500 text-white rounded-2xl hover:bg-gray-600"
+                className="px-4 py-2 w-full bg-gray-700 text-white rounded font-poppins"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-6 py-3 bg-blue-500 text-white rounded-2xl hover:bg-blue-600"
+                className="px-4 py-2 w-full bg-blue-600 text-white rounded font-poppins"
               >
                 Save
               </button>

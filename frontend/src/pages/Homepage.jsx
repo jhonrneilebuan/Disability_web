@@ -99,7 +99,6 @@ const Homepage = () => {
   });
 
   const categories = [
-    "Select Category",
     "ALL",
     "DESIGN",
     "DEVELOPMENT",
@@ -266,7 +265,7 @@ const Homepage = () => {
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 text-lg font-semibold col-span-full text-center">
+              <p className="text-gray-500 text-lg font-semibold font-poppins col-span-full text-center">
                 No job posts available.
               </p>
             )}
@@ -402,7 +401,7 @@ const Homepage = () => {
                 })}
               </Swiper>
             ) : (
-              <p className="text-gray-500 text-center">
+              <p className="text-gray-500 text-center font-poppins">
                 No featured employers yet.
               </p>
             )}

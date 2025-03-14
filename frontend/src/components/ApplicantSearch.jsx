@@ -3,6 +3,8 @@ import Select from "react-select";
 const customStyles = {
   control: (base, state) => ({
     ...base,
+    width: "100%",
+    maxWidth: "400px",
     backgroundColor: "#d4c9b0",
     borderRadius: "0.375rem", 
     padding: "0.1rem 1rem", 
@@ -21,17 +23,26 @@ const customStyles = {
   }),
   menu: (base) => ({
     ...base,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#d4c9b0",
     borderRadius: "0.375rem",
     marginTop: "0.5rem",
   }),
-  option: (base, { isFocused, isSelected }) => ({
+  menuPortal: (base) => ({
     ...base,
-    backgroundColor: isSelected ? "#d4c9b0" : isFocused ? "#d4c9b0" : "#d4c9b0",
-    color: isSelected ? "#ffffff" : "#000000",
+    zIndex: 9999, 
+  }),
+  option: (base) => ({
+    ...base,
+    backgroundColor: "#d4c9b0", 
+    color: "#000000", 
     fontFamily: "Poppins, sans-serif",
     padding: "0.5rem 1rem",
     cursor: "pointer",
+    transition: "background-color 0.2s ease-in-out, color 0.2s ease-in-out",
+    "&:hover": {
+      backgroundColor: "#2563eb", 
+      color: "#ffffff", 
+    },
   }),
 };
 const ApplicantSearch = ({
@@ -62,7 +73,7 @@ const ApplicantSearch = ({
           />
           <input
             placeholder="Enter Keywords"
-            className="pl-10 pr-4 py-2 rounded-md w-full text-black text-opacity-70 placeholder-black placeholder-opacity-50 bg-lightBrown border-none font-poppins focus:outline-none focus:ring-1 focus:ring-darkBrowny"
+            className="pl-10 pr-4 py-2 rounded-md w-full text-black text-opacity-70 placeholder-black placeholder-opacity-50 bg-lightBrown border-none font-poppins focus:outline-none focus:ring-1 focus:ring-darkBrowny placeholder:font-poppins"
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
           />
@@ -93,7 +104,7 @@ const ApplicantSearch = ({
           />
           <input
             placeholder="Location"
-            className="pl-10 pr-4 py-2 rounded-md w-full text-black text-opacity-70 placeholder-black placeholder-opacity-50 bg-lightBrown border-none focus:outline-none focus:ring-1 focus:ring-darkBrowny"
+            className="pl-10 pr-4 py-2 rounded-md w-full text-black text-opacity-70 placeholder-black placeholder-opacity-50 bg-lightBrown border-none focus:outline-none focus:ring-1 focus:ring-darkBrowny placeholder:font-poppins"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
           />
