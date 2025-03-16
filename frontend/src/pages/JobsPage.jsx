@@ -419,7 +419,7 @@ const JobsPage = () => {
               {isjobLoading ? (
                 <JobPostSkeleton2 rows={6} />
               ) : isError ? (
-                <p className="text-red-500 text-lg font-semibold text-center font-poppins">
+                <p className="text-gray-500 text-lg font-normal text-center font-poppins">
                   {isError}
                 </p>
               ) : filteredJobPosts.length > 0 ? (
@@ -707,7 +707,7 @@ const JobsPage = () => {
             {isjobLoading ? (
               <JobPostSkeleton rows={6} />
             ) : isError ? (
-              <p className="text-red-500 text-lg font-semibold col-span-full text-center">
+              <p className="text-gray-500 text-lg font-normal col-span-full text-center">
                 {isError}
               </p>
             ) : currentJobs.length > 0 ? (

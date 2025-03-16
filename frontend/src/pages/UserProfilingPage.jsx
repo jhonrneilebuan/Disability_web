@@ -31,6 +31,7 @@ import { toast } from "react-toastify";
 import ProgressBar from "../components/ProgressBar";
 
 import { jobStore } from "../stores/jobStore";
+import { locationOptions } from "../utils/options";
 
 const steps = [
   "Matching Jobs",
@@ -433,20 +434,28 @@ const UserProfilingPage = () => {
               Specify Your Preferred Work Locations
             </h2>
             <p className="text-gray-600 text-sm mb-4 text-center">
-              Enter the locations where you prefer to work.
+              Select the locations where you prefer to work.
             </p>
-
-            <input
-              type="text"
-              placeholder="e.g., Davao City, Dagupan City, Manila"
-              value={preferences.preferredLocations}
-              onChange={(e) =>
+            <Select
+              options={locationOptions}
+              value={
+                preferences.preferredLocations
+                  ? locationOptions.find(
+                      (option) =>
+                        option.value === preferences.preferredLocations
+                    ) || null
+                  : null
+              }
+              onChange={(selectedOption) =>
                 setPreferences({
                   ...preferences,
-                  preferredLocations: e.target.value,
+                  preferredLocations: selectedOption
+                    ? selectedOption.value
+                    : "",
                 })
               }
-              className="w-full border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Select preferred location"
+              className="w-full"
             />
           </div>
         )}
@@ -507,12 +516,13 @@ const UserProfilingPage = () => {
               <div className="relative">
                 <span className="absolute left-3 top-3 text-gray-500">₱</span>
                 <input
-                  type="number"
+                  type="text"
                   placeholder="Min Salary"
                   min="0"
                   value={preferences.expectedSalary.minSalary}
                   onChange={(e) => {
-                    const minSalary = Number(e.target.value);
+                    let minSalary = e.target.value.replace(/^0+(?=\d)/, "");
+                    minSalary = Number(minSalary);
                     setPreferences((prev) => ({
                       ...prev,
                       expectedSalary: {
@@ -532,12 +542,13 @@ const UserProfilingPage = () => {
               <div className="relative">
                 <span className="absolute left-3 top-3 text-gray-500">₱</span>
                 <input
-                  type="number"
+                  type="text"
                   placeholder="Max Salary"
                   min={preferences.expectedSalary.minSalary}
                   value={preferences.expectedSalary.maxSalary}
                   onChange={(e) => {
-                    const maxSalary = Number(e.target.value);
+                    let maxSalary = e.target.value.replace(/^0+(?=\d)/, "");
+                    maxSalary = Number(maxSalary);
                     setPreferences((prev) => ({
                       ...prev,
                       expectedSalary: {

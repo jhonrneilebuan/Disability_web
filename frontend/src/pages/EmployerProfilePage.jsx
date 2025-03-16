@@ -1,9 +1,9 @@
-import { CheckCircle, XCircle, ChevronLeft } from "lucide-react"; 
+import { CheckCircle, ChevronLeft, XCircle } from "lucide-react";
 import { useState } from "react";
 import { FaCamera } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
 import NavbarEmployer from "../components/NavbarEmployer";
 import { authStore } from "../stores/authStore";
-import { useNavigate } from "react-router-dom";
 
 const EmployerProfilePage = () => {
   const { user, updateProfile, updateCoverPhoto } = authStore();
@@ -49,7 +49,7 @@ const EmployerProfilePage = () => {
   };
 
   const handleBackToDashboard = () => {
-    navigate("/employer"); 
+    navigate("/employer");
   };
 
   return (
@@ -61,11 +61,13 @@ const EmployerProfilePage = () => {
           className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors duration-300"
         >
           <ChevronLeft className="w-6 h-6" />
-          <span className="text-lg font-medium">Back to Dashboard</span>
+          <span className="text-lg font-medium font-poppins">
+            Back to Dashboard
+          </span>
         </button>
       </div>
-      <main className="flex items-center justify-center p-6 mt-5">
-        <div className="w-full max-w-4xl bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 pb-10 ">
+      <main className="flex items-center justify-center mb-4">
+        <div className="w-full max-w-5xl bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 pb-10 ">
           <div className="relative h-64 bg-gray-200 ">
             <img
               src={selectedCoverImg || user.coverPhoto || "/Background-3.png"}
@@ -120,42 +122,59 @@ const EmployerProfilePage = () => {
 
             <div className="grid grid-cols-2 gap-6 w-full mt-6 px-8 items-start h-full">
               <div className="text-left flex flex-col h-full">
-                <p className="text-lg text-gray-700 mt-2">
-                  <span className="font-semibold">Name:</span>{" "}
-                  {user.fullName || "Employer"}
-                </p>
-                <p className="text-lg text-gray-700 mt-2">
-                  <span className="font-semibold">Company:</span>{" "}
-                  {user.employerInformation?.companyName || "N/A"}
-                </p>
-                <p className="text-lg text-gray-700 mt-2">
-                  <span className="font-semibold">Email:</span>{" "}
-                  {user.email || "N/A"}
-                </p>
-                <p className="text-lg text-gray-700 mt-2">
-                  <span className="font-semibold">Contact:</span>{" "}
-                  {user.contact || "N/A"}
-                </p>
+                {user.fullName && (
+                  <p className="text-lg text-gray-700 mt-2 font-poppins">
+                    <span className="font-semibold font-poppins">Name:</span>{" "}
+                    {user.fullName}
+                  </p>
+                )}
+                {user.role && (
+                  <p className="text-lg text-gray-700 mt-2 font-poppins">
+                    <span className="font-semibold font-poppins">
+                      Position:
+                    </span>{" "}
+                    {user.role}
+                  </p>
+                )}
+
+                {user.employerInformation?.companyAddress && (
+                  <p className="text-lg text-gray-700 font-poppins">
+                    <span className="font-semibold font-poppins">Address:</span>{" "}
+                    {user.employerInformation.companyAddress}
+                  </p>
+                )}
+                {user.contact && (
+                  <p className="text-lg text-gray-700 mt-2 font-poppins">
+                    <span className="font-semibold font-poppins">Contact:</span>{" "}
+                    {user.contact}
+                  </p>
+                )}
               </div>
 
               <div className="text-left flex flex-col h-full">
-                <p className="text-lg text-gray-700">
-                  <span className="font-semibold">Address:</span>{" "}
-                  {user.employerInformation?.companyAddress || "N/A"}
-                </p>
-                <p className="text-lg text-gray-700 mt-2">
-                  <span className="font-semibold">Age:</span>{" "}
-                  {user.age || "N/A"}
-                </p>
-                <p className="text-lg text-gray-700 mt-2">
-                  <span className="font-semibold">Position:</span>{" "}
-                  {user.role || "N/A"}
-                </p>
+                {user.email && (
+                  <p className="text-lg text-gray-700 mt-2 font-poppins">
+                    <span className="font-semibold font-poppins">Email:</span>{" "}
+                    {user.email}
+                  </p>
+                )}
+                {user.employerInformation?.companyName && (
+                  <p className="text-lg text-gray-700 mt-2 font-poppins">
+                    <span className="font-semibold font-poppins">Company:</span>{" "}
+                    {user.employerInformation.companyName}
+                  </p>
+                )}
+                {user.age && (
+                  <p className="text-lg text-gray-700 mt-2 font-poppins">
+                    <span className="font-semibold font-poppins">Age:</span>{" "}
+                    {user.age}
+                  </p>
+                )}
 
                 {user.employerInformation?.isIdVerified ? (
                   <div className="flex items-center gap-2 text-green-600 font-medium mt-3">
                     <CheckCircle className="w-6 h-6" />
-                    <span>Verified</span>
+                    <span className="font-poppins">Verified</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2 text-red-600 font-medium mt-3">
@@ -164,6 +183,14 @@ const EmployerProfilePage = () => {
                   </div>
                 )}
               </div>
+            </div>
+            <div className="w-full flex px-8">
+              <Link
+                to="/edit-employerProfile"
+                className="block w-full mt-4 font-poppins bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition duration-300 shadow-md text-center"
+              >
+                Edit Profile
+              </Link>
             </div>
           </div>
         </div>

@@ -5,7 +5,16 @@ import { useState } from "react";
 import Select from "react-select";
 import Modal from "../components/Modal";
 import { jobStore } from "../stores/jobStore";
-import { disabilityOptions, languageOptions } from "../utils/options";
+import {
+  disabilityOptions,
+  jobCategoryOptions,
+  jobLevelOptions,
+  jobQualificationsOptions,
+  jobShiftOptions,
+  jobTypeOptions,
+  languageOptions,
+  locationOptions,
+} from "../utils/options";
 import jobPostSchema from "../validations/jobpost";
 
 const UpdateModal = ({ open, onClose, job }) => {
@@ -18,7 +27,6 @@ const UpdateModal = ({ open, onClose, job }) => {
   const [showApplyWithLink, setShowApplyWithLink] = useState(
     !!job?.applyWithLink
   );
-
 
   const formik = useFormik({
     initialValues: {
@@ -41,9 +49,9 @@ const UpdateModal = ({ open, onClose, job }) => {
       jobSkills: Array.isArray(job?.jobSkills)
         ? job.jobSkills.length === 1 && typeof job.jobSkills[0] === "string"
           ? job.jobSkills[0].split(",").map((skill) => skill.trim())
-          : job.jobSkills 
+          : job.jobSkills
         : typeof job?.jobSkills === "string"
-        ? job.jobSkills.split(",").map((skill) => skill.trim()) 
+        ? job.jobSkills.split(",").map((skill) => skill.trim())
         : [],
 
       applyWithLink: job?.applyWithLink || "",
@@ -268,21 +276,21 @@ const UpdateModal = ({ open, onClose, job }) => {
             <label className="text-sm font-medium block mb-2">
               Job Category
             </label>
-            <select
+            <Select
               name="jobCategory"
-              value={formik.values.jobCategory}
-              onChange={(e) => {
-                formik.handleChange(e);
-                console.log("Job Category:", e.target.value);
+              options={jobCategoryOptions}
+              value={jobCategoryOptions.find(
+                (option) => option.value === formik.values.jobCategory
+              )}
+              onChange={(selectedOption) => {
+                formik.setFieldValue(
+                  "jobCategory",
+                  selectedOption ? selectedOption.value : ""
+                );
               }}
-              onBlur={formik.handleBlur}
-              className="w-full border rounded-lg p-2"
-            >
-              <option value="">Select category</option>
-              <option value="DESIGN">Design</option>
-              <option value="DEVELOPMENT">Development</option>
-              <option value="MARKETING">Marketing</option>
-            </select>
+              onBlur={() => formik.setFieldTouched("jobCategory", true)}
+              className="w-full"
+            />
             {formik.touched.jobCategory && formik.errors.jobCategory && (
               <p className="text-red-500 text-sm">
                 {formik.errors.jobCategory}
@@ -303,6 +311,7 @@ const UpdateModal = ({ open, onClose, job }) => {
               }}
               onBlur={formik.handleBlur}
               className="w-full"
+              placeholder="Select preferred disabilities"
             />
             {formik.touched.preferredDisabilities &&
               formik.errors.preferredDisabilities && (
@@ -349,6 +358,8 @@ const UpdateModal = ({ open, onClose, job }) => {
               isMulti
               isClearable
               className="w-full"
+              placeholder="Select preferred languages"
+
             />
             {formik.touched.preferredLanguages &&
               formik.errors.preferredLanguages && (
@@ -359,46 +370,42 @@ const UpdateModal = ({ open, onClose, job }) => {
           </div>
           <div>
             <label className="text-sm font-medium block mb-2">Job Type</label>
-            <select
+            <Select
               name="jobType"
-              value={formik.values.jobType}
-              onChange={(e) => {
-                formik.handleChange(e);
-                console.log("Job Type:", e.target.value);
+              options={jobTypeOptions}
+              value={jobTypeOptions.find(
+                (option) => option.value === formik.values.jobType
+              )}
+              onChange={(selectedOption) => {
+                formik.setFieldValue(
+                  "jobType",
+                  selectedOption ? selectedOption.value : ""
+                );
               }}
-              onBlur={formik.handleBlur}
-              className="w-full border rounded-lg p-2"
-            >
-              <option value="">Select Job Type</option>
-              <option value="Full-Time">Full-Time</option>
-              <option value="Part-Time">Part-Time</option>
-              <option value="Freelance">Freelance</option>
-              <option value="Contract">Contract</option>
-              <option value="Internship">Internship</option>
-            </select>
+              onBlur={() => formik.setFieldTouched("jobType", true)}
+              className="w-full"
+            />
             {formik.touched.jobType && formik.errors.jobType && (
               <p className="text-red-500 text-sm">{formik.errors.jobType}</p>
             )}
           </div>
           <div>
             <label className="text-sm font-medium block mb-2">Job Shift</label>
-            <select
+            <Select
               name="jobShift"
-              value={formik.values.jobShift}
-              onChange={(e) => {
-                formik.handleChange(e);
-                console.log("Job Shift:", e.target.value);
-              }}
-              onBlur={formik.handleBlur}
-              className="w-full border rounded-lg p-2"
-            >
-              <option value="">Select Job Shift</option>
-              <option value="Part-Time">Part-Time</option>
-              <option value="Full-Time">Full-Time</option>
-              <option value="Fixed">Fixed</option>
-              <option value="Night-Shift">Night-Shift</option>
-              <option value="Day-Shift">Day-Shift</option>
-            </select>
+              options={jobShiftOptions}
+              value={jobShiftOptions.find(
+                (option) => option.value === formik.values.jobShift
+              )}
+              onChange={(selectedOption) =>
+                formik.setFieldValue(
+                  "jobShift",
+                  selectedOption ? selectedOption.value : ""
+                )
+              }
+              onBlur={() => formik.setFieldTouched("jobShift", true)}
+              className="w-full"
+            />
             {formik.touched.jobShift && formik.errors.jobShift && (
               <p className="text-red-500 text-sm">{formik.errors.jobShift}</p>
             )}
@@ -407,21 +414,21 @@ const UpdateModal = ({ open, onClose, job }) => {
             <label className="text-sm font-medium block mb-2">
               Job Qualifications
             </label>
-            <select
+            <Select
               name="jobQualifications"
-              value={formik.values.jobQualifications}
-              onChange={(e) => {
-                formik.handleChange(e);
-                console.log("Job Qualifications:", e.target.value);
-              }}
-              onBlur={formik.handleBlur}
-              className="w-full border rounded-lg p-2"
-            >
-              <option value="">Select qualification</option>
-              <option value="Bachelor's Degree">Bachelor&apos;s Degree</option>
-              <option value="High School Diploma">High School Diploma</option>
-              <option value="Technical Training">Technical Training</option>
-            </select>
+              options={jobQualificationsOptions}
+              value={jobQualificationsOptions.find(
+                (option) => option.value === formik.values.jobQualifications
+              )}
+              onChange={(selectedOption) =>
+                formik.setFieldValue(
+                  "jobQualifications",
+                  selectedOption ? selectedOption.value : ""
+                )
+              }
+              onBlur={() => formik.setFieldTouched("jobQualifications", true)}
+              className="w-full"
+            />
             {formik.touched.jobQualifications &&
               formik.errors.jobQualifications && (
                 <p className="text-red-500 text-sm">
@@ -431,21 +438,21 @@ const UpdateModal = ({ open, onClose, job }) => {
           </div>
           <div>
             <label className="text-sm font-medium block mb-2">Job Level</label>
-            <select
+            <Select
               name="jobLevel"
-              value={formik.values.jobLevel}
-              onChange={(e) => {
-                formik.handleChange(e);
-                console.log("Job Level:", e.target.value);
-              }}
-              onBlur={formik.handleBlur}
-              className="w-full border rounded-lg p-2"
-            >
-              <option value="">Select level</option>
-              <option value="Entry">Entry</option>
-              <option value="Mid">Mid</option>
-              <option value="Senior">Senior</option>
-            </select>
+              options={jobLevelOptions}
+              value={jobLevelOptions.find(
+                (option) => option.value === formik.values.jobLevel
+              )}
+              onChange={(selectedOption) =>
+                formik.setFieldValue(
+                  "jobLevel",
+                  selectedOption ? selectedOption.value : ""
+                )
+              }
+              onBlur={() => formik.setFieldTouched("jobLevel", true)}
+              className="w-full"
+            />
             {formik.touched.jobLevel && formik.errors.jobLevel && (
               <p className="text-red-500 text-sm">{formik.errors.jobLevel}</p>
             )}
@@ -500,17 +507,23 @@ const UpdateModal = ({ open, onClose, job }) => {
           </div>
           <div>
             <label className="text-sm font-medium block mb-2">Locations</label>
-            <input
-              type="text"
-              name="locations"
-              value={formik.values.locations.replace(/["[\]]/g, "")}
-              onChange={(e) => {
-                const sanitizedValue = e.target.value.replace(/["[\]]/g, "");
-                formik.setFieldValue("locations", sanitizedValue);
-                console.log("Locations:", sanitizedValue);
+            <Select
+              options={locationOptions}
+              value={
+                formik.values.locations
+                  ? {
+                      label: formik.values.locations,
+                      value: formik.values.locations,
+                    }
+                  : null
+              }
+              onChange={(selectedOption) => {
+                formik.setFieldValue("locations", selectedOption.value);
+                console.log("Locations:", selectedOption.value);
               }}
               onBlur={formik.handleBlur}
-              className="block w-full mt-1 text-sm text-gray-600 border border-gray-300 rounded-md p-2"
+              placeholder="Select a location"
+              className="block w-full mt-1 text-sm text-gray-600 border border-gray-300 rounded-md"
             />
             {formik.touched.locations && formik.errors.locations && (
               <div className="text-red-500 text-sm">

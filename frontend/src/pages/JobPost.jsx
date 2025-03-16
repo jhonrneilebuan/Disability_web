@@ -14,6 +14,7 @@ import {
   jobShiftOptions,
   jobTypeOptions,
   languageOptions,
+  locationOptions,
 } from "../utils/options";
 import jobPostSchema from "../validations/jobpost";
 
@@ -278,6 +279,7 @@ const JobPosts = () => {
                     )
                   }
                   onBlur={() => formik.setFieldTouched("jobCategory", true)}
+                  placeholder="Select job category "
                   className="w-full"
                 />
                 {formik.touched.jobCategory && formik.errors.jobCategory && (
@@ -298,6 +300,7 @@ const JobPosts = () => {
                     formik.setFieldValue("preferredDisabilities", selected)
                   }
                   onBlur={formik.handleBlur}
+                  placeholder="Select preferred disabilities"
                   className="w-full"
                 />
                 {formik.touched.preferredDisabilities &&
@@ -343,6 +346,7 @@ const JobPosts = () => {
                   onBlur={() =>
                     formik.setFieldTouched("preferredLanguages", true)
                   }
+                  placeholder="Select preferred languages "
                   className="w-full"
                 />
                 {formik.touched.preferredLanguages &&
@@ -372,6 +376,7 @@ const JobPosts = () => {
                     )
                   }
                   onBlur={() => formik.setFieldTouched("jobType", true)}
+                  placeholder="Select a job type"
                   className="w-full"
                 />
                 {formik.touched.jobType && formik.errors.jobType && (
@@ -397,6 +402,7 @@ const JobPosts = () => {
                     )
                   }
                   onBlur={() => formik.setFieldTouched("jobShift", true)}
+                  placeholder="Select a job shift"
                   className="w-full"
                 />
                 {formik.touched.jobShift && formik.errors.jobShift && (
@@ -427,6 +433,7 @@ const JobPosts = () => {
                   onBlur={() =>
                     formik.setFieldTouched("jobQualifications", true)
                   }
+                  placeholder="Select a job qualification"
                   className="w-full"
                 />
                 {formik.touched.jobQualifications &&
@@ -454,6 +461,7 @@ const JobPosts = () => {
                     )
                   }
                   onBlur={() => formik.setFieldTouched("jobLevel", true)}
+                  placeholder="Select a job level"
                   className="w-full"
                 />
                 {formik.touched.jobLevel && formik.errors.jobLevel && (
@@ -509,16 +517,25 @@ const JobPosts = () => {
 
             <div>
               <label className="text-sm font-medium block mb-2">
-                Locations <span className="text-red-500">*</span>
+                Locations
               </label>
-              <input
-                type="text"
-                name="locations"
-                value={formik.values.locations}
-                onChange={formik.handleChange}
+              <Select
+                options={locationOptions}
+                value={
+                  formik.values.locations
+                    ? {
+                        label: formik.values.locations,
+                        value: formik.values.locations,
+                      }
+                    : null
+                }
+                onChange={(selectedOption) => {
+                  formik.setFieldValue("locations", selectedOption.value);
+                  console.log("Locations:", selectedOption.value);
+                }}
                 onBlur={formik.handleBlur}
-                className="w-full border rounded-lg p-2"
-                placeholder="Enter location(s)"
+                placeholder="Select a location"
+                className="block w-full mt-1 text-sm text-gray-600 border border-gray-300 rounded-md"
               />
               {formik.touched.locations && formik.errors.locations && (
                 <p className="text-red-500 text-sm">

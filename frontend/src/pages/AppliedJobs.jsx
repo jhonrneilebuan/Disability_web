@@ -24,14 +24,14 @@ const AppliedJobs = () => {
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [unsaveModalOpen, setUnsaveModalOpen] = useState(false);
   const [detailsModalOpen, setdetailsModalOpen] = useState(false);
+  const [SavedModalOpen, setSavedDetailsModalOpen] = useState(false);
   const [selectedSavedJob, setSelectedSavedJob] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [activeTab, setActiveTab] = useState("applied");
   const [selectedStatus, setSelectedStatus] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [currentApplication, setCurrentApplication] = useState(null);
-
+  const [sortOrder, setSortOrder] = useState("");
   const {
     applications = [],
     savedApplications = [],
@@ -57,53 +57,50 @@ const AppliedJobs = () => {
     setSelectedStatus(e.target.value);
   };
 
-  const handleDateSort = (e) => {
-    setSelectedDate(e.target.value);
-  };
-
   const filterApplications = (applications) => {
     return applications.filter((application) => {
       const jobTitle = application.jobId?.jobTitle
         ? application.jobId.jobTitle.toLowerCase()
         : "";
-
+  
       const status = application.status ? application.status.toLowerCase() : "";
-
+  
       const matchesKeyword =
-        jobTitle.includes(searchKeyword.toLowerCase()) ||
-        status.includes(searchKeyword.toLowerCase());
-
+        searchKeyword.trim() !== ""
+          ? jobTitle.includes(searchKeyword.toLowerCase()) ||
+            status.includes(searchKeyword.toLowerCase())
+          : true;
+  
       const matchesStatus = selectedStatus
         ? status === selectedStatus.toLowerCase()
         : true;
-
-      const matchesDate = selectedDate
-        ? new Date(application.createdAt).toDateString() ===
-          new Date(selectedDate).toDateString()
-        : true;
-
-      return matchesKeyword && matchesStatus && matchesDate;
+  
+      return matchesKeyword && matchesStatus;
     });
   };
-
+  
   const filteredApplications =
     activeTab === "applied"
       ? filterApplications(applications)
       : filterApplications(savedApplications);
-
-  const sortedApplications = [...filteredApplications].sort((a, b) => {
-    if (selectedDate === "recent") {
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    }
-    if (selectedDate === "oldest") {
-      return new Date(a.createdAt) - new Date(b.createdAt);
-    }
-    return 0;
-  });
-
+  
   const filteredSavedJobs = savedJobs.filter((savedJob) =>
     savedJob.jobId?.jobTitle.toLowerCase().includes(searchKeyword.toLowerCase())
   );
+  
+  const combinedResults =
+    activeTab === "saved" ? filteredSavedJobs : filteredApplications;
+  
+  const sortedApplications = [...combinedResults].sort((a, b) => {
+    if (sortOrder === "recent") {
+      return new Date(b.createdAt) - new Date(a.createdAt); // Newest first
+    }
+    if (sortOrder === "oldest") {
+      return new Date(a.createdAt) - new Date(b.createdAt); // Oldest first
+    }
+    return 0;
+  });
+  
 
   const handleWithdraw = (applicationId) => {
     setSelectedApplication(applicationId);
@@ -118,6 +115,11 @@ const AppliedJobs = () => {
   const handleDetails = (application) => {
     setSelectedApplication(application);
     setdetailsModalOpen(true);
+  };
+
+  const handleSaved = (application) => {
+    setSelectedApplication(application);
+    setSavedDetailsModalOpen(true);
   };
 
   const confirmWithdraw = async () => {
@@ -192,6 +194,11 @@ const AppliedJobs = () => {
       .trim();
   };
 
+  const cleanJobSkills = selectedApplication?.jobId?.jobSkills
+    ?.map((skill) => skill.replace(/[[\]"]/g, "").trim())
+    .filter((skill) => skill !== "")
+    .join(", ");
+
   return (
     <main className="min-h-screen flex flex-col bg-slate-100">
       <Navbar />
@@ -207,7 +214,7 @@ const AppliedJobs = () => {
               <div className="relative">
                 <input
                   placeholder="Search by job titles or keywords..."
-                  className="px-10 py-2 rounded-md w-full text-browny text-opacity-70 placeholder-black placeholder-opacity-50 bg-lightBrown border-none font-poppins focus:outline-none focus:ring-1 focus:ring-darkBrowny"
+                  className="px-10 py-2 rounded-md w-full text-black text-opacity-70 placeholder-black placeholder-opacity-50 bg-lightBrown border-none font-poppins focus:outline-none focus:ring-1 focus:ring-darkBrowny"
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
                 />
@@ -241,8 +248,8 @@ const AppliedJobs = () => {
               <div className="relative w-full sm:w-auto">
                 <select
                   className="px-4 py-3 text-black font-light bg-lightBrown rounded-2xl border-2 border-solid border-browny font-poppins w-full"
-                  onChange={handleDateSort}
-                  value={selectedDate}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  value={sortOrder}
                 >
                   <option value="">Sort by Date</option>
                   <option value="recent">Most Recent</option>
@@ -476,8 +483,8 @@ const AppliedJobs = () => {
               <p className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
                 {error}
               </p>
-            ) : filteredSavedJobs.length > 0 ? (
-              filteredSavedJobs.map((savedJob) => (
+            ) : sortedApplications.length > 0 ? (
+              sortedApplications.map((savedJob) => (
                 <div
                   key={savedJob._id}
                   className="bg-white rounded-2xl border mt-3 border-gray-200 shadow-md p-6 flex flex-col justify-between mb-6 border-solid w-full overflow-auto"
@@ -500,7 +507,7 @@ const AppliedJobs = () => {
                   </div>
                   <div className="flex items-center space-x-4">
                     <button
-                      onClick={() => handleDetails(savedJob)}
+                      onClick={() => handleSaved(savedJob)}
                       className="px-4 py-2 text-sm sm:text-base bg-browny text-white rounded-md font-poppins"
                     >
                       View Details
@@ -525,19 +532,21 @@ const AppliedJobs = () => {
         {open && (
           <Modal open={open} onClose={() => setOpen(false)}>
             <div className="text-center">
-              <h2 className="text-lg font-semibold mb-4">Confirm Withdrawal</h2>
-              <p>
+              <h2 className="text-lg font-semibold mb-4 font-poppins">
+                Confirm Withdrawal
+              </h2>
+              <p className="font-poppins">
                 Are you sure you want to withdraw your application for this job?
               </p>
               <div className="mt-4 flex justify-center gap-4">
                 <button
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-800"
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-800 font-poppins"
                   onClick={() => setOpen(false)}
                 >
                   Cancel
                 </button>
                 <button
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-800"
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-800 font-poppins"
                   onClick={confirmWithdraw}
                 >
                   Withdraw
@@ -554,7 +563,8 @@ const AppliedJobs = () => {
             <div className="text-center font-poppins">
               <h2 className="text-lg font-semibold mb-4">Remove Saved Job</h2>
               <p className="text-gray-600">
-                Are you sure you want to remove this job from your saved list? <br/>
+                Are you sure you want to remove this job from your saved list?{" "}
+                <br />
                 You won’t be able to access it later.
               </p>
               <div className="mt-4 flex justify-center gap-4">
@@ -574,12 +584,12 @@ const AppliedJobs = () => {
             </div>
           </Modal>
         )}
-        {detailsModalOpen && selectedApplication && (
+        {selectedApplication && (
           <Modal
             open={detailsModalOpen}
             onClose={() => setdetailsModalOpen(false)}
           >
-            <div className=" p-6 max-w-3xl mx-auto relative font-poppins">
+            <div className=" p-6 max-w-5xl mx-auto relative font-poppins">
               <X
                 onClick={() => setdetailsModalOpen(false)}
                 className="absolute top-1 right-1 bg-gray-200 hover:bg-gray-300 text-gray-700 p-2 rounded-full focus:outline-none"
@@ -595,7 +605,7 @@ const AppliedJobs = () => {
                     {selectedApplication.jobId?.companyName || "N/A"}
                   </p>
                   <p className="text-gray-600">
-                    <strong>Location(s):</strong>{" "}
+                    <strong>Location:</strong>{" "}
                     {selectedApplication.jobId?.locations
                       ?.map((location) => location.replace(/['"]+/g, ""))
                       .join(", ") || "Not specified"}
@@ -611,7 +621,25 @@ const AppliedJobs = () => {
               </div>
               <hr className="mb-6" />
 
-              <div className="grid grid-cols-2 gap-6 mb-6">
+              <div className="flex items-center gap-2 flex-wrap mb-2">
+                <strong>Job Skills:</strong>
+                <ul className="flex flex-wrap gap-2">
+                  {cleanJobSkills ? (
+                    cleanJobSkills.split(",").map((skill, index) => (
+                      <li
+                        key={index}
+                        className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full font-poppins text-sm"
+                      >
+                        {toPascalCase(skill.trim())}
+                      </li>
+                    ))
+                  ) : (
+                    <li className="text-gray-500">No Skills Specified</li>
+                  )}
+                </ul>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6 ">
                 <div>
                   <p className="mb-2">
                     <strong>Job Type:</strong>{" "}
@@ -634,56 +662,37 @@ const AppliedJobs = () => {
                       ? selectedApplication.jobId.preferredLanguages.join(", ")
                       : "N/A"}
                   </p>
-
-                  <p className="mb-2">
-                    <strong>Qualifications:</strong>{" "}
-                    {selectedApplication.jobId?.jobQualifications || "N/A"}
-                  </p>
                 </div>
                 <div>
                   <p className="mb-2">
-                    <strong>Skills:</strong>{" "}
-                    {Array.isArray(selectedApplication.jobId?.jobSkills) &&
-                    selectedApplication.jobId.jobSkills.length > 0
-                      ? selectedApplication.jobId.jobSkills
-                          .map((skill) =>
-                            toPascalCase(
-                              String(skill)
-                                .replace(/[[\]"]/g, "")
-                                .trim()
-                            )
-                          )
-                          .filter((skill) => skill !== "")
-                          .join(", ")
-                      : "N/A"}
+                    <strong>Job Category:</strong>{" "}
+                    {selectedApplication.jobId?.jobCategory || "N/A"}
                   </p>
-
-                  <p className="mb-4">
-                    <strong>Job Description:</strong>{" "}
-                    {selectedApplication.jobId?.jobDescription ||
-                      "No description available"}
-                  </p>
-                  <p className="mb-4">
+                  <p className="mb-2">
                     <strong>Application Status:</strong>{" "}
                     {selectedApplication.status || "N/A"}
                   </p>
-                  <p className="mb-4">
+                  <p className="mb-2">
                     <strong>Date Applied:</strong>{" "}
                     <FormatTimeDate
                       date={selectedApplication.createdAt}
                       formatType="date"
                     />
                   </p>
+                  <p className="mb-2">
+                    <strong>Qualifications:</strong>{" "}
+                    {selectedApplication.jobId?.jobQualifications || "N/A"}
+                  </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 items-center mb-6">
+              <div className="grid grid-cols-[auto,1fr] items-center mb-2">
                 <p className="font-semibold text-gray-800">Attachments:</p>
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-wrap gap-2">
                   <a
                     href={selectedApplication.resume || "#"}
                     download="Resume"
-                    className="px-4 py-2 underline text-blue-900 hover:text-zinc-950 underline-offset-8 "
+                    className="px-4 py-2 underline text-blue-900 hover:text-zinc-950 underline-offset-8"
                   >
                     Download Resume
                   </a>
@@ -692,12 +701,133 @@ const AppliedJobs = () => {
                       key={index}
                       href={file}
                       download={`File_${index + 1}`}
-                      className="px-4 py-2 underline text-blue-900 hover:text-zinc-950 underline-offset-8 "
+                      className="px-4 py-2 underline text-blue-900 hover:text-zinc-950 underline-offset-8"
                     >
                       Download File {index + 1}
                     </a>
                   ))}
                 </div>
+              </div>
+
+              <div>
+                <p className="mb-2">
+                  <strong>Job Description:</strong>{" "}
+                  {selectedApplication.jobId?.jobDescription ||
+                    "No description available"}
+                </p>
+              </div>
+            </div>
+          </Modal>
+        )}
+
+        {SavedModalOpen && (
+          <Modal
+            open={SavedModalOpen}
+            onClose={() => setSavedDetailsModalOpen(false)}
+          >
+            <div className=" p-6 max-w-5xl mx-auto relative font-poppins">
+              <X
+                onClick={() => setSavedDetailsModalOpen(false)}
+                className="absolute top-1 right-1 bg-gray-200 hover:bg-gray-300 text-gray-700 p-2 rounded-full focus:outline-none"
+              />
+
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h2 className="text-2xl font-semibold text-gray-800">
+                    {selectedApplication.jobId?.jobTitle || "No Job Title"}
+                  </h2>
+                  <p className="text-gray-600">
+                    <strong>Company:</strong>{" "}
+                    {selectedApplication.jobId?.companyName || "N/A"}
+                  </p>
+                  <p className="text-gray-600">
+                    <strong>Location:</strong>{" "}
+                    {selectedApplication.jobId?.locations
+                      ?.map((location) => location.replace(/['"]+/g, ""))
+                      .join(", ") || "Not specified"}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xl font-semibold text-black">
+                    {selectedApplication.jobId?.expectedSalary
+                      ? `₱${selectedApplication.jobId.expectedSalary.minSalary.toLocaleString()} - ₱${selectedApplication.jobId.expectedSalary.maxSalary.toLocaleString()}`
+                      : "Salary not specified"}
+                  </p>
+                </div>
+              </div>
+              <hr className="mb-6" />
+              <div className="flex items-center gap-2 flex-wrap mb-2">
+                <strong>Job Skills:</strong>
+                <ul className="flex flex-wrap gap-2">
+                  {cleanJobSkills ? (
+                    cleanJobSkills.split(",").map((skill, index) => (
+                      <li
+                        key={index}
+                        className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full font-poppins text-sm"
+                      >
+                        {toPascalCase(skill.trim())}
+                      </li>
+                    ))
+                  ) : (
+                    <li className="text-gray-500">No Skills Specified</li>
+                  )}
+                </ul>
+              </div>
+              <div className="grid grid-cols-2 gap-6 mb-2">
+                <div>
+                  <p className="mb-2">
+                    <strong>Job Type:</strong>{" "}
+                    {selectedApplication.jobId?.jobType || "N/A"}
+                  </p>
+                  <p className="mb-2">
+                    <strong>Shift:</strong>{" "}
+                    {selectedApplication.jobId?.jobShift || "N/A"}
+                  </p>
+                  <p className="mb-2">
+                    <strong>Level:</strong>{" "}
+                    {selectedApplication.jobId?.jobLevel || "N/A"}
+                  </p>
+                  <p className="mb-2">
+                    <strong>Preferred Language:</strong>{" "}
+                    {Array.isArray(
+                      selectedApplication.jobId?.preferredLanguages
+                    ) &&
+                    selectedApplication.jobId?.preferredLanguages.length > 0
+                      ? selectedApplication.jobId.preferredLanguages.join(", ")
+                      : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="mb-2">
+                    <strong>Job Category:</strong>{" "}
+                    {selectedApplication.jobId?.jobCategory ||
+                      "No description available"}
+                  </p>
+
+                  <p className="mb-2">
+                    <strong>Application Status:</strong>{" "}
+                    {selectedApplication.status || "No Information"}
+                  </p>
+
+                  <p className="mb-2">
+                    <strong>Qualifications:</strong>{" "}
+                    {selectedApplication.jobId?.jobQualifications || "N/A"}
+                  </p>
+                  <p className="mb-2">
+                    <strong>Date Saved:</strong>{" "}
+                    <FormatTimeDate
+                      date={selectedApplication.createdAt}
+                      formatType="date"
+                    />
+                  </p>
+                </div>
+              </div>
+              <div>
+                <p className="mb-2">
+                  <strong>Job Description:</strong>{" "}
+                  {selectedApplication.jobId?.jobDescription ||
+                    "No description available"}
+                </p>
               </div>
             </div>
           </Modal>

@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import NavbarEmployer from "../components/NavbarEmployer";
 import { authStore } from "../stores/authStore";
-
 const EditEmployerPage = () => {
   const { user, updateEmployerProfile } = authStore();
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ const EditEmployerPage = () => {
 
   const [errors, setErrors] = useState({});
   const [isUpdating, setIsUpdating] = useState(false);
+  const navigate = useNavigate()
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -74,6 +76,7 @@ const EditEmployerPage = () => {
     try {
       await updateEmployerProfile(formData);
       toast.success("Profile updated successfully!");
+      navigate("/employer-profile")
     } catch (error) {
       toast.error("Failed to update profile.");
       console.error("Update Error:", error);
@@ -83,111 +86,122 @@ const EditEmployerPage = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-gray-100 flex items-center justify-center font-poppins">
-      <div className="container max-w-screen-lg mx-auto">
-        <div className="bg-white rounded shadow-lg p-8 md:p-10 mb-6">
-          <form
-            onSubmit={handleSubmit}
-            className="grid gap-6 text-base grid-cols-1 lg:grid-cols-3"
-          >
-            <div className="text-gray-600">
-              <p className="font-medium text-xl">Personal Details</p>
-              <p className="text-lg">Please fill out all the fields.</p>
-            </div>
-
-            <div className="lg:col-span-2 grid gap-6 text-base grid-cols-1 md:grid-cols-5">
-              <div className="md:col-span-5">
-                <label className="text-lg font-medium">Full Name</label>
-                <input
-                  type="text"
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={handleInputChange}
-                  className="h-12 border mt-1 rounded-lg px-4 w-full bg-gray-50 text-lg"
-                  required
-                />
-                {errors.fullName && (
-                  <span className="text-red-500">{errors.fullName}</span>
-                )}
+    <main className="overflow-hidden h-screen">
+      <NavbarEmployer />
+      <div className=" bg-gray-100 flex items-center justify-center font-poppins">
+        <div className="container max-w-screen-lg mx-auto mt-8">
+          <div className="bg-white rounded shadow-lg p-8 md:p-10 mb-6">
+            <form
+              onSubmit={handleSubmit}
+              className="grid gap-6 text-base grid-cols-1 lg:grid-cols-3"
+            >
+              <div className="text-gray-600">
+                <p className="font-medium text-xl">Personal Details</p>
+                <p className="text-lg">Please fill out all the fields.</p>
               </div>
 
-              <div className="md:col-span-5">
-                <label className="text-lg font-medium">Contact</label>
-                <input
-                  type="text"
-                  name="contact"
-                  value={formData.contact}
-                  onChange={handleInputChange}
-                  className="h-12 border mt-1 rounded-lg px-4 w-full bg-gray-50 text-lg"
-                  pattern="\d*"
-                  inputMode="numeric"
-                  required
-                />
+              <div className="lg:col-span-2 grid gap-6 text-base grid-cols-1 md:grid-cols-5">
+                <div className="md:col-span-5">
+                  <label className="text-lg font-medium">Full Name</label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                    className="h-12 border mt-1 rounded-lg px-4 w-full bg-gray-50 text-lg"
+                    required
+                  />
+                  {errors.fullName && (
+                    <span className="text-red-500">{errors.fullName}</span>
+                  )}
+                </div>
 
-                {errors.contact && (
-                  <span className="text-red-500">{errors.contact}</span>
-                )}
-              </div>
+                <div className="md:col-span-5">
+                  <label className="text-lg font-medium">Contact</label>
+                  <input
+                    type="text"
+                    name="contact"
+                    value={formData.contact}
+                    onChange={handleInputChange}
+                    className="h-12 border mt-1 rounded-lg px-4 w-full bg-gray-50 text-lg"
+                    pattern="\d*"
+                    inputMode="numeric"
+                    required
+                  />
 
-              <div className="md:col-span-2">
-                <label className="text-lg font-medium">Age</label>
-                <input
-                  type="number"
-                  name="age"
-                  value={formData.age}
-                  onChange={handleInputChange}
-                  className="h-12 border mt-1 rounded-lg px-4 w-full bg-gray-50 text-lg"
-                  min="18"
-                  max="99"
-                  required
-                />
-                {errors.age && (
-                  <span className="text-red-500">{errors.age}</span>
-                )}
-              </div>
+                  {errors.contact && (
+                    <span className="text-red-500">{errors.contact}</span>
+                  )}
+                </div>
 
-              <div className="md:col-span-3">
-                <label className="text-lg font-medium">Company Name</label>
-                <input
-                  type="text"
-                  name="employerInformation.companyName"
-                  value={formData.employerInformation.companyName}
-                  onChange={handleInputChange}
-                  className="h-12 border mt-1 rounded-lg px-4 w-full bg-gray-50 text-lg"
-                />
-                {errors.companyName && (
-                  <span className="text-red-500">{errors.companyName}</span>
-                )}
-              </div>
+                <div className="md:col-span-2">
+                  <label className="text-lg font-medium">Age</label>
+                  <input
+                    type="number"
+                    name="age"
+                    value={formData.age}
+                    onChange={handleInputChange}
+                    className="h-12 border mt-1 rounded-lg px-4 w-full bg-gray-50 text-lg"
+                    min="18"
+                    max="99"
+                    required
+                  />
+                  {errors.age && (
+                    <span className="text-red-500">{errors.age}</span>
+                  )}
+                </div>
 
-              <div className="md:col-span-5">
-                <label className="text-lg font-medium">Company Address</label>
-                <input
-                  type="text"
-                  name="employerInformation.companyAddress"
-                  value={formData.employerInformation.companyAddress}
-                  onChange={handleInputChange}
-                  className="h-12 border mt-1 rounded-lg px-4 w-full bg-gray-50 text-lg"
-                />
-                {errors.companyAddress && (
-                  <span className="text-red-500">{errors.companyAddress}</span>
-                )}
-              </div>
+                <div className="md:col-span-3">
+                  <label className="text-lg font-medium">Company Name</label>
+                  <input
+                    type="text"
+                    name="employerInformation.companyName"
+                    value={formData.employerInformation.companyName}
+                    onChange={handleInputChange}
+                    className="h-12 border mt-1 rounded-lg px-4 w-full bg-gray-50 text-lg"
+                  />
+                  {errors.companyName && (
+                    <span className="text-red-500">{errors.companyName}</span>
+                  )}
+                </div>
 
-              <div className="md:col-span-5 text-right">
-                <button
-                  type="submit"
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg text-lg transition duration-300"
-                  disabled={isUpdating}
-                >
-                  {isUpdating ? "Updating..." : "Save Changes"}
-                </button>
+                <div className="md:col-span-5">
+                  <label className="text-lg font-medium">Company Address</label>
+                  <input
+                    type="text"
+                    name="employerInformation.companyAddress"
+                    value={formData.employerInformation.companyAddress}
+                    onChange={handleInputChange}
+                    className="h-12 border mt-1 rounded-lg px-4 w-full bg-gray-50 text-lg"
+                  />
+                  {errors.companyAddress && (
+                    <span className="text-red-500">
+                      {errors.companyAddress}
+                    </span>
+                  )}
+                </div>
+
+                <div className="md:col-span-5 text-right">
+                  <Link
+                    to="/employer-profile"
+                    className="bg-red-500 hover:bg-red-700 text-white font-poppins py-3 px-14 rounded-lg text-base transition duration-300 mr-4"
+                  >
+                    Return
+                  </Link>
+                  <button
+                    type="submit"
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-poppins py-3 px-6 rounded-lg text-base transition duration-300"
+                    disabled={isUpdating}
+                  >
+                    {isUpdating ? "Updating..." : "Save Changes"}
+                  </button>
+                </div>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

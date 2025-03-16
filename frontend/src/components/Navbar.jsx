@@ -3,7 +3,6 @@ import {
   Edit,
   LogOut,
   Menu,
-  Settings,
   User,
   X,
 } from "lucide-react";
@@ -70,12 +69,22 @@ const Navbar = () => {
         console.log("Unknown notification type:", notif.type);
     }
   };
-
+  const NavLink = ({ to, active, children, onClick }) => (
+    <Link
+      to={to}
+      onClick={onClick}
+      className={`${
+        active ? "text-browny font-normal" : "text-BLUE font-normal"
+      } text-base hover:text-browny font-poppins`}
+    >
+      {children}
+    </Link>
+  );
   if (!isAuthenticated)
     return (
       <nav className="bg-white shadow-md">
-        <div className="container mx-auto px-4 py-4 flex items-center">
-          <div className="flex-1 flex items-center">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center">
             <Link to="/" className="w-10 h-10 rounded-full overflow-hidden">
               <img
                 src="/sample-logo.png"
@@ -91,61 +100,29 @@ const Navbar = () => {
             </Link>
           </div>
 
-          <div className="flex-1 flex justify-center space-x-8">
-            <Link
-              to="/"
-              className={`${
-                isActive("/")
-                  ? "text-browny font-normal"
-                  : "text-BLUE font-normal"
-              } text-base hover:text-browny font-poppins`}
-            >
+          <button onClick={toggleMenu} className="lg:hidden text-browny">
+            {isMenuOpen ? <X size={30} /> : <Menu size={30} />}
+          </button>
+
+          <div className="hidden lg:flex space-x-8">
+            <NavLink to="/" active={isActive("/")}>
               Home
-            </Link>
-            <Link
-              to="/about-us"
-              className={`${
-                isActive("/about-us")
-                  ? "text-browny font-normal"
-                  : "text-BLUE font-normal"
-              } text-base hover:text-browny font-poppins`}
-            >
+            </NavLink>
+            <NavLink to="/about-us" active={isActive("/about-us")}>
               About Us
-            </Link>
-            <Link
-              to="/howitworks"
-              className={`${
-                isActive("/howitworks")
-                  ? "text-browny font-normal"
-                  : "text-BLUE font-normal"
-              } text-base hover:text-browny font-poppins`}
-            >
+            </NavLink>
+            <NavLink to="/howitworks" active={isActive("/howitworks")}>
               How It Works
-            </Link>
-            <Link
-              to="/contact-us"
-              className={`${
-                isActive("/contact-us")
-                  ? "text-browny font-normal"
-                  : "text-BLUE font-normal"
-              } text-base hover:text-browny font-poppins`}
-            >
+            </NavLink>
+            <NavLink to="/contact-us" active={isActive("/contact-us")}>
               Contact Us
-            </Link>
+            </NavLink>
           </div>
 
-          <div className="flex-1 flex justify-end items-center space-x-6">
-            <Link
-              to="/login"
-              className={`${
-                isActive("/login")
-                  ? "text-browny font-normal"
-                  : "text-BLUE font-normal"
-              } text-base hover:text-browny font-poppins`}
-            >
+          <div className="hidden lg:flex justify-end items-center space-x-6">
+            <NavLink to="/login" active={isActive("/login")}>
               Login
-            </Link>
-
+            </NavLink>
             <Link
               to="/sign-up"
               className="bg-browny text-white px-5 py-2 rounded-sm font-poppins font-medium hover:bg-yellow-700 transition duration-200"
@@ -154,6 +131,48 @@ const Navbar = () => {
             </Link>
           </div>
         </div>
+
+        {isMenuOpen && (
+          <div className="lg:hidden fixed z-50 top-16 left-0 w-full bg-white shadow-md flex flex-col items-center space-y-6 py-6">
+            <NavLink to="/" active={isActive("/")} onClick={toggleMenu}>
+              Home
+            </NavLink>
+            <NavLink
+              to="/about-us"
+              active={isActive("/about-us")}
+              onClick={toggleMenu}
+            >
+              About Us
+            </NavLink>
+            <NavLink
+              to="/howitworks"
+              active={isActive("/howitworks")}
+              onClick={toggleMenu}
+            >
+              How It Works
+            </NavLink>
+            <NavLink
+              to="/contact-us"
+              active={isActive("/contact-us")}
+              onClick={toggleMenu}
+            >
+              Contact Us
+            </NavLink>
+            <NavLink
+              to="/login"
+              active={isActive("/login")}
+              onClick={toggleMenu}
+            >
+              Login
+            </NavLink>
+            <Link
+              to="/sign-up"
+              className="bg-browny text-white px-5 py-2 rounded-sm font-poppins font-medium hover:bg-yellow-700 transition duration-200"
+            >
+              Sign Up
+            </Link>
+          </div>
+        )}
       </nav>
     );
 
@@ -273,15 +292,7 @@ const Navbar = () => {
                         Edit Profile
                       </Link>
                     </li>
-                    <li>
-                      <Link
-                        to="/settings"
-                        className="flex items-center px-4 py-2 hover:bg-gray-200"
-                      >
-                        <Settings className="mr-2 w-4 h-4" />
-                        Settings
-                      </Link>
-                    </li>
+                   
                     <li>
                       <p
                         className="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer"
@@ -342,12 +353,7 @@ const Navbar = () => {
           >
             Messaging
           </Link>
-          <Link
-            to="/notifications"
-            className="text-base py-3 px-4 font-poppins hover:text-browny w-full text-center"
-          >
-            Notifications
-          </Link>
+       
 
           <Link
             to="/profile-info"
@@ -356,16 +362,10 @@ const Navbar = () => {
             Profile
           </Link>
           <Link
-            to="/settings"
+            to="/edit-profile"
             className="text-base py-3 px-4 font-poppins hover:text-browny w-full text-center"
           >
             Edit Profile
-          </Link>
-          <Link
-            to="/settings"
-            className="text-base py-3 px-4 font-poppins hover:text-browny w-full text-center"
-          >
-            Settings
           </Link>
           <p
             className="text-base py-3 px-4 font-poppins hover:text-browny w-full text-center cursor-pointer"
