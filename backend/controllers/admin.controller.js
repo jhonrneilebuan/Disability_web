@@ -290,6 +290,26 @@ export const getTotalApplicants = async (req, res) => {
   }
 };
 
+export const getTotaluser = async (req, res) => {
+  try {
+    const totalUsers = await User.aggregate([
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    res.status(200).json(totalUsers);
+  } catch (error) {
+    console.error("Error fetching total users:", error);
+    res.status(500).json({ message: "Error fetching total users" });
+  }
+};
+
+
 export const getTotalUser = async (req, res) => {
   try {
     const totalUsers = await User.aggregate([

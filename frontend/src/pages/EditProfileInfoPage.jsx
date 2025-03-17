@@ -327,12 +327,12 @@ const EditProfileInfoPage = () => {
                   name="contact"
                   value={formData.contact}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+                    const value = e.target.value.replace(/\D/g, "");
                     if (value.length <= 11) {
                       handleChange({ target: { name: "contact", value } });
                     }
                   }}
-                  maxLength={11} // Limits input length
+                  maxLength={11}
                   className="w-full border border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {errors.contact && (

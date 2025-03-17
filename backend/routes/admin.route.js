@@ -23,7 +23,8 @@ import {
   getUploadedDisabilityVerificationIds,
   getUploadedEmployerVerificationIds,
   getAllDisabilityCounts,
-  getAllEmployers
+  getAllEmployers,
+  getTotaluser
 } from "../controllers/admin.controller.js";
 import { admin, verifyToken } from "../middlewares/token.js";
 
@@ -46,6 +47,9 @@ router.get("/users/total", getTotalUsers);
 router.get("/users/employers/total", getTotalEmployers);
 router.get("/users/applicants/total", getTotalApplicants);
 router.get("/total-users", verifyToken, admin, getTotalUser);
+
+router.get("/total-user", verifyToken, admin,getTotaluser);
+
 router.get("/user-percentage", verifyToken, admin, getUserPercentage);
 router.put("/update-profile", verifyToken, admin, updateAdminProfile);
 router.get("/profile", verifyToken, admin, getAdminProfile);
