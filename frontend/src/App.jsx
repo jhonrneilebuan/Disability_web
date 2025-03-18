@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Loading from "./components/Loading";
 import ScrollToTop from "./components/ScrollToTop";
 import AboutUs from "./pages/AboutUs";
@@ -62,11 +62,13 @@ const ProtectedRoute = ({ children }) => {
 
 const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = authStore();
+  const location = useLocation();
 
   if (isAuthenticated && user.isVerified) {
-    if (user.role === "Applicant") {
-      return <Navigate to="/applicant" replace />;
-    }
+    if (!location.pathname.startsWith("/reset-password"))
+      if (user.role === "Applicant") {
+        return <Navigate to="/applicant" replace />;
+      }
     if (user.role === "Employer") {
       return <Navigate to="/employer" replace />;
     }
