@@ -1,15 +1,15 @@
-import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import { io } from "../db/socket.js";
 import { generateToken } from "../db/utils.js";
 import {
-  sendVerificationEmail,
-  sendWelcomeEmail,
   sendPasswordResetEmail,
   sendResetSuccessEmail,
+  sendVerificationEmail,
+  sendWelcomeEmail,
 } from "../mailtrap/gmail.js";
-import { io } from "../db/socket.js";
-import Notification from "../models/notification.model.js"
+import Notification from "../models/notification.model.js";
+import User from "../models/user.model.js";
 
 export const signup = async (req, res) => {
   try {
@@ -62,7 +62,6 @@ export const signup = async (req, res) => {
       const admins = await User.find({ role: "Admin" });
 
       const notifications = admins.map((admin) => ({
-        
         user: admin._id,
         message: `New user registered: ${fullName} (${email})`,
         type: "newUserRegistration",
@@ -215,7 +214,7 @@ export const forgotPassword = async (req, res) => {
 
     await sendPasswordResetEmail(
       user.email,
-      `${process.env.CLIENT_URL}/reset-password/${resetToken}`
+      `https://disability-careers-gixk.onrender.com/reset-password/${resetToken}`
     );
     res.status(200).json({
       success: true,
