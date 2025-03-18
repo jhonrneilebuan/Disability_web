@@ -29,10 +29,10 @@ ChartJS.register(
 );
 
 const AdminDashboard = () => {
-
   const {
     totalUsers,
     getTotalUsers,
+    getTotalusers,
     getTotalEmployers,
     totalEmployers,
     getTotalApplicants,
@@ -43,8 +43,9 @@ const AdminDashboard = () => {
     getPWDVerificationId,
     pendingPwdID,
     error,
+    userLabels, // <--- Ito ang nawawala
+    userCounts, // <--- Ito ang nawawala
   } = adminStore();
-
 
   const [barData, setBarData] = useState({
     labels: ["Applicants", "Employers", "Users"],
@@ -70,18 +71,16 @@ const AdminDashboard = () => {
     ],
   };
 
-  const totalUserCounts = [0, totalApplicants + totalEmployers];
-
   const lineData = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+    labels: userLabels || [], // Use empty array as fallback
     datasets: [
       {
         label: "Total Users",
-        data: totalUserCounts,
+        data: userCounts || [],
         borderColor: "#4e79a7",
         backgroundColor: "rgba(78, 121, 167, 0.2)",
         fill: true,
-        tension: 0.4,
+        tension: 0.4, // Smooth curve effect
       },
     ],
   };
@@ -106,6 +105,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     getTotalUsers();
+    getTotalusers();
     getTotalEmployers();
     getTotalApplicants();
     getEmployerVerificationId();
@@ -113,6 +113,7 @@ const AdminDashboard = () => {
     getDisabilityCounts();
   }, [
     getTotalUsers,
+    getTotalusers,
     getTotalEmployers,
     getTotalApplicants,
     getEmployerVerificationId,
@@ -175,38 +176,50 @@ const AdminDashboard = () => {
       <div className="text-center text-xl font-semibold">{`Error: ${error}`}</div>
     );
   }
-  
 
   return (
     <div className="bg-gradient-to-r from-indigo-100 to-blue-200 p-8 rounded-lg shadow-xl">
-
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
         <div className="bg-gradient-to-t from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-md flex items-center gap-4 hover:scale-105 transform transition duration-300">
           <FaUsers size={32} />
           <div>
-            <h3 className="text-lg font-semibold font-poppins">Total Applicants</h3>
-            <p className="text-xl font-bold text-center font-poppins">{totalApplicants}</p>
+            <h3 className="text-lg font-semibold font-poppins">
+              Total Applicants
+            </h3>
+            <p className="text-xl font-bold text-center font-poppins">
+              {totalApplicants}
+            </p>
           </div>
         </div>
         <div className="bg-gradient-to-t from-green-500 to-green-600 text-white p-6 rounded-lg shadow-md flex items-center gap-4 hover:scale-105 transform transition duration-300">
           <FaBriefcase size={32} />
           <div>
-            <h3 className="text-lg font-semibold font-poppins">Total Employers</h3>
-            <p className="text-xl font-bold text-center font-poppins">{totalEmployers}</p>
+            <h3 className="text-lg font-semibold font-poppins">
+              Total Employers
+            </h3>
+            <p className="text-xl font-bold text-center font-poppins">
+              {totalEmployers}
+            </p>
           </div>
         </div>
         <div className="bg-gradient-to-t from-orange-500 to-orange-600 text-white p-6 rounded-lg shadow-md flex items-center gap-4 hover:scale-105 transform transition duration-300">
           <FaClock size={32} />
           <div>
-            <h3 className="text-lg font-semibold font-poppins">Request Employer</h3>
-            <p className="text-xl font-bold text-center font-poppins">{pendingEmployerID}</p>
+            <h3 className="text-lg font-semibold font-poppins">
+              Request Employer
+            </h3>
+            <p className="text-xl font-bold text-center font-poppins">
+              {pendingEmployerID}
+            </p>
           </div>
         </div>
         <div className="bg-gradient-to-t from-orange-500 to-orange-600 text-white p-6 rounded-lg shadow-md flex items-center gap-4 hover:scale-105 transform transition duration-300">
           <FaClock size={32} />
           <div>
             <h3 className="text-lg font-semibold font-poppins">Request PWD</h3>
-            <p className="text-xl font-bold text-center font-poppins">{pendingPwdID}</p>
+            <p className="text-xl font-bold text-center font-poppins">
+              {pendingPwdID}
+            </p>
           </div>
         </div>
       </div>
@@ -310,14 +323,13 @@ const AdminDashboard = () => {
 
         <div className="flex-1 bg-white p-6 rounded-lg shadow-lg overflow-auto">
           <h3 className="text-2xl font-semibold mb-6 text-center font-poppins">
-            User Trends Over Time 
+            User Trends Over Time
           </h3>
           <Line
             data={lineData}
             options={{
               responsive: true,
               plugins: {
-                title: { display: true, text: "User Trends Over Time" },
                 tooltip: {
                   callbacks: {
                     label: (context) =>

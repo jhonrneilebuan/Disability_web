@@ -165,6 +165,16 @@ const EditProfileInfoPage = () => {
 
   const handleBirthdayChange = (event) => {
     const { value } = event.target;
+
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    if (!datePattern.test(value)) {
+      return;
+    }
+
+    const year = value.split("-")[0];
+    if (year.length > 4) {
+      return;
+    }
     setFormData((prevData) => ({
       ...prevData,
       birthday: value,
@@ -313,10 +323,16 @@ const EditProfileInfoPage = () => {
                   Contact Number
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   name="contact"
                   value={formData.contact}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "");
+                    if (value.length <= 11) {
+                      handleChange({ target: { name: "contact", value } });
+                    }
+                  }}
+                  maxLength={11}
                   className="w-full border border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {errors.contact && (
@@ -355,6 +371,8 @@ const EditProfileInfoPage = () => {
                   name="birthday"
                   value={formData.birthday}
                   onChange={handleBirthdayChange}
+                  min="1900-01-01" // Restrict years below 1900
+                  max={new Date().toISOString().split("T")[0]} // Max is today
                   className="w-full border border-gray-300 bg-gray-200 font-poppins font-medium rounded-2xl shadow-sm p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>

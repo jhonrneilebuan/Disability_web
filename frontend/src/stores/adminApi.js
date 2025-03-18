@@ -28,6 +28,36 @@ export const adminStore = create((set) => ({
     }
   },
 
+  getTotalusers: async () => {
+    set({ isAdminLoading: true, error: null });
+    try {
+      const response = await axios.get(`${BASE_URL}/total-user`);
+      const totalUsersData = response.data;
+
+      const labels = totalUsersData.map((user) => user._id);
+      const userCounts = totalUsersData.map((user) => user.count);
+
+      set({
+        totalUsersData,
+        totalUsers: userCounts.reduce((sum, count) => sum + count, 0),
+        userLabels: labels,
+        userCounts: userCounts,
+        isAdminLoading: false,
+      });
+
+      console.log("Total Users Data:", totalUsersData);
+    } catch (error) {
+      console.error("Error fetching total users:", error);
+      toast.error(
+        error.response?.data?.message || "Error fetching total users"
+      );
+      set({
+        error: error.response?.data?.message || "Error fetching total users",
+        isAdminLoading: false,
+      });
+    }
+  },
+
   getTotalUsers: async () => {
     set({ isAdminLoading: true, error: null });
     try {
@@ -220,9 +250,12 @@ export const adminStore = create((set) => ({
   //update approved and reject
   updateDisabilityVerificationStatus: async (userId, isVerified) => {
     try {
-      const response = await axios.put(`${BASE_URL}/disability-verify/${userId}`, { isVerified });
+      const response = await axios.put(
+        `${BASE_URL}/disability-verify/${userId}`,
+        { isVerified }
+      );
       set((state) => ({
-        totaluploaddisability: state.totaluploaddisability.map(user =>
+        totaluploaddisability: state.totaluploaddisability.map((user) =>
           user.userId === userId ? { ...user, isIdVerified: isVerified } : user
         ),
       }));
@@ -234,8 +267,7 @@ export const adminStore = create((set) => ({
         error.response?.data?.message || "Error updating verification status"
       );
     }
-  }
-  
+  },
 }));
 
 // Retrieve the admin token (assumed to be stored in localStorage after login)
