@@ -158,30 +158,32 @@ const EmployerInterviewPage = () => {
     }
   };
 
-  const filteredApplicants = shortlistedApplicants.filter((applicant) =>
+  const filteredApplicants = (shortlistedApplicants || []).filter((applicant) =>
     searchQuery && isSearchSubmitted
-      ? applicant.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (applicant.applicantId &&
+      ? applicant.jobTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        applicant.applicantId
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        applicant.applicantName
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase())
+      : true
+  );
+
+  const filteredScheduled = (scheduledInterviewApplicants || []).filter(
+    (applicant) =>
+      searchQuery && isSearchSubmitted
+        ? applicant.jobTitle
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
           applicant.applicantId
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase())) ||
-        (applicant.applicantName &&
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
           applicant.applicantName
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()))
-      : true
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase())
+        : true
   );
-
-  const filteredScheduled = scheduledInterviewApplicants.filter((applicant) =>
-    searchQuery && isSearchSubmitted
-      ? applicant.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (applicant.applicantId &&
-          applicant.applicantId.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (applicant.applicantName &&
-          applicant.applicantName.toLowerCase().includes(searchQuery.toLowerCase()))
-      : true
-  );
-
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <NavbarEmployer />
@@ -370,8 +372,7 @@ const EmployerInterviewPage = () => {
                         {isError}
                       </td>
                     </tr>
-                  ) : filteredScheduled &&
-                  filteredScheduled.length > 0 ? (
+                  ) : filteredScheduled && filteredScheduled.length > 0 ? (
                     filteredScheduled.map((applicant) => (
                       <tr
                         key={applicant._id || applicant.id}
@@ -670,7 +671,7 @@ const EmployerInterviewPage = () => {
               Are you sure you want to confirm the completion of the interview
               for
               <strong>
-                {selectedCompleteInterviewApplicant?.applicantName} 
+                {selectedCompleteInterviewApplicant?.applicantName}
               </strong>
               regarding the position of
               <strong> {selectedCompleteInterviewApplicant?.jobTitle}</strong>?
