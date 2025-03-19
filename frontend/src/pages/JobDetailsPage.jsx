@@ -241,7 +241,7 @@ const JobDetailsPage = () => {
             jobDetails?.expectedSalary?.maxSalary ? (
               <div className="flex items-center space-x-2 mt-4">
                 <Banknote className="h-5 w-5 text-gray-500" />
-                <p className="text-xl font-normal font-poppins">
+                <p className="text-xl font-poppins">
                   ₱{jobDetails?.expectedSalary?.minSalary?.toLocaleString()} - ₱
                   {jobDetails?.expectedSalary?.maxSalary?.toLocaleString()}
                 </p>
@@ -287,8 +287,8 @@ const JobDetailsPage = () => {
               <ul className="space-y-4 font-poppins">
                 <li className="border-b pb-4">
                   <div className="flex justify-between items-center">
-                    <p className="text-lg font-medium">Application Deadline:</p>
-                    <span className="text-lg">
+                    <p className="text-lg font-medium font-poppins">Application Deadline:</p>
+                    <span className="text-lg font-poppins">
                       {jobDetails?.applicationDeadline
                         ? new Date(
                             jobDetails?.applicationDeadline
@@ -300,8 +300,8 @@ const JobDetailsPage = () => {
 
                 <li className="border-b pb-4">
                   <div className="flex justify-between items-center">
-                    <p className="text-lg font-medium">Job Qualifications:</p>
-                    <span className="text-lg">
+                    <p className="text-lg font-medium font-poppins">Job Qualifications:</p>
+                    <span className="text-lg font-poppins">
                       {jobDetails?.jobQualifications || "Not specified"}
                     </span>
                   </div>
@@ -309,8 +309,8 @@ const JobDetailsPage = () => {
 
                 <li className="border-b pb-4">
                   <div className="flex justify-between items-center">
-                    <p className="text-lg font-medium">Job Shift:</p>
-                    <span className="text-lg">
+                    <p className="text-lg font-medium font-poppins">Job Shift:</p>
+                    <span className="text-lg font-poppins">
                       {jobDetails?.jobShift || "Not specified"}
                     </span>
                   </div>
@@ -318,8 +318,8 @@ const JobDetailsPage = () => {
 
                 <li className="border-b pb-4">
                   <div className="flex justify-between items-center">
-                    <p className="text-base font-medium">Preferred Language:</p>
-                    <span className="text-base">
+                    <p className="text-lg font-medium font-poppins">Preferred Language:</p>
+                    <span className="text-base font-poppins">
                       {Array.isArray(jobDetails?.preferredLanguages) &&
                       jobDetails?.preferredLanguages.length > 0
                         ? jobDetails?.preferredLanguages.join(", ")
@@ -330,10 +330,10 @@ const JobDetailsPage = () => {
 
                 <li className="border-b pb-4">
                   <div className="flex flex-col">
-                    <p className="text-base font-medium mb-2">
+                    <p className="text-lg font-medium font-poppins mb-2">
                       Job Description:
                     </p>
-                    <div className="text-base bg-gray-100 p-3 rounded-lg max-h-40 overflow-y-auto text-justify">
+                    <div className="text-base bg-gray-100 p-3 rounded-lg max-h-40 overflow-y-auto text-justify font-poppins">
                       {jobDetails.jobDescription || "Not specified"}
                     </div>
                   </div>
@@ -341,19 +341,19 @@ const JobDetailsPage = () => {
 
                 <li className="border-b pb-4">
                   <div>
-                    <p className="text-lg font-medium mb-2">Job Skills:</p>
+                    <p className="text-lg font-medium font-poppins mb-2">Job Skills:</p>
                     <ul className="flex flex-wrap gap-2">
                       {cleanJobSkills ? (
                         cleanJobSkills.split(",").map((skill, index) => (
                           <li
                             key={index}
-                            className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-poppins font-semibold"
+                            className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-poppins"
                           >
                             {toPascalCase(skill.trim())}
                           </li>
                         ))
                       ) : (
-                        <li className="text-gray-500">No Skills Specified</li>
+                        <li className="text-gray-500 font-poppins">No Skills Specified</li>
                       )}
                     </ul>
                   </div>
@@ -361,7 +361,7 @@ const JobDetailsPage = () => {
 
                 <li className="border-b pb-4">
                   <div className="flex items-center space-x-4">
-                    <p className="text-base flex-shrink-0 font-medium pr-10">
+                    <p className="text-lg flex-shrink-0 font-medium pr-10 font-poppins">
                       Job Attachment:
                     </p>
                     <div className="p-4 border border-gray-300 rounded-lg flex items-center flex-1">

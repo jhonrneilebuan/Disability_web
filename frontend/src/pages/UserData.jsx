@@ -7,7 +7,6 @@ import {
   ChevronRight,
   Layers,
   Loader,
-  Mail,
   Send,
   Undo2,
   User,
@@ -89,15 +88,12 @@ const UserData = () => {
 
                 <div className="flex space-x-4 mt-4">
                   <button
-                    className="bg-blue-600 text-white py-2 px-4 rounded-full flex items-center"
+                    className="bg-blue-600 text-white py-2 px-10 rounded-full flex items-center"
                     onClick={handleMessageClick}
                   >
                     <Send size={18} className="mr-2" /> Message
                   </button>
 
-                  <button className="bg-blue-600 text-white py-2 px-4 rounded-full flex items-center">
-                    <Mail size={18} className="mr-2" /> Send Email
-                  </button>
                 </div>
 
                 <hr className="w-full my-4 border-gray-300" />

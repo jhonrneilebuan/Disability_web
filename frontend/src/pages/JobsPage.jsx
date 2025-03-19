@@ -439,20 +439,20 @@ const JobsPage = () => {
                       {job.jobDescription}
                     </p>
                     <div className="flex flex-nowrap gap-4 mt-3">
-                      <p className="rounded-lg bg-blue-100 text-xs p-2 font-semibold text-blue-500">
+                      <p className="rounded-xl bg-blue-100 text-xs p-2 font-medium font-poppins text-blue-500">
                         {job.jobCategory}
                       </p>
-                      <p className="rounded-lg bg-blue-100 text-xs p-2 font-semibold text-blue-500">
+                      <p className="rounded-xl bg-blue-100 text-xs p-2 font-medium font-poppins text-blue-500">
                         {job.jobType}
                       </p>
-                      <p className="rounded-lg bg-blue-100 text-xs p-2 font-semibold text-blue-500">
+                      <p className="rounded-xl bg-blue-100 text-xs p-2 font-medium font-poppins text-blue-500">
                         {job.jobLevel}
                       </p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500 font-poppins text-center">No job posts available.</p>
+                <p className="text-gray-500">No job posts available.</p>
               )}
             </div>
           </div>
@@ -467,10 +467,10 @@ const JobsPage = () => {
                   <XCircle size={24} />
                 </button>
 
-                <h2 className="text-3xl font-extrabold">
+                <h2 className="text-3xl font-extrabold font-poppins">
                   {selectedJob.jobTitle}
                 </h2>
-                <p className="text-xl font-normal">
+                <p className="text-xl font-normal font-poppins">
                   {selectedJob.employer?.fullName}/
                   {selectedJob.companyName || selectedJob.employer.companyName}
                 </p>
@@ -478,7 +478,7 @@ const JobsPage = () => {
                 {selectedJob.locations && selectedJob.locations.length > 0 && (
                   <div className="flex items-center space-x-2">
                     <MapPinned className="h-5 w-5 text-gray-500" />
-                    <p className="text-xl font-normal">
+                    <p className="text-xl font-normal font-poppins">
                       {selectedJob.locations
                         .join(", ")
                         .replace(/[\\[\]"]+/g, "")}
@@ -487,7 +487,7 @@ const JobsPage = () => {
                 )}
 
                 <div className="flex items-center space-x-2">
-                  <Clock3 className="h-5 w-5 text-gray-500" />
+                  <Clock3 className="h-5 w-5 text-gray-500 font-poppins" />
                   <p className="text-xl font-normal">{selectedJob.jobType}</p>
                 </div>
 
@@ -504,7 +504,7 @@ const JobsPage = () => {
                 ) : (
                   <div className="flex items-center space-x-2">
                     <Banknote className="h-5 w-5 text-gray-500" />
-                    <p className="text-lg font-semibold">
+                    <p className="text-lg font-semibold font-poppins">
                       Salary information not available
                     </p>
                   </div>
@@ -576,7 +576,7 @@ const JobsPage = () => {
                   <ul className="space-y-4">
                     <li className="border-b pb-4">
                       <div className="flex justify-between items-center">
-                        <p className="text-base font-medium">
+                        <p className="text-base font-medium font-poppins">
                           Application Deadline:
                         </p>
                         <span className="text-base">
@@ -590,18 +590,20 @@ const JobsPage = () => {
                     </li>
                     <li className="border-b pb-4">
                       <div className="flex justify-between items-center">
-                        <p className="text-base font-medium">
+                        <p className="text-base font-medium font-poppins">
                           Job Qualifications:
                         </p>
-                        <span className="text-base">
+                        <span className="text-base font-poppins">
                           {selectedJob.jobQualifications || "Not specified"}
                         </span>
                       </div>
                     </li>
                     <li className="border-b pb-4">
                       <div className="flex justify-between items-center">
-                        <p className="text-base font-medium">Job Shift:</p>
-                        <span className="text-base">
+                        <p className="text-base font-medium font-poppins">
+                          Job Shift:
+                        </p>
+                        <span className="text-base font-poppins">
                           {selectedJob.jobShift || "Not specified"}
                         </span>
                       </div>
@@ -609,10 +611,10 @@ const JobsPage = () => {
 
                     <li className="border-b pb-4">
                       <div className="flex justify-between items-center">
-                        <p className="text-base font-medium">
+                        <p className="text-base font-medium font-poppins">
                           Preferred Language:
                         </p>
-                        <span className="text-base">
+                        <span className="text-base font-poppins">
                           {Array.isArray(selectedJob.preferredLanguages) &&
                           selectedJob.preferredLanguages.length > 0
                             ? selectedJob.preferredLanguages
@@ -625,18 +627,18 @@ const JobsPage = () => {
                       </div>
                     </li>
                     <li className="border-b pb-4">
-                      <div className="flex justify-between items-center">
-                        <p className="text-base font-medium">
+                      <div className="flex flex-col">
+                        <p className="text-base font-medium font-poppins mb-2">
                           Job Description:
                         </p>
-                        <span className="text-base">
+                        <div className="text-base bg-gray-100 p-3 rounded-lg max-h-40 overflow-y-auto text-justify font-poppins">
                           {selectedJob.jobDescription || "Not specified"}
-                        </span>
+                        </div>
                       </div>
                     </li>
                     <li className="border-b pb-4">
                       <div className="flex flex-col">
-                        <p className="text-base font-medium mb-2">
+                        <p className="text-base font-medium font-poppins mb-2">
                           Job Skills:
                         </p>
                         <ul className="flex flex-wrap gap-4">
@@ -644,13 +646,13 @@ const JobsPage = () => {
                             cleanJobSkills.split(",").map((skill, index) => (
                               <li
                                 key={index}
-                                className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-poppins font-semibold"
+                                className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-poppins "
                               >
                                 {toPascalCase(skill.trim())}
                               </li>
                             ))
                           ) : (
-                            <li className="text-gray-500">
+                            <li className="text-gray-500  font-poppins">
                               No Skills Specified
                             </li>
                           )}
@@ -659,7 +661,7 @@ const JobsPage = () => {
                     </li>
                     <li className="border-b pb-4">
                       <div className="flex items-center space-x-4">
-                        <p className="text-base flex-shrink-0 font-medium pr-10">
+                        <p className="flex-shrink-0 text-base font-medium font-poppins pr-10">
                           Job Attachment:
                         </p>
                         <div className="p-4 border border-gray-300 rounded-lg flex items-center flex-1">
@@ -669,7 +671,7 @@ const JobsPage = () => {
                                 href={selectedJob.jobAttachment}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-blue-600 underline flex items-center"
+                                className="text-blue-600 underline flex items-center font-poppins"
                               >
                                 <Link size={20} className="mr-2" />
                                 View Attachment
@@ -677,14 +679,14 @@ const JobsPage = () => {
                               <a
                                 href={selectedJob.jobAttachment}
                                 download
-                                className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center ml-auto"
+                                className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center ml-auto font-poppins"
                               >
                                 <Download size={20} className="mr-2" />
                                 Download
                               </a>
                             </div>
                           ) : (
-                            <p className="text-gray-500">
+                            <p className="text-gray-500 font-poppins">
                               No attachment available
                             </p>
                           )}
@@ -707,7 +709,7 @@ const JobsPage = () => {
             {isjobLoading ? (
               <JobPostSkeleton rows={6} />
             ) : isError ? (
-              <p className="text-gray-500 text-lg font-normal col-span-full text-center">
+              <p className="text-gray-500 text-lg font-normal col-span-full text-center font-poppins">
                 {isError}
               </p>
             ) : currentJobs.length > 0 ? (

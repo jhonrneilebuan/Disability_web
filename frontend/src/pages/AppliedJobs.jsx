@@ -93,10 +93,10 @@ const AppliedJobs = () => {
   
   const sortedApplications = [...combinedResults].sort((a, b) => {
     if (sortOrder === "recent") {
-      return new Date(b.createdAt) - new Date(a.createdAt); // Newest first
+      return new Date(b.createdAt) - new Date(a.createdAt); 
     }
     if (sortOrder === "oldest") {
-      return new Date(a.createdAt) - new Date(b.createdAt); // Oldest first
+      return new Date(a.createdAt) - new Date(b.createdAt); 
     }
     return 0;
   });
@@ -159,7 +159,6 @@ const AppliedJobs = () => {
 
     try {
       await confirmApplication(currentApplication._id || currentApplication.id);
-      toast.success("Interview confirmed successfully.");
       await getApplicationsByApplicant();
       setShowModal(false);
     } catch (error) {
@@ -176,7 +175,6 @@ const AppliedJobs = () => {
 
     try {
       await declineApplication(currentApplication._id || currentApplication.id);
-      toast.success("Interview declined successfully.");
       await getApplicationsByApplicant();
       setShowModal(false);
     } catch (error) {
@@ -589,7 +587,7 @@ const AppliedJobs = () => {
             open={detailsModalOpen}
             onClose={() => setdetailsModalOpen(false)}
           >
-            <div className=" p-6 max-w-5xl mx-auto relative font-poppins">
+            <div className=" p-6 max-w-5xl min-w-[800px] mx-auto relative font-poppins">
               <X
                 onClick={() => setdetailsModalOpen(false)}
                 className="absolute top-1 right-1 bg-gray-200 hover:bg-gray-300 text-gray-700 p-2 rounded-full focus:outline-none"
@@ -725,7 +723,7 @@ const AppliedJobs = () => {
             open={SavedModalOpen}
             onClose={() => setSavedDetailsModalOpen(false)}
           >
-            <div className=" p-6 max-w-5xl mx-auto relative font-poppins">
+            <div className=" p-6 max-w-5xl min-w-[800px] mx-auto relative font-poppins">
               <X
                 onClick={() => setSavedDetailsModalOpen(false)}
                 className="absolute top-1 right-1 bg-gray-200 hover:bg-gray-300 text-gray-700 p-2 rounded-full focus:outline-none"

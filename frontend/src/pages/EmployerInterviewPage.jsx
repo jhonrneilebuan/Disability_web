@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import EmployerTableSkeleton from "../components/EmployerTableSkeleton";
 import Modal from "../components/Modal";
 import NavbarEmployer from "../components/NavbarEmployer";
 import Sidebar from "../components/Sidebar";
 import { jobStore } from "../stores/jobStore";
-import { useSearchParams } from "react-router-dom";
 
 const EmployerInterviewPage = () => {
   const {
@@ -38,7 +38,7 @@ const EmployerInterviewPage = () => {
   const [searchParams] = useSearchParams();
   const tabFromUrl = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState(tabFromUrl || "create");
-  
+  const [isSearchSubmitted, setIsSearchSubmitted] = useState(false);
 
   useEffect(() => {
     if (activeTab === "create" && !hasRefreshed) {
@@ -55,12 +55,6 @@ const EmployerInterviewPage = () => {
     getscheduledInterviewStatus,
     hasRefreshed,
   ]);
-
-  console.log("Scheduled Interview Applicants:", scheduledInterviewApplicants);
-
-  const handleSearch = () => {
-    console.log("Searching for:", searchQuery);
-  };
 
   const openModal = (applicant) => {
     setSelectedApplicant(applicant);
@@ -154,6 +148,40 @@ const EmployerInterviewPage = () => {
 
   const refreshData = () => {};
 
+  const handleSearch = () => {
+    setIsSearchSubmitted(true);
+  };
+
+  const handleEnterKey = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  const filteredApplicants = shortlistedApplicants.filter((applicant) =>
+    searchQuery && isSearchSubmitted
+      ? applicant.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (applicant.applicantId &&
+          applicant.applicantId
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase())) ||
+        (applicant.applicantName &&
+          applicant.applicantName
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()))
+      : true
+  );
+
+  const filteredScheduled = scheduledInterviewApplicants.filter((applicant) =>
+    searchQuery && isSearchSubmitted
+      ? applicant.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (applicant.applicantId &&
+          applicant.applicantId.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (applicant.applicantName &&
+          applicant.applicantName.toLowerCase().includes(searchQuery.toLowerCase()))
+      : true
+  );
+
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <NavbarEmployer />
@@ -172,6 +200,7 @@ const EmployerInterviewPage = () => {
                 className="border border-gray-300 px-4 py-2 rounded-l-full w-full focus:outline-none font-poppins"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleEnterKey}
               />
               <button
                 className="bg-gray-800 text-white px-4 py-2 rounded-r-full hover:bg-gray-900 font-poppins"
@@ -238,9 +267,8 @@ const EmployerInterviewPage = () => {
                         {error}
                       </td>
                     </tr>
-                  ) : shortlistedApplicants &&
-                    shortlistedApplicants.length > 0 ? (
-                    shortlistedApplicants.map((applicant) => (
+                  ) : filteredApplicants && filteredApplicants.length > 0 ? (
+                    filteredApplicants.map((applicant) => (
                       <tr
                         key={applicant.id}
                         className="border-b border-gray-300"
@@ -342,9 +370,9 @@ const EmployerInterviewPage = () => {
                         {isError}
                       </td>
                     </tr>
-                  ) : scheduledInterviewApplicants &&
-                    scheduledInterviewApplicants.length > 0 ? (
-                    scheduledInterviewApplicants.map((applicant) => (
+                  ) : filteredScheduled &&
+                  filteredScheduled.length > 0 ? (
+                    filteredScheduled.map((applicant) => (
                       <tr
                         key={applicant._id || applicant.id}
                         className="border-b border-gray-300"
@@ -642,7 +670,7 @@ const EmployerInterviewPage = () => {
               Are you sure you want to confirm the completion of the interview
               for
               <strong>
-                {selectedCompleteInterviewApplicant?.applicantName}
+                {selectedCompleteInterviewApplicant?.applicantName} 
               </strong>
               regarding the position of
               <strong> {selectedCompleteInterviewApplicant?.jobTitle}</strong>?
