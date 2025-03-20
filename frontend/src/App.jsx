@@ -64,7 +64,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = authStore();
   const location = useLocation();
 
-  if (isAuthenticated && user.isVerified) {
+  if (isAuthenticated && user?.isVerified && !user?.banned) {
     if (!location.pathname.startsWith("/reset-password"))
       if (user.role === "Applicant") {
         return <Navigate to="/applicant" replace />;
