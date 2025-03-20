@@ -186,8 +186,15 @@ export const login = async (req, res) => {
   }
 };
 
-export const logout = async (req, res) => {
-  res.clearCookie("jwt");
+export const logout = async (req, res) => { 
+  res.cookie("jwt", "", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    expires: new Date(0), 
+    path: "/", 
+  });
+
   res.status(200).json({ success: true, message: "Logged out successfully" });
 };
 

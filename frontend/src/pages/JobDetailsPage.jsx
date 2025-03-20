@@ -101,10 +101,6 @@ const JobDetailsPage = () => {
     return errors;
   };
 
-  if (!jobDetails) {
-    return <div>Job details not found.</div>;
-  }
-
   const handleApplyModal = () => {
     setOpen(true);
   };
