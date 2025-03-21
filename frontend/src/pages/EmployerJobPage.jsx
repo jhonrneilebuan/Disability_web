@@ -112,9 +112,9 @@ const EmployerJobPage = () => {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-gray-100">
       <NavbarEmployer />
-      <div className="flex flex-1">
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <div className="flex-1 p-4 overflow-y-auto">
+        <div className="flex-1 p-4 overflow-x-auto">
           <div className="flex items-center justify-between mb-4">
             <div className="flex w-2/3">
               <input
